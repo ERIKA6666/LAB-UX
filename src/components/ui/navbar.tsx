@@ -26,7 +26,7 @@ export function Navbar() {
                     <div className="flex items-center">
                          {/*Primer elemento, el home */}
                         <Link href={navbarItems[0].path} className="flex items-center">
-                            <span className="text-xl font-bold text-primary text-gray-800">
+                            <span className="text-xl font-bold text-primary text-black">
                                 {siteName}
                             </span>
                         </Link>
