@@ -6,7 +6,7 @@ export interface NavbarItem {
 }
 
 export const navbarItems: NavbarItem[] = [
-    {name: "Inicio", path: "/home"},
+    {name: "Inicio", path: "/"},
     {name: "Equipo", path: "/team"},
     {name: "Investigación", path: "/research"},
     {name: "Difusión", path: "/diffusion"},
