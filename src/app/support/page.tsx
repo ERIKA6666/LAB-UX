@@ -4,7 +4,6 @@ import { Footer } from "@/components/ui/footer"
 export default function Support() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto mt-8 px-4">
           <h1 className="text-3xl font-bold">Bienvenido a nuestra página</h1>
@@ -14,7 +13,6 @@ export default function Support() {
           
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

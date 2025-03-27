@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 
 import { navbarItems, siteName } from "@/constans/navbar"
 
+
 export function Navbar() {
     const [mobileMenuOpen, setMobileOpen] = useState(false)
     const pathname = usePathname()
@@ -26,7 +27,7 @@ export function Navbar() {
                     <div className="flex items-center">
                          {/*Primer elemento, el home */}
                         <Link href={navbarItems[0].path} className="flex items-center">
-                            <span className="text-xl font-bold text-primary text-black">
+                            <span className="text-xl font-bold text-primary text-slate-900 ">
                                 {siteName}
                             </span>
                         </Link>
@@ -48,8 +49,8 @@ export function Navbar() {
                              {item.name}
                            </Link>
                         ))}
-                        <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
-                            <Link href="">Iniciar Sesión</Link>
+                         <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
+                            <Link href="/login">Iniciar Sesión</Link>
                         </Button>
                     </div>
                     {/* Boton del menu movil */}
@@ -58,7 +59,7 @@ export function Navbar() {
                             variant="ghost"
                             size="icon"
                             onClick={() => setMobileOpen
-                            (!mobileMenuOpen)}
+                            (!mobileMenuOpen)}      
                             aria-expanded={mobileMenuOpen}
                             className="text-gray-700"
                         >

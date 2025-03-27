@@ -1,0 +1,167 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+
+// Datos de ejemplo para el carrusel con imágenes
+const slides = [
+  {
+    id: 1,
+    title: "Innovando en Experiencia de Usuario",
+    description: "Transformando ideas en soluciones centradas",
+    imageUrl: "/placeholder.svg?height=800&width=1600",
+  },
+  {
+    id: 2,
+    title: "Productos de alta calidad",
+    description: "Diseñados para satisfacer las necesidades",
+    imageUrl: "/placeholder.svg?height=800&width=1600&text=Productos",
+  },
+  {
+    id: 3,
+    title: "Servicio personalizado",
+    description: "Atención dedicada para cada uno de nuestros clientes",
+    imageUrl: "/placeholder.svg?height=800&width=1600&text=Servicios",
+  },
+]
+
+export function Carousel() {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length)
+  }, [])
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + slides.length) % slides.length)
+  }, [])
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentIndex(index)
+  }, [])
+
+  // Autoplay functionality
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+
+    if (isAutoPlaying) {
+      interval = setInterval(() => {
+        nextSlide()
+      }, 5000) // Change slide every 5 seconds
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isAutoPlaying, nextSlide])
+
+  // Pause autoplay when user interacts with carousel
+  const handleInteraction = () => {
+    setIsAutoPlaying(false)
+
+    // Resume autoplay after 10 seconds of inactivity
+    const timeout = setTimeout(() => {
+      setIsAutoPlaying(true)
+    }, 10000)
+
+    return () => clearTimeout(timeout)
+  }
+
+  return (
+    <div
+      className="relative h-[400px] w-full overflow-hidden"
+      onMouseEnter={handleInteraction}
+      onTouchStart={handleInteraction}
+    >
+      {/* Slides */}
+      <div className="relative h-full w-full">
+        {slides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={cn(
+              "absolute inset-0 flex items-center justify-center transition-opacity duration-1000",
+              index === currentIndex ? "opacity-100" : "opacity-0 pointer-events-none",
+            )}
+          >
+            {/* Background image */}
+            <div className="absolute inset-0">
+              <Image
+                src={slide.imageUrl || "/placeholder.svg"}
+                alt={slide.title}
+                fill
+                priority={index === 0} // Load first image with priority
+                className="object-cover"
+              />
+              {/* Dark overlay for better text readability */}
+              <div className="absolute inset-0 bg-black/40" />
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 text-center max-w-3xl px-6 text-white">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{slide.title}</h2>
+              <p className="text-lg sm:text-xl md:text-2xl">{slide.description}</p>
+              <Button className="mt-6 bg-white text-primary hover:bg-white/90">Saber más</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Navigation arrows */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/20 text-white hover:bg-black/30 z-20"
+        onClick={() => {
+          prevSlide()
+          handleInteraction()
+        }}
+        aria-label="Diapositiva anterior"
+      >
+        <ChevronLeft className="h-6 w-6" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/20 text-white hover:bg-black/30 z-20"
+        onClick={() => {
+          nextSlide()
+          handleInteraction()
+        }}
+        aria-label="Diapositiva siguiente"
+      >
+        <ChevronRight className="h-6 w-6" />
+      </Button>
+
+      {/* Indicators */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            className={cn(
+              "w-3 h-3 rounded-full transition-all",
+              index === currentIndex ? "bg-white w-6" : "bg-white/50 hover:bg-white/80",
+            )}
+            onClick={() => {
+              goToSlide(index)
+              handleInteraction()
+            }}
+            aria-label={`Ir a diapositiva ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Auto-play indicator */}
+      <div className="absolute top-4 right-4 z-20">
+        <div
+          className={cn("w-2 h-2 rounded-full transition-colors", isAutoPlaying ? "bg-green-400" : "bg-red-400")}
+          title={isAutoPlaying ? "Reproducción automática activada" : "Reproducción automática pausada"}
+        />
+      </div>
+    </div>
+  )
+}

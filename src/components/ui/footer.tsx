@@ -12,7 +12,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 py-12">
           {/* Información de la empresa */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-primary text-black">{siteName}</h3>
+            <h3 className="text-lg font-bold text-primary text-slate-700">{siteName}</h3>
             <p className="text-sm text-gray-600">
               Ofrecemos soluciones innovadoras para satisfacer las necesidades de nuestros clientes con la más alta
               calidad y compromiso.
@@ -35,7 +35,7 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Enlaces rápidos</h3>
             <ul className="space-y-2">
                 {navbarItems.map((item) => (
-                    <li>
+                    <li key={item.name}>
                     <Link key={item.name}
                      href={item.path} 
                      className="text-sm text-gray-600 hover:text-primary"
