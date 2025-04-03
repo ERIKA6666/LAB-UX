@@ -9,15 +9,6 @@ export default function ProyectosPage() {
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
       <div className="space-y-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/investigacion" className="flex items-center gap-1">
-              <ChevronLeft className="h-4 w-4" />
-              Volver a Investigación
-            </Link>
-          </Button>
-        </div>
-
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Proyectos de Investigación</h1>
           <p className="text-muted-foreground max-w-2xl">
