@@ -119,54 +119,52 @@ export function Navbar() {
                     <div className="space-y-1 px-4 pb-3 pt-2">
                         {navbarItems.map((item) => (
                         item.name.toLowerCase() === "investigación" ? (
-                            <Accordion type="single" collapsible className="w-full">
-                                <AccordionItem value="item-1">
+                            <Accordion type="single" collapsible className="w-full" key={`accordion-${item.name}`}>
+                                <AccordionItem value={item.name} key={`accordion-item-${item.name}`}>
                                     <AccordionTrigger>
-                                    <Link
-                                        key={item.name}
-                                        href={item.path}
-                                        className={cn(
-                                            "block rounded-md px-3 py-2 text-base font-medium",
-                                            pathname === item.path
-                                            ? "bg-primary/10 text-gray-700 bg-gray-100"
-                                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
-                                        )}
-                                        onClick={() => setMobileOpen(false)}
+                                        <Link
+                                            key={`link-${item.name}`}
+                                            href={item.path}
+                                            className={cn(
+                                                "block rounded-md px-3 py-2 text-base font-medium",
+                                                pathname === item.path
+                                                ? "bg-primary/10 text-gray-700 bg-gray-100"
+                                                : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
+                                            )}
+                                            onClick={() => setMobileOpen(false)}
                                         >
                                             {item.name}
                                         </Link>
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                        <Label className={cn(
+                                        <div key="proyectos" className={cn(
                                             "block rounded-md px-3 py-2 text-base font-medium",
-                                            pathname === item.path
+                                            pathname === `${item.path}/proyectos`
                                             ? "bg-primary/10 text-gray-700 bg-gray-100"
                                             : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
                                         )}>
                                             <Link href={`${item.path}/proyectos`}>Proyectos</Link>
-                                        </Label>
-                                        <Label className={cn(
+                                        </div>
+                                        <div key="metodologias" className={cn(
                                             "block rounded-md px-3 py-2 text-base font-medium",
-                                            pathname === item.path
+                                            pathname === `${item.path}/metodologias`
                                             ? "bg-primary/10 text-gray-700 bg-gray-100"
                                             : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
                                         )}>
                                             <Link href={`${item.path}/metodologias`}>Metodologías</Link>
-                                        </Label>
-                                        <Label className={cn(
+                                        </div>
+                                        <div key="glosario" className={cn(
                                             "block rounded-md px-3 py-2 text-base font-medium",
-                                            pathname === item.path
+                                            pathname === `${item.path}/glosario`
                                             ? "bg-primary/10 text-gray-700 bg-gray-100"
                                             : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
                                         )}>
                                             <Link href={`${item.path}/glosario`}>Glosario</Link>
-                                        </Label>
+                                        </div>
                                     </AccordionContent>
                                 </AccordionItem>
-                                
-                                </Accordion>
-                        )
-                        : (
+                            </Accordion>
+                        ): (
                             <Link
                             key={item.name}
                             href={item.path}
