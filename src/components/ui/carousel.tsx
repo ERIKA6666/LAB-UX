@@ -1,30 +1,29 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
-// Datos de ejemplo para el carrusel con imágenes
+// Datos de ejemplo para el carrusel
 const slides = [
   {
     id: 1,
-    title: "Innovando en Experiencia de Usuario",
-    description: "Transformando ideas en soluciones centradas",
-    imageUrl: "/placeholder.svg?height=800&width=1600",
+    title: "Soluciones innovadoras para tu negocio",
+    description: "Descubre cómo podemos ayudarte a crecer y alcanzar tus objetivos",
+    bgColor: "bg-primary/90",
   },
   {
     id: 2,
     title: "Productos de alta calidad",
-    description: "Diseñados para satisfacer las necesidades",
-    imageUrl: "/placeholder.svg?height=800&width=1600&text=Productos",
+    description: "Diseñados para satisfacer las necesidades más exigentes del mercado",
+    bgColor: "bg-secondary/90",
   },
   {
     id: 3,
     title: "Servicio personalizado",
     description: "Atención dedicada para cada uno de nuestros clientes",
-    imageUrl: "/placeholder.svg?height=800&width=1600&text=Servicios",
+    bgColor: "bg-accent/90",
   },
 ]
 
@@ -87,21 +86,14 @@ export function Carousel() {
               index === currentIndex ? "opacity-100" : "opacity-0 pointer-events-none",
             )}
           >
-            {/* Background image */}
-            <div className="absolute inset-0">
-              <Image
-                src={slide.imageUrl || "/placeholder.svg"}
-                alt={slide.title}
-                fill
-                priority={index === 0} // Load first image with priority
-                className="object-cover"
-              />
-              {/* Dark overlay for better text readability */}
-              <div className="absolute inset-0 bg-black/40" />
+            {/* Background with color overlay */}
+            <div className={cn("absolute inset-0 flex items-center justify-center", slide.bgColor)}>
+              {/* Decorative pattern */}
+              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
             </div>
 
             {/* Content */}
-            <div className="relative z-10 text-center max-w-3xl px-6 text-white">
+            <div className="relative z-10 text-center max-w-3xl px-6 ">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{slide.title}</h2>
               <p className="text-lg sm:text-xl md:text-2xl">{slide.description}</p>
               <Button className="mt-6 bg-white text-primary hover:bg-white/90">Saber más</Button>
@@ -154,14 +146,7 @@ export function Carousel() {
           />
         ))}
       </div>
-
-      {/* Auto-play indicator */}
-      <div className="absolute top-4 right-4 z-20">
-        <div
-          className={cn("w-2 h-2 rounded-full transition-colors", isAutoPlaying ? "bg-green-400" : "bg-red-400")}
-          title={isAutoPlaying ? "Reproducción automática activada" : "Reproducción automática pausada"}
-        />
-      </div>
     </div>
   )
 }
+
