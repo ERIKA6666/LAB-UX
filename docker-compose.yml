@@ -1,24 +1,13 @@
-version: '3.8'
+version: "3.8"
+
 services:
-  web:
-    build: .
-    ports:
-      - "3000:3000"
+  nextjs-app:
+    container_name: nextjs_dev_container
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     volumes:
       - .:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://db:27017/mi-db
-    depends_on:
-      - db
-    command: npm run dev
-
-  db:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-volumes:
-  mongo-data:
