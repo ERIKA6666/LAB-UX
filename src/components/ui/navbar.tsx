@@ -26,7 +26,6 @@ import {
   } from "@/components/ui/accordion"
 
 import { navbarItems, siteName } from "@/constans/navbar"
-import { Lancelot } from "next/font/google"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 export function Navbar() {
