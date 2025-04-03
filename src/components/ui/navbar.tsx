@@ -1,15 +1,34 @@
 "use client"
 
 import { useState } from "react"
+import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { DropdownMenuCheckboxItemProps, Label } from "@radix-ui/react-dropdown-menu"
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    DropdownMenuItem
+  } from "@/components/ui/dropdown-menu"
+  import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+  } from "@/components/ui/accordion"
 
 import { navbarItems, siteName } from "@/constans/navbar"
+import { Lancelot } from "next/font/google"
 
+type Checked = DropdownMenuCheckboxItemProps["checked"]
 export function Navbar() {
     const [mobileMenuOpen, setMobileOpen] = useState(false)
     const pathname = usePathname()
@@ -18,15 +37,19 @@ export function Navbar() {
     // ruta que en la que se esta
     console.log("Ruta actual: ", pathname)
 
+    const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
+    const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
+    const [showPanel, setShowPanel] = React.useState<Checked>(false)
+
     return(
-        <nav className="bg-white shadow-sm">
+        <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className=" mx-auto max-w-7x1 px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 justify-between">
                     {/*Logo del sitio */}
                     <div className="flex items-center">
                          {/*Primer elemento, el home */}
                         <Link href={navbarItems[0].path} className="flex items-center">
-                            <span className="text-xl font-bold text-primary text-black">
+                            <span className="text-xl font-bold text-primary text-slate-900 ">
                                 {siteName}
                             </span>
                         </Link>
@@ -34,22 +57,44 @@ export function Navbar() {
                     {/* Enlaces de navegación version desktop */}
                     <div className="hidden md:flex
                     md:items-center md:space-x-4">
-                        {navbarItems.map((item) => (
-                             <Link
-                             key={item.name}
-                             href={item.path}
-                             className={cn(
-                               "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                               pathname === item.path
-                                 ? "bg-primary/10 text-gray-700 bg-gray-100"
-                                 : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
-                             )}
-                           >
-                             {item.name}
-                           </Link>
-                        ))}
-                        <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
-                            <Link href="">Iniciar Sesión</Link>
+                    {navbarItems.map((item) => (
+                    item.name.toLowerCase() === "investigación" ? (
+                        <DropdownMenu key={item.name}>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="hover:bg-gray-100">
+                                {item.name}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="start">
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                <Link href={`${item.path}/proyectos`}>Proyectos</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                <Link href={`${item.path}/metodologias`}>Metodologías</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                <Link href={`${item.path}/glosario`}>Glosario</Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Link
+                        key={item.name}
+                        href={item.path}
+                        className={cn(
+                            "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                            pathname === item.path
+                            ? "bg-primary/10 text-gray-700 bg-gray-100"
+                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-700",
+                        )}
+                        >
+                        {item.name}
+                        </Link>
+                    )
+                    ))}
+                         <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
+                            <Link href="/login">Iniciar Sesión</Link>
                         </Button>
                     </div>
                     {/* Boton del menu movil */}
@@ -58,7 +103,7 @@ export function Navbar() {
                             variant="ghost"
                             size="icon"
                             onClick={() => setMobileOpen
-                            (!mobileMenuOpen)}
+                            (!mobileMenuOpen)}      
                             aria-expanded={mobileMenuOpen}
                             className="text-gray-700"
                         >
@@ -73,6 +118,55 @@ export function Navbar() {
                 <div className="md:hidden">
                     <div className="space-y-1 px-4 pb-3 pt-2">
                         {navbarItems.map((item) => (
+                        item.name.toLowerCase() === "investigación" ? (
+                            <Accordion type="single" collapsible className="w-full">
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>
+                                    <Link
+                                        key={item.name}
+                                        href={item.path}
+                                        className={cn(
+                                            "block rounded-md px-3 py-2 text-base font-medium",
+                                            pathname === item.path
+                                            ? "bg-primary/10 text-gray-700 bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
+                                        )}
+                                        onClick={() => setMobileOpen(false)}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                        <Label className={cn(
+                                            "block rounded-md px-3 py-2 text-base font-medium",
+                                            pathname === item.path
+                                            ? "bg-primary/10 text-gray-700 bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
+                                        )}>
+                                            <Link href={`${item.path}/proyectos`}>Proyectos</Link>
+                                        </Label>
+                                        <Label className={cn(
+                                            "block rounded-md px-3 py-2 text-base font-medium",
+                                            pathname === item.path
+                                            ? "bg-primary/10 text-gray-700 bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
+                                        )}>
+                                            <Link href={`${item.path}/metodologias`}>Metodologías</Link>
+                                        </Label>
+                                        <Label className={cn(
+                                            "block rounded-md px-3 py-2 text-base font-medium",
+                                            pathname === item.path
+                                            ? "bg-primary/10 text-gray-700 bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-70",
+                                        )}>
+                                            <Link href={`${item.path}/glosario`}>Glosario</Link>
+                                        </Label>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                
+                                </Accordion>
+                        )
+                        : (
                             <Link
                             key={item.name}
                             href={item.path}
@@ -86,6 +180,7 @@ export function Navbar() {
                             >
                                 {item.name}
                             </Link>
+                        )
                         ))}
                         <div className="pt-2">
                             <Button asChild className="w-full justify-center bg-black text-white hover:bg-gray-800">
