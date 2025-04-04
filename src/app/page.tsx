@@ -79,7 +79,7 @@ export default function Home() {
 
 
       {/* Sección de Valores - Se mantiene igual */}
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-2">Nuestros Valores</h2>
@@ -88,7 +88,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Valor 1 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +113,7 @@ export default function Home() {
             </div>
 
             {/* Valor 2 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className="p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +133,7 @@ export default function Home() {
             </div>
 
             {/* Valor 3 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -158,7 +158,7 @@ export default function Home() {
             </div>
 
             {/* Valor 4 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className="p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -183,7 +183,7 @@ export default function Home() {
             </div>
 
             {/* Valor 5 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -208,7 +208,7 @@ export default function Home() {
             </div>
 
             {/* Valor 6 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

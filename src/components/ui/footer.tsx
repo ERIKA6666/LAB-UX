@@ -7,24 +7,24 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-gray-100 border-t">
+    <footer className=" border-t">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 py-12">
           {/* Información de la empresa */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-primary text-slate-700">{siteName}</h3>
+            <h3 className="text-lg font-bold text-primary dark:text-white">{siteName}</h3>
             <p className="text-sm text-gray-600">
               Ofrecemos soluciones innovadoras para satisfacer las necesidades de nuestros clientes con la más alta
               calidad y compromiso.
             </p>
             <div className="flex space-x-4">
-              <Link href="https://twitter.com" className="text-gray-500 hover:text-primary" aria-label="Twitter">
+              <Link href="https://twitter.com" className="dark:text-white text-gray-500 hover:text-primary" aria-label="Twitter">
                 <Twitter size={20} />
               </Link>
-              <Link href="https://facebook.com" className="text-gray-500 hover:text-primary" aria-label="Facebook">
+              <Link href="https://facebook.com" className=" dark:text-white text-gray-500 hover:text-primary" aria-label="Facebook">
                 <Facebook size={20} />
               </Link>
-              <Link href="https://instagram.com" className="text-gray-500 hover:text-primary" aria-label="Instagram">
+              <Link href="https://instagram.com" className=" dark:text-white text-gray-500 hover:text-primary" aria-label="Instagram">
                 <Instagram size={20} />
               </Link>
             </div>
@@ -32,7 +32,7 @@ export function Footer() {
 
           {/* Enlaces rápidos */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Enlaces rápidos</h3>
+            <h3 className="text-sm font-semibold mb-4 dark:text-white">Enlaces rápidos</h3>
             <ul className="space-y-2">
                 {navbarItems.map((item) => (
                     <li key={item.name}>
@@ -50,7 +50,7 @@ export function Footer() {
 
           {/* Información legal */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Legal</h3>
+            <h3 className="text-sm font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-sm text-gray-600 hover:text-primary">
@@ -72,7 +72,7 @@ export function Footer() {
 
           {/* Contacto */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Contacto</h3>
+            <h3 className="text-sm font-semibold mb-4">Contacto</h3>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-gray-500 mr-2 shrink-0" />
@@ -92,7 +92,7 @@ export function Footer() {
 
         {/* Derechos de autor */}
         <div className="border-t border-gray-200 py-6">
-          <p className="text-center text-sm text-gray-500">© {currentYear} Lab-UX. Todos los derechos reservados.</p>
+          <p className="text-center text-sm ">© {currentYear} Lab-UX. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
