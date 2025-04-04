@@ -43,8 +43,8 @@ export default function Home() {
       </section>
 
 
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
+      <section className="py-16 ">
+        <div className="container mx-auto px-4 ">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Imagen de la Visión */}
             <div>
@@ -61,7 +61,7 @@ export default function Home() {
 
             {/* Texto de la Visión */}
             <div>
-              <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-200">Nuestra Visión</h2>
+              <h2 className="text-3xl font-bold mb-2 text-gray dark:text-gray-200">Nuestra Visión</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
                 Ser reconocidos globalmente como líderes en innovación tecnológica, estableciendo nuevos estándares de

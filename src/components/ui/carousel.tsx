@@ -96,7 +96,9 @@ export function Carousel() {
             <div className="relative z-10 text-center max-w-3xl px-6 ">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{slide.title}</h2>
               <p className="text-lg sm:text-xl md:text-2xl">{slide.description}</p>
-              <Button className="mt-6 bg-white text-primary hover:bg-white/90 dark:text-primary">Saber más</Button>
+              <Button className="mt-6 bg-white text-primary hover:bg-white/90 dark:bg-gray-800 dark:text-primary dark:hover:bg-gray-700">
+Saber más</Button>
+
             </div>
           </div>
         ))}
