@@ -48,7 +48,7 @@ export function Navbar() {
                     <div className="flex items-center">
                          {/*Primer elemento, el home */}
                         <Link href={navbarItems[0].path} className="flex items-center">
-                            <span className="text-xl font-bold text-primary text-slate-900 ">
+                            <span className="text-xl font-bold text-primary dark:text-white">
                                 {siteName}
                             </span>
                         </Link>
@@ -60,7 +60,7 @@ export function Navbar() {
                     item.name.toLowerCase() === "investigación" ? (
                         <DropdownMenu key={item.name}>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="hover:bg-gray-100">
+                                <Button variant="ghost" className="hover:bg-gray-100 hover:text-gray-700">
                                 {item.name}
                                 </Button>
                             </DropdownMenuTrigger>
@@ -84,8 +84,8 @@ export function Navbar() {
                         className={cn(
                             "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                             pathname === item.path
-                            ? "bg-primary/10 text-gray-700 bg-gray-100"
-                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-700",
+                            ? "bg-primary/10 text-gray-700 dark:text-white bg-gray-100"
+                            : "dark:text-white hover:bg-gray-100 hover:text-gray-700",
                         )}
                         >
                         {item.name}
