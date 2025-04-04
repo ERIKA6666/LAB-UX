@@ -9,6 +9,8 @@ COPY package.json package-lock.json ./
 
 # Instalar dependencias
 RUN npm install
+RUN npm install @radix-ui/react-accordion
+
 RUN npm install @radix-ui/react-dropdown-menu
 
 # Copiar todo el código fuente
