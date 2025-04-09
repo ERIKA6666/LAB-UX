@@ -7,24 +7,26 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
+
     <footer className=" border-t">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 py-12">
           {/* Información de la empresa */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-primary dark:text-white">{siteName}</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-lg font-bold text-primary">{siteName}</h3>
+            <p className="text-sm font-thin">
               Ofrecemos soluciones innovadoras para satisfacer las necesidades de nuestros clientes con la más alta
               calidad y compromiso.
             </p>
             <div className="flex space-x-4">
-              <Link href="https://twitter.com" className="dark:text-white text-gray-500 hover:text-primary" aria-label="Twitter">
+              <Link href="https://twitter.com" className="font-thin hover:text-primary" aria-label="Twitter">
                 <Twitter size={20} />
               </Link>
-              <Link href="https://facebook.com" className=" dark:text-white text-gray-500 hover:text-primary" aria-label="Facebook">
+              <Link href="https://facebook.com" className="font-thin hover:text-primary" aria-label="Facebook">
                 <Facebook size={20} />
               </Link>
-              <Link href="https://instagram.com" className=" dark:text-white text-gray-500 hover:text-primary" aria-label="Instagram">
+              <Link href="https://instagram.com" className="font-thin hover:text-primary" aria-label="Instagram">
+
                 <Instagram size={20} />
               </Link>
             </div>
@@ -32,13 +34,13 @@ export function Footer() {
 
           {/* Enlaces rápidos */}
           <div>
-            <h3 className="text-sm font-semibold mb-4 dark:text-white">Enlaces rápidos</h3>
+            <h3 className="text-sm font-semibold  mb-4">Enlaces rápidos</h3>
             <ul className="space-y-2">
                 {navbarItems.map((item) => (
                     <li key={item.name}>
                     <Link key={item.name}
                      href={item.path} 
-                     className="text-sm text-gray-600 hover:text-primary"
+                     className="text-sm  hover:text-primary"
                      >
                       {item.name}
                     </Link>
@@ -53,17 +55,17 @@ export function Footer() {
             <h3 className="text-sm font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-gray-600 hover:text-primary">
+                <Link href="/" className="text-sm  hover:text-primary">
                   Política de privacidad
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-gray-600 hover:text-primary">
+                <Link href="/" className="text-sm  hover:text-primary">
                   Términos y condiciones
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm text-gray-600 hover:text-primary">
+                <Link href="/" className="text-sm  hover:text-primary">
                   Política de cookies
                 </Link>
               </li>
@@ -75,16 +77,16 @@ export function Footer() {
             <h3 className="text-sm font-semibold mb-4">Contacto</h3>
             <ul className="space-y-2">
               <li className="flex items-start">
-                <MapPin className="h-5 w-5 text-gray-500 mr-2 shrink-0" />
-                <span className="text-sm text-gray-600">Calle Principal 123, Ciudad, País</span>
+                <MapPin className="h-5 w-5  mr-2 shrink-0" />
+                <span className="text-sm ">Calle Principal 123, Ciudad, País</span>
               </li>
               <li className="flex items-center">
-                <Phone className="h-5 w-5 text-gray-500 mr-2 shrink-0" />
-                <span className="text-sm text-gray-600">+1 234 567 890</span>
+                <Phone className="h-5 w-5  mr-2 shrink-0" />
+                <span className="text-sm ">+1 234 567 890</span>
               </li>
               <li className="flex items-center">
-                <Mail className="h-5 w-5 text-gray-500 mr-2 shrink-0" />
-                <span className="text-sm text-gray-600">info@miempresa.com</span>
+                <Mail className="h-5 w-5  mr-2 shrink-0" />
+                <span className="text-sm ">info@miempresa.com</span>
               </li>
             </ul>
           </div>

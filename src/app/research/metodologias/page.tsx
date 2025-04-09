@@ -57,7 +57,7 @@ export default function MetodologiasPage() {
 
               return (
                 <Card key={index} className={`${heightClass} break-inside-avoid mb-6 overflow-hidden`}>
-                  <CardHeader className="bg-gradient-to-br from-slate-50 to-slate-100">
+                  <CardHeader className="bg-gradient-to-br">
                     <CardTitle>{metodologia.nombre}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">

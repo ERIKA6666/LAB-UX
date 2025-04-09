@@ -27,3 +27,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Estilos para el diálogo */
+.theme-aware-dialog .mat-dialog-container {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.theme-aware-dialog .mat-dialog-title {
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.theme-aware-dialog .mat-dialog-content {
+  color: var(--foreground);
+  margin-bottom: 20px;
+}
+
+.theme-aware-dialog .mat-dialog-actions {
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+.theme-aware-dialog .mat-button {
+  color: var(--foreground);
+  transition: opacity 0.2s;
+}
+
+.theme-aware-dialog .mat-button:hover {
+  opacity: 0.8;
+}
