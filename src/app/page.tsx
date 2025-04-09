@@ -1,6 +1,7 @@
 import { Carousel } from "@/components/ui/carousel"
 import Image from "next/image"
 
+
 export default function Home() {
   return (
     <main>
@@ -15,12 +16,12 @@ export default function Home() {
             <div className="order-2 md:order-1">
               <h2 className="text-3xl font-bold mb-2">Nuestra Misión</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
-              <p className="text-lg text-gray-700 mb-4">
+              <p className="text-lg font-thin mb-4">
                 Proporcionar soluciones innovadoras y de alta calidad que transformen la manera en que nuestros clientes
                 interactúan con la tecnología, facilitando su crecimiento y éxito en un mundo digital en constante
                 evolución.
               </p>
-              <p className="text-lg text-gray-700">
+              <p className="text-lg font-thin">
                 Nos comprometemos a ofrecer un servicio excepcional, mantener los más altos estándares éticos y
                 contribuir positivamente a las comunidades en las que operamos.
               </p>
@@ -43,7 +44,7 @@ export default function Home() {
       </section>
 
       {/* Sección de Visión - Imagen a la izquierda, texto a la derecha */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 ">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Imagen de la Visión */}
@@ -63,12 +64,12 @@ export default function Home() {
             <div>
               <h2 className="text-3xl font-bold mb-2">Nuestra Visión</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
-              <p className="text-lg text-gray-700 mb-4">
+              <p className="text-lg font-thin mb-4">
                 Ser reconocidos globalmente como líderes en innovación tecnológica, estableciendo nuevos estándares de
                 excelencia en nuestra industria y siendo la primera opción para clientes que buscan soluciones
                 transformadoras.
               </p>
-              <p className="text-lg text-gray-700">
+              <p className="text-lg font-thin">
                 Aspiramos a crear un futuro donde la tecnología mejore la vida de las personas, impulse el progreso
                 sostenible y genere oportunidades para todos.
               </p>
@@ -78,7 +79,7 @@ export default function Home() {
       </section>
 
       {/* Sección de Valores - Se mantiene igual */}
-      <section className="py-16 bg-white">
+      <section className="py-16 ">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-2">Nuestros Valores</h2>
@@ -87,7 +88,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Valor 1 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -105,14 +106,14 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Integridad</h3>
-              <p className="text-gray-700">
+              <p className="font-thin">
                 Actuamos con honestidad, transparencia y ética en todas nuestras interacciones, manteniendo los más
                 altos estándares de conducta profesional.
               </p>
             </div>
 
             {/* Valor 2 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -125,14 +126,14 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Innovación</h3>
-              <p className="text-gray-700">
+              <p className="font-thin">
                 Fomentamos la creatividad y el pensamiento disruptivo, buscando constantemente nuevas formas de resolver
                 problemas y crear valor para nuestros clientes.
               </p>
             </div>
 
             {/* Valor 3 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -150,14 +151,14 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Colaboración</h3>
-              <p className="text-gray-700">
+              <p className="font-thin">
                 Trabajamos juntos como un equipo unificado, valorando la diversidad de perspectivas y habilidades para
                 lograr resultados excepcionales.
               </p>
             </div>
 
             {/* Valor 4 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -175,14 +176,14 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Excelencia</h3>
-              <p className="text-gray-700">
+              <p className="font-thin">
                 Nos esforzamos por alcanzar los más altos niveles de calidad en todo lo que hacemos, superando
                 constantemente las expectativas de nuestros clientes.
               </p>
             </div>
 
             {/* Valor 5 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className="p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -200,14 +201,14 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Responsabilidad</h3>
-              <p className="text-gray-700">
+              <p className="font-thin">
                 Asumimos la responsabilidad de nuestras acciones y decisiones, cumpliendo nuestros compromisos con
                 clientes, empleados y comunidades.
               </p>
             </div>
 
             {/* Valor 6 */}
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+            <div className=" p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +226,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Sostenibilidad</h3>
-              <p className="text-gray-700">
+              <p className="font-thin">
                 Nos comprometemos a operar de manera sostenible, minimizando nuestro impacto ambiental y contribuyendo
                 positivamente al bienestar social y económico.
               </p>
