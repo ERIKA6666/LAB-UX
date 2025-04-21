@@ -4,28 +4,9 @@ import { useState, useEffect, useCallback } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { slides } from "@/constans/data"
 
-// Datos de ejemplo para el carrusel
-const slides = [
-  {
-    id: 1,
-    title: "Soluciones innovadoras para tu negocio",
-    description: "Descubre cómo podemos ayudarte a crecer y alcanzar tus objetivos",
-    bgColor: "bg-primary/90",
-  },
-  {
-    id: 2,
-    title: "Productos de alta calidad",
-    description: "Diseñados para satisfacer las necesidades más exigentes del mercado",
-    bgColor: "bg-secondary/90",
-  },
-  {
-    id: 3,
-    title: "Servicio personalizado",
-    description: "Atención dedicada para cada uno de nuestros clientes",
-    bgColor: "bg-accent/90",
-  },
-]
+
 
 export function Carousel() {
   const [currentIndex, setCurrentIndex] = useState(0)

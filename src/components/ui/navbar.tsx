@@ -41,14 +41,14 @@ export function Navbar() {
     const [showPanel, setShowPanel] = React.useState<Checked>(false)
 
     return(
-        <nav className="bg-white shadow-sm sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <nav className=" shadow-sm sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className=" mx-auto max-w-7x1 px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 justify-between">
                     {/*Logo del sitio */}
                     <div className="flex items-center">
                          {/*Primer elemento, el home */}
                         <Link href={navbarItems[0].path} className="flex items-center">
-                            <span className="text-xl font-bold text-primary dark:text-white">
+                            <span className="text-xl font-bold  ">
                                 {siteName}
                             </span>
                         </Link>
@@ -60,7 +60,7 @@ export function Navbar() {
                     item.name.toLowerCase() === "investigación" ? (
                         <DropdownMenu key={item.name}>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="hover:bg-gray-100 hover:text-gray-700">
+                                <Button variant="ghost" className=" hover:bg-gray-100 hover:text-gray-700">
                                 {item.name}
                                 </Button>
                             </DropdownMenuTrigger>
@@ -84,8 +84,8 @@ export function Navbar() {
                         className={cn(
                             "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                             pathname === item.path
-                            ? "bg-primary/10 text-gray-700 dark:text-white bg-gray-100"
-                            : "dark:text-white hover:bg-gray-100 hover:text-gray-700",
+                            ? "bg-primary/10 text-gray-700 bg-gray-100"
+                            : " hover:bg-gray-100 hover:text-gray-700",
                         )}
                         >
                         {item.name}
