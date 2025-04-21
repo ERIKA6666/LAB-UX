@@ -1,6 +1,8 @@
 import { Carousel } from "@/components/ui/carousel"
 import Image from "next/image"
 
+import { mision,vision } from "@/constans/data"
+
 
 export default function Home() {
   return (
@@ -14,16 +16,13 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Texto de la Misión */}
             <div className="order-2 md:order-1">
-              <h2 className="text-3xl font-bold mb-2">Nuestra Misión</h2>
+              <h2 className="text-3xl font-bold mb-2">{mision.title}</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg font-thin mb-4">
-                Proporcionar soluciones innovadoras y de alta calidad que transformen la manera en que nuestros clientes
-                interactúan con la tecnología, facilitando su crecimiento y éxito en un mundo digital en constante
-                evolución.
+                {mision.title}
               </p>
               <p className="text-lg font-thin">
-                Nos comprometemos a ofrecer un servicio excepcional, mantener los más altos estándares éticos y
-                contribuir positivamente a las comunidades en las que operamos.
+               {mision.textTwo}
               </p>
             </div>
 
@@ -31,8 +30,8 @@ export default function Home() {
             <div className="order-1 md:order-2">
               <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
-                  src="/placeholder.svg?height=400&width=600"
-                  alt="Nuestra Misión"
+                  src={mision.image}
+                  alt={mision.textTwo}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -51,8 +50,8 @@ export default function Home() {
             <div>
               <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
-                  src="/placeholder.svg?height=400&width=600"
-                  alt="Nuestra Visión"
+                  src={vision.image}
+                  alt={vision.title}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -62,16 +61,13 @@ export default function Home() {
 
             {/* Texto de la Visión */}
             <div>
-              <h2 className="text-3xl font-bold mb-2">Nuestra Visión</h2>
+              <h2 className="text-3xl font-bold mb-2">{vision.title}</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg font-thin mb-4">
-                Ser reconocidos globalmente como líderes en innovación tecnológica, estableciendo nuevos estándares de
-                excelencia en nuestra industria y siendo la primera opción para clientes que buscan soluciones
-                transformadoras.
+              {vision.textOne}
               </p>
               <p className="text-lg font-thin">
-                Aspiramos a crear un futuro donde la tecnología mejore la vida de las personas, impulse el progreso
-                sostenible y genere oportunidades para todos.
+              {vision.textTwo}
               </p>
             </div>
           </div>
