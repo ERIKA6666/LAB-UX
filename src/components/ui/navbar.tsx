@@ -93,7 +93,7 @@ export function Navbar() {
                     )
                     ))}
                          <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
-                            <Link href="/login">Iniciar Sesión</Link>
+                            <Link href="/auth/login">Iniciar Sesión</Link>
                         </Button>
                     </div>
                     {/* Boton del menu movil */}

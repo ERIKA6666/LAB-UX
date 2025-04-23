@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronRight, Mail, MapPin, Users, GraduationCap, BookOpen, ArrowRight } from "lucide-react"
 import { ModalCv } from "./components/modalcv"
 
+import { team } from "@/constans/data"
+
 export default function Team() {
   return (
     <div className="flex min-h-screen flex-col">
@@ -57,15 +59,7 @@ export default function Team() {
               {/* Contenido de pestaña Profesores */}
               <TabsContent value="profesores" className="space-y-4 w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                  {[
-                    {
-                      name: "Dr. Carlos Mendoza",
-                      role: "Profesor de Matemáticas",
-                      bio: "Doctor en Matemáticas Aplicadas con 15 años de experiencia en educación superior.",
-                      image: "/placeholder.svg?height=300&width=300",
-                    },
-                    // ... otros profesores ...
-                  ].map((person, index) => (
+                  {team.map((person, index) => (
                     <Card key={index} className="overflow-hidden transition-all hover:shadow-lg w-full">
                       <div className="aspect-square relative">
                         <Image
@@ -92,7 +86,7 @@ export default function Team() {
                           size="sm"
                           className="text-primary hover:text-primary/90 hover:bg-primary/10"
                         >
-                           <ModalCv/>
+                          <ModalCv perfil={person} />
                         </Button>
                       </CardFooter>
                     </Card>

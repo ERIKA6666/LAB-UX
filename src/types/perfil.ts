@@ -1,4 +1,6 @@
-export interface Perfil {
+import { Usuario } from "./usuario";
+
+export interface Perfil extends Usuario {
     ID: number;
     ID_usuario: number | null;
     foto: string | null;
