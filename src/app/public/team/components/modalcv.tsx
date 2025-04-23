@@ -11,7 +11,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export function ModalCv() {
+import { Perfil } from "@/types/perfil"
+
+interface ModalCvProps {
+  perfil: Perfil;
+}
+
+export function ModalCv({ perfil }: ModalCvProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -29,7 +35,7 @@ export function ModalCv() {
           {/* Curriculum Vitae - lado derecho */}
           <div className="w-full md:w-2/3 p-6 overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">Dr. Juan Pérez</DialogTitle>
+              <DialogTitle className="text-2xl">nombre</DialogTitle>
               <DialogDescription>Profesor de Ciencias Computacionales</DialogDescription>
             </DialogHeader>
 
