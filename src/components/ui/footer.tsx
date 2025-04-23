@@ -1,3 +1,6 @@
+//navbar items
+"use client"
+
 import Link from "next/link"
 import { Facebook, Instagram, Mail, MapPin, Phone, Twitter } from "lucide-react"
 import { navbarItems, siteName } from "@/constans/navbar"
