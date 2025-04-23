@@ -29,6 +29,7 @@ export default function LoginPage() {
     setIsSubmitting(true)
     setErrorMessage("")
   
+    
     // Imprimir los datos desde el estado
     console.log("Datos de inicio de sesión:", { email, password })
   
