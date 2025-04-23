@@ -11,14 +11,21 @@ import {
     GetUsuariosFilters,
     GetUsuariosResponse
   } from '../types/usuario';
-  
+  import { useState, useEffect } from "react";
   class UsuarioService {
     private baseUrl: string;
   
     constructor() {
-      this.baseUrl = `${process.env.REACT_APP_API_URL}/usuarios`;
+      // lee la variable de entorno
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.warn(
+          '⚠️ REACT_APP_API_URL no está definida. Usando http://localhost:5000 por defecto.'
+        );
+      }
+      // fallback a localhost:5000 si apiUrl es undefined
+      this.baseUrl = `${apiUrl ?? 'http://localhost:5000'}/usuarios`;
     }
-  
     private async handleResponse<T>(response: Response): Promise<T> {
       const data = await response.json();
       if (!response.ok) {
@@ -111,9 +118,16 @@ import {
         const response = await fetch(`${this.baseUrl}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         });
-        return this.handleResponse<LoginUsuarioResponse>(response);
+        const result: LoginUsuarioResponse = await response.json();
+    
+        if (result.success) {
+          localStorage.setItem("usuario", JSON.stringify(result.usuario));
+          return result;
+        } else {
+          throw new Error(result.error || "Error al iniciar sesión");
+        }
       } catch (error) {
         return {
           success: false,
@@ -121,6 +135,9 @@ import {
         };
       }
     }
+    
+
+
   }
   
   export const usuarioService = new UsuarioService();

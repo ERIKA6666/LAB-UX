@@ -13,19 +13,45 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Navbar } from "@/components/ui/navbar"
-
+import { usuarioService } from "@/services/usuarioService" // ajusta la ruta según tu estructura
+import { LoginUsuarioRequest } from "@/types/usuario"
 export default function LoginPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Estado para los valores del formulario
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Simulación de envío de formulario
-    setTimeout(() => {
+    setErrorMessage("")
+  
+    
+    // Imprimir los datos desde el estado
+    console.log("Datos de inicio de sesión:", { email, password })
+  
+    const loginData: LoginUsuarioRequest = { email, password }
+  
+    try {
+      const result = await usuarioService.login(loginData)
+  
+      if (result.success) {
+        console.log("✅ Login exitoso:", result.usuario)
+        // redirige o guarda usuario en contexto
+      } else {
+        setErrorMessage(result.error || "Correo o contraseña incorrectos.")
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || "Error desconocido al iniciar sesión.")
+    } finally {
       setIsSubmitting(false)
-      // Aquí iría la lógica real de inicio de sesión
-    }, 1500)
+    }
   }
+  
+  
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,13 +99,28 @@ export default function LoginPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Correo electrónico</Label>
-                    <Input id="email" type="email" placeholder="tu@ejemplo.com" required disabled={isSubmitting} />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="tu@ejemplo.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)} // Actualizar valor del estado
+                      required
+                      disabled={isSubmitting}
+                    />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password">Contraseña</Label>
                     </div>
-                    <Input id="password" type="password" required disabled={isSubmitting} />
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)} // Actualizar valor del estado
+                      required
+                      disabled={isSubmitting}
+                    />
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="remember" />
@@ -89,6 +130,12 @@ export default function LoginPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">
+                  {errorMessage && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                      <strong className="font-bold">¡Ups!</strong>
+                      <span className="block sm:inline ml-2">{errorMessage}</span>
+                    </div>
+                  )}
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? "Iniciando sesión..." : "Iniciar Sesión"}
                   </Button>
@@ -184,5 +231,6 @@ export default function LoginPage() {
         </Tabs>
       </div>
     </div>
+    
   )
 }
