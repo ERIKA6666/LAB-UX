@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -27,6 +27,25 @@ import {
 
 import { navbarItems, siteName } from "@/constans/navbar"
 
+//navbar items
+import { getUsuarioActual, cerrarSesion } from "@/hooks/islogin"; // o desde donde lo tengas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 export function Navbar() {
     const [mobileMenuOpen, setMobileOpen] = useState(false)
@@ -39,7 +58,20 @@ export function Navbar() {
     const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
     const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
     const [showPanel, setShowPanel] = React.useState<Checked>(false)
+    const [usuario, setUsuario] = useState<any>(null);
 
+    useEffect(() => {
+      const user = getUsuarioActual();
+      setUsuario(user);
+    }, []);
+    
+    const handleLogout = () => {
+      cerrarSesion();
+      setUsuario(null);
+      // Opcional: redireccionar
+      window.location.href = "/";
+    };
+    
     return(
         <nav className=" shadow-sm sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className=" mx-auto max-w-7x1 px-4 sm:px-6 lg:px-8">
@@ -92,9 +124,19 @@ export function Navbar() {
                         </Link>
                     )
                     ))}
-                         <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
-                            <Link href="/login">Iniciar Sesión</Link>
-                        </Button>
+                         {usuario ? (
+                            <>
+                                <span className="text-sm text-gray-700">Hola, {usuario.nombre}</span>
+                                <Button onClick={handleLogout} className="ml-4 bg-red-600 text-white hover:bg-red-700">
+                                Cerrar Sesión
+                                </Button>
+                            </>
+                            ) : (
+                            <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
+                                <Link href="/login">Iniciar Sesión</Link>
+                            </Button>
+                            )}
+
                     </div>
                     {/* Boton del menu movil */}
                     <div className="flex items-center md:hidden">
