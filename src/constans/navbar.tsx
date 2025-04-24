@@ -23,5 +23,5 @@ export interface SiteName{
 }
 export const siteName = "Lab-UX"
 export const routes = {
-    name: "Login", path:"auth/login"
+    name: "Login", path:"public/login"
 }

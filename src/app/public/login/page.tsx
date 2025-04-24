@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Mail } from "lucide-react"
-
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,8 @@ import { Navbar } from "@/components/ui/navbar"
 import { usuarioService } from "@/services/usuarioService" // ajusta la ruta según tu estructura
 import { LoginUsuarioRequest } from "@/types/usuario"
 export default function LoginPage() {
+
+  const router = useRouter()
 
   // Estado para los valores del formulario
   const [email, setEmail] = useState("");
@@ -40,6 +42,7 @@ export default function LoginPage() {
   
       if (result.success) {
         console.log("✅ Login exitoso:", result.usuario)
+        router.push('/admin')
         // redirige o guarda usuario en contexto
       } else {
         setErrorMessage(result.error || "Correo o contraseña incorrectos.")

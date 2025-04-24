@@ -133,7 +133,7 @@ export function Navbar() {
                             </>
                             ) : (
                             <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
-                                <Link href="/auth/login">Iniciar Sesión</Link>
+                                <Link href="/public/login">Iniciar Sesión</Link>
                             </Button>
                             )}
 
@@ -223,7 +223,7 @@ export function Navbar() {
                         ))}
                         <div className="pt-2">
                             <Button asChild className="w-full justify-center bg-black text-white hover:bg-gray-800">
-                                <Link href="/login" onClick={() => setMobileOpen(false)}>
+                                <Link href="public/login" onClick={() => setMobileOpen(false)}>
                                 Iniciar Sesión
                                 </Link>
                             </Button>
