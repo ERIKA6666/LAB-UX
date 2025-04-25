@@ -17,6 +17,7 @@ import {
   Mail,
   FileTextIcon as FileText2,
   ChevronDown,
+  LogOut
 } from "lucide-react"
 import {
   Sidebar,
@@ -246,6 +247,14 @@ export function AdminSidebar() {
               <Link href="/configuracion">
                 <Settings className="h-4 w-4" />
                 <span>Configuración del Sitio</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/configuracion")}>
+              <Link href="/configuracion">
+                <LogOut className="h-4 w-4" />
+                <span>Cerrar Sesión</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
