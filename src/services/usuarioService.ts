@@ -24,7 +24,7 @@ import {
         );
       }
       // fallback a localhost:5000 si apiUrl es undefined
-      this.baseUrl = `${apiUrl ?? 'http://localhost:5000'}/usuarios`;
+      this.baseUrl = `${apiUrl ?? 'https://backend.lab-ux.site'}/usuarios`;
     }
     private async handleResponse<T>(response: Response): Promise<T> {
       const data = await response.json();
