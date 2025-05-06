@@ -31,13 +31,38 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
 } from "@/components/ui/sidebar"
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import  ModeToggle  from "@/components/ui/mode-toggle"
 
+
+//navbar items
+import { getUsuarioActual, cerrarSesion } from "@/hooks/islogin"; // o desde donde lo tengas
+
+
 export function AdminSidebar() {
   const pathname = usePathname()
   const isActive = (path: string) => pathname === path
+
+  const [mobileMenuOpen, setMobileOpen] = useState(false)
+      
+      //Agegar un console log para mostrar la 
+      // ruta que en la que se esta
+      console.log("Ruta actual: ", pathname)
+      const [usuario, setUsuario] = useState<any>(null);
+  
+      useEffect(() => {
+        const user = getUsuarioActual();
+        setUsuario(user);
+      }, []);
+      
+      const handleLogout = () => {
+        cerrarSesion();
+        setUsuario(null);
+        // Opcional: redireccionar
+        window.location.href = "/";
+      };
 
   return (
     <Sidebar>
@@ -252,12 +277,13 @@ export function AdminSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive("/configuracion")}>
-              <Link href="/configuracion">
+              <button onClick={handleLogout} className="flex items-center gap-2 w-full text-left">
                 <LogOut className="h-4 w-4" />
                 <span>Cerrar Sesión</span>
-              </Link>
+              </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="border-t p-4">

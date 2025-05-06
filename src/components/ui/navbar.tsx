@@ -35,17 +35,6 @@ import { getUsuarioActual, cerrarSesion } from "@/hooks/islogin"; // o desde don
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 export function Navbar() {
     const [mobileMenuOpen, setMobileOpen] = useState(false)
