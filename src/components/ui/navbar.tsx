@@ -54,17 +54,6 @@ export function Navbar() {
       setUsuario(user);
     }, []);
     
-    const handleLogout = () => {
-      cerrarSesion();
-      setUsuario(null);
-      // Opcional: redireccionar
-      window.location.href = "/";
-    };
-    // Si está logueado y está en la ruta /admin o subrutas de admin, no mostrar el navbar
-    if (usuario && pathname.startsWith("/admin")) {
-        return null;
-    }
-  
     return(
         <nav className=" shadow-sm sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className=" mx-auto max-w-7x1 px-4 sm:px-6 lg:px-8">
@@ -117,18 +106,10 @@ export function Navbar() {
                         </Link>
                     )
                     ))}
-                         {usuario ? (
-                            <>
-                                <span className="text-sm text-gray-700">Hola, {usuario.nombre}</span>
-                                <Button onClick={handleLogout} className="ml-4 bg-red-600 text-white hover:bg-red-700">
-                                Cerrar Sesión
-                                </Button>
-                            </>
-                            ) : (
-                            <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
-                                <Link href="/public/login">Iniciar Sesión</Link>
-                            </Button>
-                            )}
+                        <Button asChild className="ml-4 bg-black text-white hover:bg-gray-800">
+                            <Link href="/public/login">Iniciar Sesión</Link>
+                        </Button>
+                        
 
                     </div>
                     {/* Boton del menu movil */}

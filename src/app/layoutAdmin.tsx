@@ -1,3 +1,4 @@
+'use client'
 import type React from "react"
 import "@/app/globals.css"
 import { Inter } from "next/font/google"
@@ -12,7 +13,7 @@ export const metadata = {
   description: "Panel de administración para gestionar el contenido del sitio",
 }
 
-export default function RootLayout({
+export default function LayoutAdmin({
   children,
 }: {
   children: React.ReactNode

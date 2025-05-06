@@ -103,16 +103,16 @@ export function AdminSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/contenidos/inicio")}>
-                      <Link href="/contenidos/inicio">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/inicio")}>
+                      <Link href="/admin/inicio">
                         <Home className="h-4 w-4" />
                         <span>Inicio</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/contenidos/mision-vision")}>
-                      <Link href="/contenidos/mision-vision">
+                    <SidebarMenuButton asChild isActive={isActive("/misionVision")}>
+                      <Link href="/admin/misionVision">
                         <FileText className="h-4 w-4" />
                         <span>Misión y Visión</span>
                       </Link>
@@ -137,32 +137,24 @@ export function AdminSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/investigacion/proyectos")}>
-                      <Link href="/investigacion/proyectos">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/proyectos")}>
+                      <Link href="/admin/proyectos">
                         <FileText2 className="h-4 w-4" />
                         <span>Proyectos</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/investigacion/cuerpos-academicos")}>
-                      <Link href="/investigacion/cuerpos-academicos">
-                        <Users className="h-4 w-4" />
-                        <span>Cuerpos Académicos</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/investigacion/pruebas-metodologia")}>
-                      <Link href="/investigacion/pruebas-metodologia">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/pruebasMetodologias")}>
+                      <Link href="/admin/pruebasMetodologias">
                         <BookOpen className="h-4 w-4" />
                         <span>Pruebas y Metodología</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/investigacion/glosario")}>
-                      <Link href="/investigacion/glosario">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/glosario")}>
+                      <Link href="/admin/glosario">
                         <BookOpen className="h-4 w-4" />
                         <span>Glosario de Usabilidad</span>
                       </Link>
@@ -187,24 +179,24 @@ export function AdminSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/difusion/proximos-eventos")}>
-                      <Link href="/difusion/proximos-eventos">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion")}>
+                      <Link href="/admin/difusion">
                         <Calendar className="h-4 w-4" />
                         <span>Próximos Eventos</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/difusion/eventos-pasados")}>
-                      <Link href="/difusion/eventos-pasados">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion")}>
+                      <Link href="/admin/difusion">
                         <Calendar className="h-4 w-4" />
                         <span>Eventos Pasados</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/difusion/noticias")}>
-                      <Link href="/difusion/noticias">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion")}>
+                      <Link href="/admin/difusion">
                         <Newspaper className="h-4 w-4" />
                         <span>Noticias y Artículos</span>
                       </Link>
@@ -229,24 +221,24 @@ export function AdminSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/soporte/faq")}>
-                      <Link href="/soporte/faq">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/preguntasFrecuentes")}>
+                      <Link href="/admin/preguntasFrecuentes">
                         <FileQuestion className="h-4 w-4" />
                         <span>Preguntas Frecuentes</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/soporte/contacto")}>
-                      <Link href="/soporte/contacto">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/contacto")}>
+                      <Link href="/admin/contacto">
                         <Mail className="h-4 w-4" />
                         <span>Contacto</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/soporte/guias")}>
-                      <Link href="/soporte/guias">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/guias")}>
+                      <Link href="/admin/guias">
                         <FileText className="h-4 w-4" />
                         <span>Guías y Tutoriales</span>
                       </Link>
@@ -260,23 +252,23 @@ export function AdminSidebar() {
 
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/usuarios")}>
-              <Link href="/usuarios">
+            <SidebarMenuButton asChild isActive={isActive("/admin/usuarios")}>
+              <Link href="/admin/usuarios">
                 <Users className="h-4 w-4" />
                 <span>Gestión de Usuarios</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/configuracion")}>
-              <Link href="/configuracion">
+            <SidebarMenuButton asChild isActive={isActive("/admin/configuracion")}>
+              <Link href="/admin/configuracion">
                 <Settings className="h-4 w-4" />
                 <span>Configuración del Sitio</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/configuracion")}>
+            <SidebarMenuButton asChild isActive={isActive("/admin/configuracion")}>
               <button onClick={handleLogout} className="flex items-center gap-2 w-full text-left">
                 <LogOut className="h-4 w-4" />
                 <span>Cerrar Sesión</span>
