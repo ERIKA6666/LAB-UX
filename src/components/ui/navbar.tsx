@@ -71,7 +71,11 @@ export function Navbar() {
       // Opcional: redireccionar
       window.location.href = "/";
     };
-    
+    // Si está logueado y está en la ruta /admin o subrutas de admin, no mostrar el navbar
+    if (usuario && pathname.startsWith("/admin")) {
+        return null;
+    }
+  
     return(
         <nav className=" shadow-sm sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className=" mx-auto max-w-7x1 px-4 sm:px-6 lg:px-8">

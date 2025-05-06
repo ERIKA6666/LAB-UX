@@ -42,7 +42,9 @@ export default function LoginPage() {
   
       if (result.success) {
         console.log("✅ Login exitoso:", result.usuario)
-        router.push('/admin')
+        window.location.href = '/admin';
+
+
         // redirige o guarda usuario en contexto
       } else {
         setErrorMessage(result.error || "Correo o contraseña incorrectos.")
