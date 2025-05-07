@@ -3,6 +3,8 @@ import {
     Usuario,
     CreateUsuarioRequest,
     CreateUsuarioResponse,
+    ResetUsuarioRequest,
+    ResetUsuarioResponse,
     UpdateUsuarioRequest,
     UpdateUsuarioResponse,
     DeleteUsuarioResponse,
@@ -127,6 +129,27 @@ import {
           return result;
         } else {
           throw new Error(result.error || "Error al iniciar sesión");
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Error desconocido'
+        };
+      }
+    }
+    async PasswordReset (data: ResetUsuarioRequest): Promise<ResetUsuarioResponse> {
+      try {
+        const response = await fetch(`${this.baseUrl}/reset_password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result: ResetUsuarioResponse = await response.json();
+    
+        if (result.success) {
+          return result;
+        } else {
+          throw new Error(result.error || "Error al encontrar usuario");
         }
       } catch (error) {
         return {

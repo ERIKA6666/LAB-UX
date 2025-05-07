@@ -21,6 +21,18 @@ export interface CreateUsuarioResponse {
   usuario?: Usuario;
   error?: string;
 }
+// RESET
+export interface ResetUsuarioRequest {
+  email: string;
+}
+
+export interface ResetUsuarioResponse {
+  success: boolean;
+  usuario?: Usuario;
+  error?: string;
+}
+
+
 
 // Actualización
 export interface UpdateUsuarioRequest {

@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Mail } from "lucide-react"
@@ -12,40 +10,30 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Navbar } from "@/components/ui/navbar"
-import { usuarioService } from "@/services/usuarioService" // ajusta la ruta según tu estructura
-import { LoginUsuarioRequest } from "@/types/usuario"
-export default function LoginPage() {
+import { usuarioService } from "@/services/usuarioService"
+import { LoginUsuarioRequest, ResetUsuarioRequest } from "@/types/usuario"
 
+export default function LoginPage() {
   const router = useRouter()
 
-  // Estado para los valores del formulario
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [resetEmail, setResetEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setErrorMessage("")
-  
-    
-    // Imprimir los datos desde el estado
-    console.log("Datos de inicio de sesión:", { email, password })
-  
+
     const loginData: LoginUsuarioRequest = { email, password }
-  
+
     try {
       const result = await usuarioService.login(loginData)
-  
       if (result.success) {
-        console.log("✅ Login exitoso:", result.usuario)
-        window.location.href = '/admin';
-
-
-        // redirige o guarda usuario en contexto
+        window.location.href = '/admin'
       } else {
         setErrorMessage(result.error || "Correo o contraseña incorrectos.")
       }
@@ -55,26 +43,33 @@ export default function LoginPage() {
       setIsSubmitting(false)
     }
   }
-  
-  
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Simulación de envío de formulario
-    setTimeout(() => {
+    setErrorMessage("")
+    setSuccessMessage("")
+    const loginData: ResetUsuarioRequest = { email: resetEmail}
+    try {
+      const result = await usuarioService.PasswordReset(loginData) // Asegúrate de que `resetPassword` exista en el servicio
+      if (result.success) {
+        setSuccessMessage("Te hemos enviado un correo con instrucciones para restablecer tu contraseña.")
+      } else {
+        setErrorMessage(result.error || "No se pudo enviar el correo de recuperación.")
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || "Error al intentar enviar el correo.")
+    } finally {
       setIsSubmitting(false)
-      // Aquí iría la lógica real de recuperación de contraseña
-    }, 1500)
+    }
   }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Simulación de envío de formulario
+    // Lógica real de registro aquí
     setTimeout(() => {
       setIsSubmitting(false)
-      // Aquí iría la lógica real de registro
     }, 1500)
   }
 
@@ -93,7 +88,7 @@ export default function LoginPage() {
             <TabsTrigger value="reset">Recuperar</TabsTrigger>
           </TabsList>
 
-          {/* Formulario de Inicio de Sesión */}
+          {/* Iniciar sesión */}
           <TabsContent value="login">
             <Card>
               <CardHeader>
@@ -109,20 +104,18 @@ export default function LoginPage() {
                       type="email"
                       placeholder="tu@ejemplo.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)} // Actualizar valor del estado
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isSubmitting}
                     />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Contraseña</Label>
-                    </div>
+                    <Label htmlFor="password">Contraseña</Label>
                     <Input
                       id="password"
                       type="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)} // Actualizar valor del estado
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={isSubmitting}
                     />
@@ -136,9 +129,9 @@ export default function LoginPage() {
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">
                   {errorMessage && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
                       <strong className="font-bold">¡Ups!</strong>
-                      <span className="block sm:inline ml-2">{errorMessage}</span>
+                      <span className="ml-2">{errorMessage}</span>
                     </div>
                   )}
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -149,12 +142,12 @@ export default function LoginPage() {
             </Card>
           </TabsContent>
 
-          {/* Formulario de Registro */}
+          {/* Registro */}
           <TabsContent value="register">
             <Card>
               <CardHeader>
                 <CardTitle>Crear una cuenta</CardTitle>
-                <CardDescription>Completa el formulario para registrarte en nuestra plataforma.</CardDescription>
+                <CardDescription>Completa el formulario para registrarte.</CardDescription>
               </CardHeader>
               <form onSubmit={handleRegister}>
                 <CardContent className="space-y-4">
@@ -170,13 +163,7 @@ export default function LoginPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="registerEmail">Correo electrónico</Label>
-                    <Input
-                      id="registerEmail"
-                      type="email"
-                      placeholder="tu@ejemplo.com"
-                      required
-                      disabled={isSubmitting}
-                    />
+                    <Input id="registerEmail" type="email" required disabled={isSubmitting} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="registerPassword">Contraseña</Label>
@@ -205,25 +192,43 @@ export default function LoginPage() {
             </Card>
           </TabsContent>
 
-          {/* Formulario de Recuperación de Contraseña */}
+          {/* Recuperar contraseña */}
           <TabsContent value="reset">
             <Card>
               <CardHeader>
                 <CardTitle>Recuperar contraseña</CardTitle>
                 <CardDescription>
-                  Ingresa tu correo electrónico para recibir instrucciones de recuperación.
+                  Ingresa tu correo electrónico para recibir instrucciones.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handlePasswordReset}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="resetEmail">Correo electrónico</Label>
-                    <Input id="resetEmail" type="email" placeholder="tu@ejemplo.com" required disabled={isSubmitting} />
+                    <Input
+                      id="resetEmail"
+                      type="email"
+                      placeholder="tu@ejemplo.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                      disabled={isSubmitting}
+                    />
                   </div>
                   <div className="flex items-center rounded-md bg-primary/10 p-3 text-sm text-primary">
                     <Mail className="mr-2 h-4 w-4" />
                     Te enviaremos un enlace para restablecer tu contraseña.
                   </div>
+                  {errorMessage && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded" role="alert">
+                      {errorMessage}
+                    </div>
+                  )}
+                  {successMessage && (
+                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded" role="alert">
+                      {successMessage}
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -236,6 +241,5 @@ export default function LoginPage() {
         </Tabs>
       </div>
     </div>
-    
   )
 }
