@@ -1,3 +1,6 @@
+
+"use client"
+import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,6 +10,46 @@ import { Button } from "@/components/ui/button"
 import { BookOpen, Mail, HelpCircle, FileText, Users } from "lucide-react"
 
 export default function Support() {
+    const [nombre, setNombre] = useState('');
+    const [correo, setCorreo] = useState('');
+    const [asunto, setAsunto] = useState('');
+    const [mensaje, setMensaje] = useState('');
+    const [respuesta, setRespuesta] = useState<string | null>(null);
+  
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+  
+      if (!nombre || !correo || !asunto || !mensaje) {
+        setRespuesta('Por favor completa todos los campos obligatorios.');
+        return;
+      }
+  
+      try {
+        const datos = {
+          nombre: `${nombre}`,
+          email: correo,
+          asunto,
+          mensaje,
+        };
+  
+        const response = await fetch('http://localhost:5000/soporte', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos),
+        });
+  
+        const resultado = await response.json();
+  
+        if (response.ok) {
+          setRespuesta(resultado.mensaje || '✅ ¡Tu solicitud fue enviada con éxito! Pronto nos pondremos en contacto contigo.');
+        } else {
+          setRespuesta(resultado.error || '⚠️ Hubo un problema al procesar tu solicitud. Por favor, revisa los datos e inténtalo nuevamente.');
+        }
+        } catch (error) {
+          setRespuesta('❌ Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.');
+        }
+        
+    };
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
       <div className="mb-10 text-center">
@@ -86,36 +129,44 @@ export default function Support() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="nombre" className="text-sm font-medium">
                     Nombre
                   </label>
-                  <Input id="nombre" placeholder="Tu nombre" />
+                  <Input id="nombre"  value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium">
                     Correo electrónico
                   </label>
-                  <Input id="email" type="email" placeholder="tu@email.com" />
+                  <Input id="email" type="email"  value={correo} onChange={(e) => setCorreo(e.target.value)} placeholder="tu@email.com" />
                 </div>
               </div>
               <div className="space-y-2">
                 <label htmlFor="asunto" className="text-sm font-medium">
                   Asunto
                 </label>
-                <Input id="asunto" placeholder="Asunto de tu mensaje" />
+                <Input id="asunto"  value={asunto} onChange={(e) => setAsunto(e.target.value)} placeholder="Asunto de tu mensaje" />
               </div>
               <div className="space-y-2">
                 <label htmlFor="mensaje" className="text-sm font-medium">
                   Mensaje
                 </label>
-                <Textarea id="mensaje" placeholder="Escribe tu mensaje aquí..." rows={5} />
+                <Textarea id="mensaje"  value={mensaje} onChange={(e) => setMensaje(e.target.value)} placeholder="Escribe tu mensaje aquí..." rows={5} />
               </div>
+              {respuesta && (
+                <div className={`mt-4 p-3 rounded ${respuesta.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                {respuesta}
+                </div>
+              )}
+              <Button type="submit" className="w-full">Enviar Solicitud</Button>
+            </form>
             </CardContent>
             <CardFooter>
-              <Button className="w-full md:w-auto">Enviar mensaje</Button>
             </CardFooter>
+      
           </Card>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">

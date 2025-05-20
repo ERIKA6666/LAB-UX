@@ -1,34 +1,54 @@
 // services/solicitudService.ts
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://127.0.0.1:5000/';
 
-// Define la interfaz del tipo de datos que se van a enviar
+// Define la interfaz de los datos a enviar
 interface SolicitudDatos {
-  // ajusta los campos según tu estructura real
   nombre: string;
   correo: string;
+  areaInteres: string;
   mensaje: string;
-  // puedes agregar más campos si los necesitas
 }
 
-// Define la interfaz de la respuesta esperada del servidor
+// Define la interfaz de la respuesta esperada
 interface SolicitudRespuesta {
   mensaje: string;
   exito: boolean;
-  // otros campos que pueda retornar el backend
 }
 
 const solicitudService = {
   enviarSolicitud: async (datos: SolicitudDatos): Promise<SolicitudRespuesta> => {
     try {
-      const response: AxiosResponse<SolicitudRespuesta> = await axios.post(`${API_BASE_URL}/solicitudes`, datos);
+      const response: AxiosResponse<SolicitudRespuesta> = await axios.post(
+        `${API_BASE_URL}/solicitudes`,
+        datos,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
       return response.data;
     } catch (error) {
-      console.error('Error al enviar solicitud', error);
-      throw error;
+      const axiosError = error as AxiosError;
+
+      // Extraer mensaje del backend si está disponible
+      const mensajeError =
+        axiosError.response?.data && typeof axiosError.response.data === 'object'
+          ? (axiosError.response.data as any).mensaje || 'Error desconocido'
+          : 'Error al enviar la solicitud';
+
+      console.error('Error al enviar solicitud:', mensajeError);
+
+      // Devuelve un objeto consistente con la interfaz
+      return {
+        mensaje: mensajeError,
+        exito: false,
+      };
     }
-  }
+  },
 };
 
 export default solicitudService;
