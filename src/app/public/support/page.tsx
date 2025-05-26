@@ -139,7 +139,6 @@ export default function Support() {
                     />
                   </div>
                 ))}
-                
                 {contacto.campos.filter(campo => campo.nombre === "Mensaje").map((campo) => (
                   <div className="space-y-2" key={campo.nombre}>
                     <label htmlFor={campo.nombre.toLowerCase()} className="text-sm font-medium">

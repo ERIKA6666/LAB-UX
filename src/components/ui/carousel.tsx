@@ -68,7 +68,7 @@ export function Carousel() {
             )}
           >
             {/* Background with color overlay */}
-            <div className={cn("absolute inset-0 flex items-center justify-center", slide.bgColor)}>
+            <div className={cn("absolute inset-0 flex items-center justify-center", slide.image)}>
               {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
             </div>

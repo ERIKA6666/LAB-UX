@@ -9,7 +9,6 @@ export default function Home() {
     <main>
       {/* Banner Carrusel */}
       <Carousel />
-
       {/* Sección de Misión - Texto a la izquierda, imagen a la derecha */}
       <section className="py-16 ">
         <div className="container mx-auto px-4">

@@ -1,27 +1,24 @@
 // Home
 
-import { resolve } from "dns";
-import { title } from "process"
-
 // Datos de ejemplo para el carrusel
 export const slides = [
     {
       id: 1,
       title: "Soluciones innovadoras para tu negocio",
       description: "Descubre cómo podemos ayudarte a crecer y alcanzar tus objetivos",
-      bgColor: "bg-primary/90",
+      image: "bg-primary/90",
     },
     {
       id: 2,
       title: "Productos de alta calidad",
       description: "Diseñados para satisfacer las necesidades más exigentes del mercado",
-      bgColor: "bg-secondary/90",
+      image: "bg-secondary/90",
     },
     {
       id: 3,
       title: "Servicio personalizado",
       description: "Atención dedicada para cada uno de nuestros clientes",
-      bgColor: "bg-accent/90",
+      image: "bg-accent/90",
     },
   ]
 
