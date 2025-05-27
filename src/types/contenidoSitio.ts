@@ -11,6 +11,12 @@ export interface ContenidoSitio {
   link_redireccion?: string;
   estado: EstadoContenido;
   orden?: number;
-  fecha_creacion: Date | string;
-  fecha_actualizacion?: Date | string;
+  fecha_creacion: string;
+  fecha_actualizacion?: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }

@@ -7,18 +7,21 @@ export const slides = [
       title: "Soluciones innovadoras para tu negocio",
       description: "Descubre cómo podemos ayudarte a crecer y alcanzar tus objetivos",
       image: "bg-primary/90",
+      estado: "Activo",
     },
     {
       id: 2,
       title: "Productos de alta calidad",
       description: "Diseñados para satisfacer las necesidades más exigentes del mercado",
       image: "bg-secondary/90",
+      estado: "Activo",
     },
     {
       id: 3,
       title: "Servicio personalizado",
       description: "Atención dedicada para cada uno de nuestros clientes",
       image: "bg-accent/90",
+      estado: "Activo",
     },
   ]
 
