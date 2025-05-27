@@ -45,12 +45,12 @@ export default function Team() {
       const resultado = await response.json();
 
       if (response.ok) {
-        setRespuesta(resultado.mensaje || '✅ ¡Tu solicitud fue enviada con éxito! Pronto nos pondremos en contacto contigo.');
+        setRespuesta(resultado.mensaje || '¡Tu solicitud fue enviada con éxito! Pronto nos pondremos en contacto contigo.');
       } else {
-        setRespuesta(resultado.error || '⚠️ Hubo un problema al procesar tu solicitud. Por favor, revisa los datos e inténtalo nuevamente.');
+        setRespuesta(resultado.error || ' Hubo un problema al procesar tu solicitud. Por favor, revisa los datos e inténtalo nuevamente.');
       }
       } catch (error) {
-        setRespuesta('❌ Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.');
+        setRespuesta(' Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.');
       }
       
   };
@@ -110,14 +110,7 @@ export default function Team() {
 
               <TabsContent value="equipo">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    {
-                      name: "Alejandra Gutiérrez",
-                      role: "Directora Académica",
-                      bio: "Lidera el desarrollo de programas educativos y coordina al equipo docente.",
-                      image: "/placeholder.svg?height=300&width=300",
-                    },
-                  ].map((person, index) => (
+                  {team.map((person, index) => (
                     <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
                       <div className="aspect-square relative">
                         <Image src={person.image} alt={person.name} fill className="object-cover" />
@@ -136,14 +129,7 @@ export default function Team() {
 
               <TabsContent value="alumnos">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    {
-                      name: "Pablo Jiménez",
-                      role: "Estudiante de Ingeniería",
-                      bio: "Estudiante destacado con interés en robótica y desarrollo sostenible.",
-                      image: "/placeholder.svg?height=300&width=300",
-                    },
-                  ].map((person, index) => (
+                  {team.map((person, index) => (
                     <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
                       <div className="aspect-square relative">
                         <Image src={person.image} alt={person.name} fill className="object-cover" />
@@ -235,9 +221,6 @@ export default function Team() {
                           {respuesta}
                         </div>
                       )}
-
-
-
                       <Button type="submit" className="w-full">Enviar Solicitud</Button>
                     </form>
                   </CardContent>
