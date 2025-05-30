@@ -60,14 +60,22 @@ export default function UsuariosPage() {
   }
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState("")
+  const [searchInput, setSearchInput] = useState("")
+  const [filterRol, setFilterRol] = useState("todos")
+  const [filterEstado, setFilterEstado] = useState("todos-status")
   const API_URL = process.env.REACT_APP_API_URL || "https://backend.lab-ux.site"
 
  useEffect(() => {
   setLoading(true)
-  fetch(`${API_URL}/usuarios`)
+  const params = new URLSearchParams()
+  if (search) params.append("q", search)
+  if (filterRol !== "todos") params.append("tipo_usuario", filterRol)
+  if (filterEstado !== "todos-status") params.append("estado", filterEstado)
+
+  fetch(`${API_URL}/usuarios?${params.toString()}`)
     .then(res => res.json())
     .then(data => {
-      
       // Si la respuesta es un array, úsala directamente
       if (Array.isArray(data)) {
         setUsers(data)
@@ -82,7 +90,7 @@ export default function UsuariosPage() {
       }
     })
     .finally(() => setLoading(false))
-}, [])
+}, [search, filterRol, filterEstado])
 
   // 2. Agregar usuario
   const addUser = async (userData: Partial<User>) => {
@@ -126,11 +134,6 @@ return (
       {/* ...filtros y búsqueda... */}
     </div>
 
-    {loading ? (
-      <div className="text-center py-10 text-lg">Cargando usuarios...</div>
-    ) : users.length === 0 ? (
-      <div className="text-center py-10 text-muted-foreground">No hay usuarios para mostrar.</div>
-    ) : (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
@@ -142,7 +145,7 @@ return (
                 Nuevo Usuario
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] bg-background text-white">
               <DialogHeader>
                 <DialogTitle>Crear Nuevo Usuario</DialogTitle>
                 <DialogDescription>
@@ -201,29 +204,52 @@ return (
       </div>
 
       <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="Buscar usuarios..." className="pl-8" />
-        </div>
-        <Select defaultValue="todos">
+        <form
+          onSubmit={e => {
+            e.preventDefault()
+            setSearch(searchInput)
+          }}
+          className="relative flex-1 max-w-sm"
+        >
+          <Search
+            className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer"
+            onClick={() => setSearch(searchInput)}
+            tabIndex={0}
+            aria-label="Buscar"
+            role="button"
+          />
+          <Input
+            type="search"
+            placeholder="Buscar usuarios..."
+            className="pl-8"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                setSearch(searchInput)
+              }
+            }}
+          />
+        </form>
+        <Select value={filterRol} onValueChange={setFilterRol}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filtrar por rol" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos los roles</SelectItem>
             <SelectItem value="admin">Administrador</SelectItem>
-            <SelectItem value="editor">Editor</SelectItem>
-            <SelectItem value="viewer">Visualizador</SelectItem>
+            <SelectItem value="alumno">alumno</SelectItem>
+            <SelectItem value="profesor">profesor</SelectItem>
           </SelectContent>
         </Select>
-        <Select defaultValue="todos-status">
+        <Select value={filterEstado} onValueChange={setFilterEstado}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filtrar por estado" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos-status">Todos los estados</SelectItem>
-            <SelectItem value="active">Activo</SelectItem>
-            <SelectItem value="inactive">Inactivo</SelectItem>
+            <SelectItem value="activo">Activo</SelectItem>
+            <SelectItem value="inactivo">Inactivo</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -237,49 +263,57 @@ return (
         <TabsContent value="list">
           <Card>
             <CardContent className="p-0">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-4">Usuario</th>
-                    <th className="text-left p-4">Rol</th>
-                    <th className="text-left p-4">Estado</th>
-                    <th className="text-left p-4">Último Acceso</th>
-                    <th className="text-right p-4">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="border-b">
-                      <td className="p-4">
-                        <div className="flex items-center space-x-3">
-                          <Avatar>
-                            <AvatarImage src={user.avatar} alt={user.name} />
-                            <AvatarFallback>{user.initials}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">{getRoleBadge(user.tipo_usuario  as RoleUser)}</td>
-                      <td className="p-4">{getStatusBadge(user.estado as StatusUser)}</td>
-                      <td className="p-4">{user.fecha_registro}</td>
-                      <td className="p-4 text-right">
-                        <Button variant="ghost" size="icon" className="mr-2">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="mr-2">
-                          <Lock className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {loading ? (
+                <div className="text-center py-10 text-lg">Cargando usuarios...</div>
+              ) : (
+                users.length === 0 ? (
+                  <div className="text-center py-10 text-muted-foreground">No hay usuarios para mostrar.</div>
+                ) : (
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-4">Usuario</th>
+                        <th className="text-left p-4">Rol</th>
+                        <th className="text-left p-4">Estado</th>
+                        <th className="text-left p-4">Último Acceso</th>
+                        <th className="text-right p-4">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((user) => (
+                        <tr key={user.id} className="border-b">
+                          <td className="p-4">
+                            <div className="flex items-center space-x-3">
+                              <Avatar>
+                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarFallback>{user.initials}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">{user.name}</div>
+                                <div className="text-sm text-muted-foreground">{user.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">{getRoleBadge(user.tipo_usuario  as RoleUser)}</td>
+                          <td className="p-4">{getStatusBadge(user.estado as StatusUser)}</td>
+                          <td className="p-4">{user.fecha_registro}</td>
+                          <td className="p-4 text-right">
+                            <Button variant="ghost" size="icon" className="mr-2">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="mr-2">
+                              <Lock className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -334,7 +368,6 @@ return (
         </TabsContent>
       </Tabs>
     </div>
-    )}
   </div>
 )
 
