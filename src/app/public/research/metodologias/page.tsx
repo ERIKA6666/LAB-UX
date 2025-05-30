@@ -3,6 +3,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft } from "lucide-react"
+import { metodologias, tiposPruebas } from "@/constans/data"
 
 export default function MetodologiasPage() {
   return (
@@ -54,7 +55,6 @@ export default function MetodologiasPage() {
                   : index % 3 === 1
                     ? "h-auto aspect-[4/6]"
                     : "h-auto aspect-[4/4]"
-
               return (
                 <Card key={index} className={`${heightClass} break-inside-avoid mb-6 overflow-hidden`}>
                   <CardHeader className="bg-gradient-to-br">
@@ -80,137 +80,3 @@ export default function MetodologiasPage() {
     </div>
   )
 }
-
-// Datos de ejemplo - Tipos de Pruebas
-const tiposPruebas = [
-  {
-    nombre: "Pruebas de Usabilidad en Laboratorio",
-    descripcion:
-      "Las pruebas de usabilidad en laboratorio son evaluaciones controladas donde los usuarios realizan tareas específicas mientras los investigadores observan y registran su comportamiento.",
-    caracteristicas: [
-      "Entorno controlado para minimizar distracciones",
-      "Equipamiento especializado como eye-trackers",
-      "Posibilidad de grabar sesiones para análisis posterior",
-      "Moderador presente para guiar la sesión",
-    ],
-    imagen: "/placeholder.svg?height=300&width=600",
-  },
-  {
-    nombre: "Pruebas Remotas No Moderadas",
-    descripcion:
-      "Las pruebas remotas no moderadas permiten a los usuarios completar tareas en su propio entorno sin la presencia de un moderador, lo que proporciona resultados más naturales.",
-    caracteristicas: [
-      "Mayor alcance geográfico de participantes",
-      "Costos reducidos de implementación",
-      "Entorno natural del usuario",
-      "Posibilidad de realizar pruebas asincrónicas",
-    ],
-    imagen: "/placeholder.svg?height=300&width=600",
-  },
-  {
-    nombre: "Pruebas A/B",
-    descripcion:
-      "Las pruebas A/B comparan dos versiones de una página o elemento para determinar cuál tiene mejor rendimiento en términos de conversión u otros objetivos.",
-    caracteristicas: [
-      "Basadas en datos cuantitativos",
-      "Ideal para optimizar elementos específicos",
-      "Requiere tráfico suficiente para obtener resultados estadísticamente significativos",
-      "Permite iteraciones rápidas basadas en resultados",
-    ],
-    imagen: "/placeholder.svg?height=300&width=600",
-  },
-  {
-    nombre: "Evaluación Heurística",
-    descripcion:
-      "La evaluación heurística es un método donde expertos en usabilidad evalúan una interfaz según principios establecidos para identificar problemas potenciales.",
-    caracteristicas: [
-      "No requiere participación de usuarios finales",
-      "Rápida implementación y resultados",
-      "Basada en principios y mejores prácticas establecidas",
-      "Complementa bien otras metodologías de prueba",
-    ],
-    imagen: "/placeholder.svg?height=300&width=600",
-  },
-]
-
-// Datos de ejemplo - Metodologías
-const metodologias = [
-  {
-    nombre: "Investigación Cualitativa",
-    descripcion:
-      "Enfoque que busca comprender en profundidad las experiencias, comportamientos y percepciones de los usuarios a través de métodos como entrevistas, grupos focales y observación.",
-    aplicaciones: [
-      "Entrevistas a usuarios",
-      "Grupos focales",
-      "Estudios observacionales",
-      "Análisis de diarios de usuario",
-    ],
-  },
-  {
-    nombre: "Investigación Cuantitativa",
-    descripcion:
-      "Metodología basada en la recolección y análisis de datos numéricos para identificar patrones, tendencias y correlaciones en el comportamiento del usuario.",
-    aplicaciones: [
-      "Encuestas a gran escala",
-      "Análisis de métricas de uso",
-      "Tests A/B",
-      "Análisis estadístico de comportamiento",
-    ],
-  },
-  {
-    nombre: "Diseño Centrado en el Usuario (DCU)",
-    descripcion:
-      "Proceso iterativo que coloca al usuario final en el centro de cada etapa del diseño, desde la conceptualización hasta la implementación.",
-    aplicaciones: [
-      "Creación de personas y escenarios",
-      "Prototipado iterativo",
-      "Evaluación continua con usuarios reales",
-      "Diseño participativo",
-    ],
-  },
-  {
-    nombre: "Design Thinking",
-    descripcion:
-      "Enfoque de resolución de problemas centrado en el humano que integra las necesidades de las personas, las posibilidades tecnológicas y los requisitos para el éxito empresarial.",
-    aplicaciones: [
-      "Talleres de ideación",
-      "Prototipado rápido",
-      "Empatía con el usuario",
-      "Definición de problemas complejos",
-    ],
-  },
-  {
-    nombre: "Lean UX",
-    descripcion:
-      "Metodología que aplica principios de Lean Startup al diseño de experiencia de usuario, enfocándose en ciclos rápidos de aprendizaje y validación.",
-    aplicaciones: [
-      "Creación de MVP (Producto Mínimo Viable)",
-      "Validación temprana de conceptos",
-      "Iteraciones rápidas basadas en feedback",
-      "Reducción de documentación innecesaria",
-    ],
-  },
-  {
-    nombre: "Investigación Contextual",
-    descripcion:
-      "Método de investigación cualitativa que estudia a los usuarios en su entorno natural mientras realizan tareas reales.",
-    aplicaciones: [
-      "Observación en el contexto de uso",
-      "Entrevistas en el lugar de trabajo",
-      "Análisis de flujos de trabajo reales",
-      "Identificación de necesidades no articuladas",
-    ],
-  },
-  {
-    nombre: "Análisis Competitivo",
-    descripcion:
-      "Evaluación sistemática de productos o servicios competidores para identificar fortalezas, debilidades y oportunidades de diferenciación.",
-    aplicaciones: [
-      "Benchmarking de características",
-      "Análisis de experiencia de usuario de competidores",
-      "Identificación de brechas en el mercado",
-      "Inspiración para innovación",
-    ],
-  },
-]
-

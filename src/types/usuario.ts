@@ -1,81 +1,44 @@
+// src/types/usuario.interface.ts
+export type TipoUsuario = 'admin' | 'profesor' | 'alumno' | 'general';
+export type EstadoUsuario = 'activo' | 'inactivo';
+
 export interface Usuario {
   ID: number;
   email: string;
-  password: string;
+  password?: string; // No incluir en respuestas públicas
   nombre: string;
-  tipo_usuario: string;
-  img: string;
+  apellido?: string;
+  telefono?: string;
+  username?: string;
+  tipo_usuario: TipoUsuario;
+  fecha_registro: Date | string;
+  estado: EstadoUsuario;
 }
 
-// Creación
-export interface CreateUsuarioRequest {
+export interface UsuarioDetalle {
+  ID_usuario: number;
+  puesto_actual?: string;
+  oficina?: string;
+}
+
+// Para formularios de creación
+export interface UsuarioCreate {
   email: string;
   password: string;
   nombre: string;
-  tipo_usuario: string;
-  img?: string;
+  apellido?: string;
+  telefono?: string;
+  username?: string;
+  tipo_usuario: TipoUsuario;
 }
 
-export interface CreateUsuarioResponse {
-  success: boolean;
-  usuario?: Usuario;
-  error?: string;
-}
-// RESET
-export interface ResetUsuarioRequest {
-  email: string;
-}
-
-export interface ResetUsuarioResponse {
-  success: boolean;
-  usuario?: Usuario;
-  error?: string;
-}
-
-
-
-// Actualización
-export interface UpdateUsuarioRequest {
+// Para actualizaciones
+export interface UsuarioUpdate {
   email?: string;
-  password?: string;
   nombre?: string;
-  tipo_usuario?: string;
-  img?: string;
-}
-
-export interface UpdateUsuarioResponse {
-  success: boolean;
-  usuario?: Usuario;
-  error?: string;
-}
-
-// Eliminación
-export interface DeleteUsuarioResponse {
-  success: boolean;
-  deletedId?: number;
-  error?: string;
-}
-
-// Filtros
-export interface GetUsuariosFilters {
-  tipo_usuario?: string;
-  search?: string; // Búsqueda por nombre/email
-}
-
-export interface GetUsuariosResponse {
-  success: boolean;
-  usuarios: Usuario[];
-  total: number;
-  error?: string;
-}
-export interface LoginUsuarioRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginUsuarioResponse {
-  success: boolean;
-  token?: string;
-  usuario?: Usuario;
-  error?: string;
+  apellido?: string;
+  telefono?: string;
+  username?: string;
+  tipo_usuario?: TipoUsuario;
+  estado?: EstadoUsuario;
 }

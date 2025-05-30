@@ -8,13 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { ImagePlus, Save, Trash2 } from "lucide-react"
+import { slides } from "@/constans/data"
 
 export default function InicioPage() {
-  const [banners, setBanners] = useState([
-    { id: 1, title: "Banner Principal", image: "/placeholder.svg", active: true },
-    { id: 2, title: "Banner Secundario", image: "/placeholder.svg", active: true },
-    { id: 3, title: "Banner Eventos", image: "/placeholder.svg", active: false },
-  ])
+  const [banners, setBanners] = useState(slides)
 
   const [welcomeText, setWelcomeText] = useState(
     "Bienvenidos al Laboratorio de Usabilidad, un espacio dedicado a la investigación y mejora de la experiencia de usuario en aplicaciones y sistemas interactivos.",
@@ -49,7 +46,7 @@ export default function InicioPage() {
               <Card key={banner.id}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">{banner.title}</CardTitle>
-                  <CardDescription>Estado: {banner.active ? "Activo" : "Inactivo"}</CardDescription>
+                  <CardDescription>Estado: {banner.estado ? "Activo" : "Inactivo"}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="aspect-video relative overflow-hidden rounded-md border">
@@ -75,9 +72,13 @@ export default function InicioPage() {
                       <input
                         type="checkbox"
                         id={`banner-active-${banner.id}`}
-                        checked={banner.active}
+                        checked={
+                          banner.estado === "Activo" || banner.estado === "true"
+                            ? true
+                            : false
+                        }
                         onChange={() => {
-                          setBanners(banners.map((b) => (b.id === banner.id ? { ...b, active: !b.active } : b)))
+                          setBanners(banners.map((b) => (b.id === banner.id ? { ...b, active: !b.estado } : b)))
                         }}
                         className="h-4 w-4 rounded border-gray-300"
                       />

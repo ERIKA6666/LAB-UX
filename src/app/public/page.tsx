@@ -1,7 +1,7 @@
 import { Carousel } from "@/components/ui/carousel"
 import Image from "next/image"
 
-import { mision,vision, valores } from "@/constans/data"
+import { Mision,Vision, Valores } from "@/constans/data"
 
 
 export default function Home() {
@@ -9,20 +9,19 @@ export default function Home() {
     <main>
       {/* Banner Carrusel */}
       <Carousel />
-
       {/* Sección de Misión - Texto a la izquierda, imagen a la derecha */}
       <section className="py-16 ">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Texto de la Misión */}
             <div className="order-2 md:order-1">
-              <h2 className="text-3xl font-bold mb-2">{mision.title}</h2>
+              <h2 className="text-3xl font-bold mb-2">{Mision.title}</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg font-thin mb-4">
-                {mision.title}
+                {Mision.title}
               </p>
               <p className="text-lg font-thin">
-               {mision.textTwo}
+               {Mision.texto}
               </p>
             </div>
 
@@ -30,8 +29,8 @@ export default function Home() {
             <div className="order-1 md:order-2">
               <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
-                  src={mision.image}
-                  alt={mision.textTwo}
+                  src={Mision.image}
+                  alt={Mision.texto}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -48,8 +47,8 @@ export default function Home() {
             <div>
               <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
-                  src={vision.image}
-                  alt={vision.title}
+                  src={Vision.image}
+                  alt={Vision.title}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -59,13 +58,13 @@ export default function Home() {
 
             {/* Texto de la Visión */}
             <div>
-              <h2 className="text-3xl font-bold mb-2">{vision.title}</h2>
+              <h2 className="text-3xl font-bold mb-2">{Vision.title}</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg font-thin mb-4">
-              {vision.textOne}
+              {Vision.texto}
               </p>
               <p className="text-lg font-thin">
-              {vision.textTwo}
+              {Vision.texto}
               </p>
             </div>
           </div>
@@ -80,7 +79,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {valores.map((valor, index) => (
+          {Valores.map((valor, index) => (
             <div key={index} className="p-6 rounded-lg shadow-md text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
