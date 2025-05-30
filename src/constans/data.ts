@@ -100,6 +100,7 @@ export const team = [
 // Datos de ejemplo
 export const proyectos = [
   {
+    id: 1,
     titulo: "Análisis de Experiencia de Usuario en Aplicaciones Móviles",
     descripcionCorta: "Estudio de patrones de interacción",
     descripcion:
@@ -139,6 +140,7 @@ export const proyectos = [
     ],
   },
   {
+    id: 2,
     titulo: "Optimización de Interfaces para Accesibilidad",
     descripcionCorta: "Mejorando la accesibilidad web",
     descripcion:
@@ -173,6 +175,7 @@ export const proyectos = [
     ],
   },
   {
+    id: 3,
     titulo: "Patrones de Navegación en Comercio Electrónico",
     descripcionCorta: "Análisis de comportamiento de compra",
     descripcion:
@@ -208,6 +211,7 @@ export const proyectos = [
     ],
   },
   {
+    id: 4,
     titulo: "Diseño Centrado en el Usuario para Aplicaciones Educativas",
     descripcionCorta: "Mejorando experiencias de aprendizaje",
     descripcion:
@@ -241,6 +245,7 @@ export const proyectos = [
     ],
   },
   {
+    id: 5,
     titulo: "Evaluación Heurística de Plataformas Gubernamentales",
     descripcionCorta: "Mejorando servicios públicos digitales",
     descripcion:
@@ -270,6 +275,7 @@ export const proyectos = [
     ],
   },
   {
+    id: 6,
     titulo: "Impacto del Diseño Minimalista en la Usabilidad",
     descripcionCorta: "Análisis de tendencias de diseño",
     descripcion:
@@ -313,6 +319,7 @@ export const proyectos = [
 // Datos de ejemplo - Metodologías
 export const metodologias = [
   {
+    id: 1,
     nombre: "Investigación Cualitativa",
     descripcion:
       "Enfoque que busca comprender en profundidad las experiencias, comportamientos y percepciones de los usuarios a través de métodos como entrevistas, grupos focales y observación.",
@@ -324,6 +331,7 @@ export const metodologias = [
     ],
   },
   {
+    id: 2,
     nombre: "Investigación Cuantitativa",
     descripcion:
       "Metodología basada en la recolección y análisis de datos numéricos para identificar patrones, tendencias y correlaciones en el comportamiento del usuario.",
@@ -335,6 +343,7 @@ export const metodologias = [
     ],
   },
   {
+    id: 3,
     nombre: "Diseño Centrado en el Usuario (DCU)",
     descripcion:
       "Proceso iterativo que coloca al usuario final en el centro de cada etapa del diseño, desde la conceptualización hasta la implementación.",
@@ -346,6 +355,7 @@ export const metodologias = [
     ],
   },
   {
+    id: 4,
     nombre: "Design Thinking",
     descripcion:
       "Enfoque de resolución de problemas centrado en el humano que integra las necesidades de las personas, las posibilidades tecnológicas y los requisitos para el éxito empresarial.",
@@ -368,6 +378,7 @@ export const metodologias = [
     ],
   },
   {
+    id: 5,
     nombre: "Investigación Contextual",
     descripcion:
       "Método de investigación cualitativa que estudia a los usuarios en su entorno natural mientras realizan tareas reales.",
@@ -379,6 +390,7 @@ export const metodologias = [
     ],
   },
   {
+    id: 6,
     nombre: "Análisis Competitivo",
     descripcion:
       "Evaluación sistemática de productos o servicios competidores para identificar fortalezas, debilidades y oportunidades de diferenciación.",
@@ -392,6 +404,7 @@ export const metodologias = [
 ]
 export const tiposPruebas = [
   {
+    id: 1,
     nombre: "Pruebas de Usabilidad en Laboratorio",
     descripcion:
       "Las pruebas de usabilidad en laboratorio son evaluaciones controladas donde los usuarios realizan tareas específicas mientras los investigadores observan y registran su comportamiento.",
@@ -404,6 +417,7 @@ export const tiposPruebas = [
     imagen: "/placeholder.svg?height=300&width=600",
   },
   {
+    id: 2,
     nombre: "Pruebas Remotas No Moderadas",
     descripcion:
       "Las pruebas remotas no moderadas permiten a los usuarios completar tareas en su propio entorno sin la presencia de un moderador, lo que proporciona resultados más naturales.",
@@ -416,6 +430,7 @@ export const tiposPruebas = [
     imagen: "/placeholder.svg?height=300&width=600",
   },
   {
+    id: 3,
     nombre: "Pruebas A/B",
     descripcion:
       "Las pruebas A/B comparan dos versiones de una página o elemento para determinar cuál tiene mejor rendimiento en términos de conversión u otros objetivos.",
@@ -428,6 +443,7 @@ export const tiposPruebas = [
     imagen: "/placeholder.svg?height=300&width=600",
   },
   {
+    id: 4,
     nombre: "Evaluación Heurística",
     descripcion:
       "La evaluación heurística es un método donde expertos en usabilidad evalúan una interfaz según principios establecidos para identificar problemas potenciales.",

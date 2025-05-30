@@ -19,16 +19,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Edit, ImagePlus, Plus, Save, Search, Trash2 } from "lucide-react";
+import { metodologias } from "@/constans/data";
+import { tiposPruebas } from "@/constans/data";
 
 // Definición de tipos
 type Category = "evaluacion" | "tecnologia" | "metodologia";
 
 interface TestType {
   id: number;
-  name: string;
-  description: string;
+  nombre: string;
+  caracteristicas: string;
   category: Category;
-  image: string;
+  imagen: string;
 }
 
 interface Methodology {
@@ -39,38 +41,7 @@ interface Methodology {
 }
 
 export default function PruebasMetodologiaPage() {
-  const [testTypes, setTestTypes] = useState<TestType[]>([
-    {
-      id: 1,
-      name: "Pruebas de Usabilidad",
-      description:
-        "Evaluación de la facilidad de uso de un producto mediante la observación de usuarios reales interactuando con él.",
-      category: "evaluacion",
-      image: "/placeholder.svg",
-    },
-    {
-      id: 2,
-      name: "Eye Tracking",
-      description:
-        "Técnica que registra el movimiento ocular para determinar dónde miran los usuarios y por cuánto tiempo.",
-      category: "tecnologia",
-      image: "/placeholder.svg",
-    },
-    {
-      id: 3,
-      name: "Card Sorting",
-      description: "Método para ayudar a diseñar o evaluar la arquitectura de información de un sitio.",
-      category: "metodologia",
-      image: "/placeholder.svg",
-    },
-    {
-      id: 4,
-      name: "Evaluación Heurística",
-      description: "Análisis de una interfaz basado en principios establecidos de usabilidad.",
-      category: "evaluacion",
-      image: "/placeholder.svg",
-    },
-  ]);
+  const [testTypes, setTestTypes] = useState<TestType[]>(tiposPruebas);
 
   const [methodologies, setMethodologies] = useState<Methodology[]>([
     {

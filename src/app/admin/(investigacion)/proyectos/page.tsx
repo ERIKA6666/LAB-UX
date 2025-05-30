@@ -19,61 +19,55 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { proyectos } from "@/constans/data";
 
-// Definición de tipos
-type StatusCategory = "en-curso" | "finalizado" | "planificado";
+// Definición de tipos (actualizada para coincidir con la estructura)
+interface Colaborador {
+  nombre: string;
+  apellido: string;
+  rol: string;
+  avatar: string;
+}
 
-interface Project {
+type StatusCategory = 
+  | "Completado" 
+  | "En progreso" 
+  | "Pendiente" 
+  | "Cancelado"
+  | "Planificado"
+  | "En pausa"; // Añadido para cubrir todos tus casos
+
+interface Proyecto {
   id: number;
-  title: string;
-  description: string;
-  status: StatusCategory;
-  investigators: string[];
-  startDate: string;
-  endDate: string;
+  titulo: string;
+  descripcionCorta: string;
+  descripcion: string;
+  descripcionDetallada: string;
+  etiquetas: string[];
+  imagen: string;
+  imagenes: string[];
+  estado: StatusCategory;
+  fechaInicio: string;
+  fechaFin: string;
+  progreso: number;
+  colaboradores: Colaborador[];
 }
 
 export default function ProyectosPage() {
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: 1,
-      title: "Evaluación de Usabilidad en Interfaces Móviles",
-      description: "Estudio sobre la usabilidad de aplicaciones móviles en diferentes contextos de uso.",
-      status: "en-curso",
-      investigators: ["Dr. Juan Pérez", "Dra. María López"],
-      startDate: "2023-01-15",
-      endDate: "2023-12-31",
-    },
-    {
-      id: 2,
-      title: "Patrones de Interacción en Realidad Aumentada",
-      description: "Investigación sobre patrones de interacción efectivos en aplicaciones de realidad aumentada.",
-      status: "finalizado",
-      investigators: ["Dr. Carlos Ruiz", "Dra. Ana Martínez"],
-      startDate: "2022-03-10",
-      endDate: "2023-02-28",
-    },
-    {
-      id: 3,
-      title: "Accesibilidad Web para Adultos Mayores",
-      description: "Estudio de accesibilidad web enfocado en mejorar la experiencia de usuarios adultos mayores.",
-      status: "planificado",
-      investigators: ["Dra. Laura Sánchez"],
-      startDate: "2023-09-01",
-      endDate: "2024-08-31",
-    },
-  ]);
+  const [projects, setProjects] = useState<Proyecto[]>(proyectos);
 
-  const getStatusBadge = (status: StatusCategory) => {
-    switch (status) {
-      case "en-curso":
-        return <Badge className="bg-blue-500">En Curso</Badge>;
-      case "finalizado":
-        return <Badge className="bg-green-500">Finalizado</Badge>;
-      case "planificado":
-        return <Badge className="bg-amber-500">Planificado</Badge>;
+  const getStatusBadge = (estado: StatusCategory) => {
+    switch (estado) {
+      case "En progreso":
+        return <Badge className="bg-blue-500">En Progreso</Badge>;
+      case "Completado":
+        return <Badge className="bg-green-500">Completado</Badge>;
+      case "Pendiente":
+        return <Badge className="bg-amber-500">Pendiente</Badge>;
+      case "Cancelado":
+        return <Badge className="bg-red-500">Cancelado</Badge>;
       default:
-        const exhaustiveCheck: never = status;
+        const exhaustiveCheck: never = estado;
         return <Badge>Desconocido</Badge>;
     }
   };
@@ -103,8 +97,12 @@ export default function ProyectosPage() {
                   <Input id="project-title" placeholder="Ingrese el título del proyecto" />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="project-description">Descripción</Label>
-                  <Textarea id="project-description" placeholder="Describa el proyecto" rows={4} />
+                  <Label htmlFor="project-description">Descripción Corta</Label>
+                  <Textarea id="project-description" placeholder="Describa brevemente el proyecto" rows={2} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="project-detailed-description">Descripción Detallada</Label>
+                  <Textarea id="project-detailed-description" placeholder="Describa el proyecto en detalle" rows={4} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -114,15 +112,16 @@ export default function ProyectosPage() {
                         <SelectValue placeholder="Seleccione un estado" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="planificado">Planificado</SelectItem>
-                        <SelectItem value="en-curso">En Curso</SelectItem>
-                        <SelectItem value="finalizado">Finalizado</SelectItem>
+                        <SelectItem value="Pendiente">Pendiente</SelectItem>
+                        <SelectItem value="En progreso">En Progreso</SelectItem>
+                        <SelectItem value="Completado">Completado</SelectItem>
+                        <SelectItem value="Cancelado">Cancelado</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="project-investigators">Investigadores</Label>
-                    <Input id="project-investigators" placeholder="Nombres separados por comas" />
+                    <Label htmlFor="project-tags">Etiquetas</Label>
+                    <Input id="project-tags" placeholder="Etiquetas separadas por comas" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -155,9 +154,10 @@ export default function ProyectosPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos los estados</SelectItem>
-            <SelectItem value="en-curso">En Curso</SelectItem>
-            <SelectItem value="finalizado">Finalizado</SelectItem>
-            <SelectItem value="planificado">Planificado</SelectItem>
+            <SelectItem value="En progreso">En Progreso</SelectItem>
+            <SelectItem value="Completado">Completado</SelectItem>
+            <SelectItem value="Pendiente">Pendiente</SelectItem>
+            <SelectItem value="Cancelado">Cancelado</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -174,22 +174,27 @@ export default function ProyectosPage() {
               <Card key={project.id}>
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{project.title}</CardTitle>
-                    {getStatusBadge(project.status)}
+                    <CardTitle className="text-lg">{project.titulo}</CardTitle>
+                    {getStatusBadge(project.estado)}
                   </div>
                   <CardDescription>
-                    {project.startDate} - {project.endDate}
+                    {project.fechaInicio} - {project.fechaFin}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">{project.description}</p>
+                  <p className="text-sm">{project.descripcionCorta}</p>
                   <div className="mt-4">
-                    <p className="text-sm font-medium">Investigadores:</p>
+                    <p className="text-sm font-medium">Colaboradores:</p>
                     <ul className="text-sm text-muted-foreground">
-                      {project.investigators.map((investigator, index) => (
-                        <li key={index}>{investigator}</li>
+                      {project.colaboradores.map((colaborador, index) => (
+                        <li key={index}>{colaborador.nombre} {colaborador.apellido} ({colaborador.rol})</li>
                       ))}
                     </ul>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {project.etiquetas.map((etiqueta, index) => (
+                      <Badge key={index} variant="secondary">{etiqueta}</Badge>
+                    ))}
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">
@@ -216,7 +221,7 @@ export default function ProyectosPage() {
                     <th className="text-left p-4">Título</th>
                     <th className="text-left p-4">Estado</th>
                     <th className="text-left p-4">Fechas</th>
-                    <th className="text-left p-4">Investigadores</th>
+                    <th className="text-left p-4">Colaboradores</th>
                     <th className="text-right p-4">Acciones</th>
                   </tr>
                 </thead>
@@ -224,16 +229,18 @@ export default function ProyectosPage() {
                   {projects.map((project) => (
                     <tr key={project.id} className="border-b">
                       <td className="p-4">
-                        <div className="font-medium">{project.title}</div>
-                        <div className="text-sm text-muted-foreground">{project.description.substring(0, 60)}...</div>
+                        <div className="font-medium">{project.titulo}</div>
+                        <div className="text-sm text-muted-foreground">{project.descripcionCorta.substring(0, 60)}...</div>
                       </td>
-                      <td className="p-4">{getStatusBadge(project.status)}</td>
+                      <td className="p-4">{getStatusBadge(project.estado)}</td>
                       <td className="p-4">
-                        <div className="text-sm">{project.startDate}</div>
-                        <div className="text-sm">{project.endDate}</div>
+                        <div className="text-sm">{project.fechaInicio}</div>
+                        <div className="text-sm">{project.fechaFin}</div>
                       </td>
                       <td className="p-4">
-                        <div className="text-sm">{project.investigators.join(", ")}</div>
+                        <div className="text-sm">
+                          {project.colaboradores.map(c => `${c.nombre} ${c.apellido}`).join(", ")}
+                        </div>
                       </td>
                       <td className="p-4 text-right">
                         <Button variant="ghost" size="icon" className="mr-2">
@@ -254,4 +261,3 @@ export default function ProyectosPage() {
     </div>
   )
 }
-
