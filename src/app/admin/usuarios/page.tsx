@@ -19,101 +19,119 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react"
-
-type RoleUser = "admin" | "editor" | "viewer";
-type StatusUser = "active" | "inactive";
+import { useEffect } from "react"
+type RoleUser = "admin" | "alumno" | "profesor";
+type StatusUser = "activo" | "inactivo";
 
 interface User {
   id: number,
   name: string,
   email: string,
-  role: RoleUser,
+  tipo_usuario: RoleUser,
   avatar: string,
   initials: string,
-  lastLogin: string,
-  status: StatusUser,
+  fecha_registro: string,
+  estado: StatusUser,
 }
 
 export default function UsuariosPage() {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Juan Pérez",
-      email: "juan.perez@ejemplo.com",
-      role: "admin",
-      avatar: "/placeholder.svg",
-      initials: "JP",
-      lastLogin: "2023-03-15 10:30",
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "María López",
-      email: "maria.lopez@ejemplo.com",
-      role: "editor",
-      avatar: "/placeholder.svg",
-      initials: "ML",
-      lastLogin: "2023-03-14 15:45",
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Carlos Ruiz",
-      email: "carlos.ruiz@ejemplo.com",
-      role: "viewer",
-      avatar: "/placeholder.svg",
-      initials: "CR",
-      lastLogin: "2023-03-10 09:15",
-      status: "inactive",
-    },
-    {
-      id: 4,
-      name: "Ana Martínez",
-      email: "ana.martinez@ejemplo.com",
-      role: "editor",
-      avatar: "/placeholder.svg",
-      initials: "AM",
-      lastLogin: "2023-03-12 14:20",
-      status: "active",
-    },
-    {
-      id: 5,
-      name: "Roberto Sánchez",
-      email: "roberto.sanchez@ejemplo.com",
-      role: "viewer",
-      avatar: "/placeholder.svg",
-      initials: "RS",
-      lastLogin: "2023-02-28 11:05",
-      status: "inactive",
-    },
-  ])
-
-  const getRoleBadge = (role : RoleUser) => {
-    switch (role) {
+  const getRoleBadge = (tipo_usuario : RoleUser) => {
+    switch (tipo_usuario) {
       case "admin":
         return <Badge className="bg-red-500">Administrador</Badge>
-      case "editor":
+      case "alumno":
         return <Badge className="bg-blue-500">Editor</Badge>
-      case "viewer":
+      case "profesor":
         return <Badge className="bg-green-500">Visualizador</Badge>
       default:
         return <Badge>Desconocido</Badge>
     }
   }
 
-  const getStatusBadge = (status : StatusUser) => {
-    switch (status) {
-      case "active":
+  const getStatusBadge = (estado : StatusUser) => {
+    switch (estado) {
+      case "activo":
         return <Badge className="bg-green-500">Activo</Badge>
-      case "inactive":
+      case "inactivo":
         return <Badge variant="outline">Inactivo</Badge>
       default:
         return <Badge variant="outline">Desconocido</Badge>
     }
   }
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(false)
+  const API_URL = process.env.REACT_APP_API_URL || "https://backend.lab-ux.site"
 
-  return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+ useEffect(() => {
+  setLoading(true)
+  fetch(`${API_URL}/usuarios`)
+    .then(res => res.json())
+    .then(data => {
+      
+      // Si la respuesta es un array, úsala directamente
+      if (Array.isArray(data)) {
+        setUsers(data)
+      }
+      // Si la respuesta es un objeto con la propiedad 'usuarios', úsala
+      else if (data && Array.isArray(data.usuarios)) {
+        setUsers(data.usuarios)
+      }
+      // Si no hay datos válidos, pon un array vacío
+      else {
+        setUsers([])
+      }
+    })
+    .finally(() => setLoading(false))
+}, [])
+
+  // 2. Agregar usuario
+  const addUser = async (userData: Partial<User>) => {
+    const res = await fetch(`${API_URL}/usuarios`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    })
+    const newUser = await res.json()
+    setUsers(prev => [...prev, newUser])
+  }
+
+  // 3. Eliminar usuario
+  const deleteUser = async (id: number) => {
+    await fetch(`${API_URL}/usuarios/${id}`, { method: "DELETE" })
+    setUsers(prev => prev.filter(u => u.id !== id))
+  }
+
+  // 4. Actualizar usuario
+  const updateUser = async (id: number, userData: Partial<User>) => {
+    const res = await fetch(`${API_URL}/usuarios/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    })
+    const updated = await res.json()
+    setUsers(prev => prev.map(u => u.id === id ? updated : u))
+  }
+
+
+
+
+
+return (
+  <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex items-center justify-between space-y-2">
+      {/* ...header y botón de nuevo usuario... */}
+    </div>
+
+    <div className="flex items-center space-x-2">
+      {/* ...filtros y búsqueda... */}
+    </div>
+
+    {loading ? (
+      <div className="text-center py-10 text-lg">Cargando usuarios...</div>
+    ) : users.length === 0 ? (
+      <div className="text-center py-10 text-muted-foreground">No hay usuarios para mostrar.</div>
+    ) : (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
         <div className="flex items-center space-x-2">
@@ -244,9 +262,9 @@ export default function UsuariosPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="p-4">{getRoleBadge(user.role as RoleUser)}</td>
-                      <td className="p-4">{getStatusBadge(user.status as StatusUser)}</td>
-                      <td className="p-4">{user.lastLogin}</td>
+                      <td className="p-4">{getRoleBadge(user.tipo_usuario  as RoleUser)}</td>
+                      <td className="p-4">{getStatusBadge(user.estado as StatusUser)}</td>
+                      <td className="p-4">{user.fecha_registro}</td>
                       <td className="p-4 text-right">
                         <Button variant="ghost" size="icon" className="mr-2">
                           <Edit className="h-4 w-4" />
@@ -282,18 +300,18 @@ export default function UsuariosPage() {
                         <CardDescription>{user.email}</CardDescription>
                       </div>
                     </div>
-                    {getStatusBadge(user.status as StatusUser)}
+                    {getStatusBadge(user.estado as StatusUser)}
                   </div>
                 </CardHeader>
                 <CardContent className="pb-2">
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Rol:</span>
-                      <span>{getRoleBadge(user.role as RoleUser)}</span>
+                      <span>{getRoleBadge(user.tipo_usuario as RoleUser)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Último acceso:</span>
-                      <span className="text-sm">{user.lastLogin}</span>
+                      <span className="text-sm">{user.fecha_registro}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -316,6 +334,8 @@ export default function UsuariosPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+    )}
+  </div>
+)
 
+}
