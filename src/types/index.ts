@@ -32,4 +32,3 @@ export * from './solicitudContacto';
 /**************************************
  * Tipos de API y Utilidades *
  **************************************/
-export * from './api';

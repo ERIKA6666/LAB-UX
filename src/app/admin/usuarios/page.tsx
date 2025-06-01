@@ -1,8 +1,9 @@
-"use client"
+// app/usuarios/page.tsx
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -11,193 +12,251 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react"
-import { useEffect } from "react"
-type RoleUser = "admin" | "alumno" | "profesor";
-type StatusUser = "activo" | "inactivo";
-
-interface User {
-  id: number,
-  name: string,
-  email: string,
-  tipo_usuario: RoleUser,
-  avatar: string,
-  initials: string,
-  fecha_registro: string,
-  estado: StatusUser,
-}
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react";
+import { User, RoleUser, StatusUser } from "@/types/index";
+import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/usuarioService";
 
 export default function UsuariosPage() {
-  const getRoleBadge = (tipo_usuario : RoleUser) => {
+  // Estados para la lista de usuarios
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [filterRol, setFilterRol] = useState("todos");
+  const [filterEstado, setFilterEstado] = useState("todos-status");
+
+  // Estados para el formulario
+  const [formData, setFormData] = useState<Partial<User>>({
+    name: '',
+    email: '',
+    tipo_usuario: 'alumno',
+    estado: 'activo',
+    password: ''
+  });
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+  // Cargar usuarios
+  useEffect(() => {
+    setLoading(true);
+    fetchUsers(search, filterRol, filterEstado)
+      .then(data => setUsers(data))
+      .finally(() => setLoading(false));
+  }, [search, filterRol, filterEstado]);
+
+  // Manejadores de usuarios
+  const handleAddUser = async (userData: Partial<User>) => {
+    const newUser = await addUser(userData);
+    setUsers(prev => [...prev, newUser]);
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    await deleteUser(id);
+    setUsers(prev => prev.filter(u => u.id !== id));
+  };
+
+  const handleUpdateUser = async (id: number, userData: Partial<User>) => {
+    const updated = await updateUser(id, userData);
+    setUsers(prev => prev.map(u => u.id === id ? updated : u));
+  };
+
+  // Manejadores del formulario
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (value: string, field: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, estado: e.target.checked ? 'activo' : 'inactivo' }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (currentUserId) {
+      await handleUpdateUser(currentUserId, formData);
+    } else {
+      await handleAddUser(formData);
+    }
+    
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      email: '',
+      tipo_usuario: 'alumno',
+      estado: 'activo',
+      password: ''
+    });
+    setConfirmPassword('');
+    setCurrentUserId(null);
+  };
+
+  const openEditModal = (user: User) => {
+    setFormData({
+      name: user.name,
+      email: user.email,
+      tipo_usuario: user.tipo_usuario,
+      estado: user.estado,
+      password: '' // No mostramos la contraseña actual por seguridad
+    });
+    setCurrentUserId(user.id);
+    setIsDialogOpen(true);
+  };
+
+  // Funciones para renderizar badges
+  const getRoleBadge = (tipo_usuario: RoleUser) => {
     switch (tipo_usuario) {
       case "admin":
-        return <Badge className="bg-red-500">Administrador</Badge>
+        return <Badge className="bg-red-500">Administrador</Badge>;
       case "alumno":
-        return <Badge className="bg-blue-500">Editor</Badge>
+        return <Badge className="bg-blue-500">Alumno</Badge>;
       case "profesor":
-        return <Badge className="bg-green-500">Visualizador</Badge>
+        return <Badge className="bg-green-500">Profesor</Badge>;
       default:
-        return <Badge>Desconocido</Badge>
+        return <Badge>Desconocido</Badge>;
     }
-  }
+  };
 
-  const getStatusBadge = (estado : StatusUser) => {
+  const getStatusBadge = (estado: StatusUser) => {
     switch (estado) {
       case "activo":
-        return <Badge className="bg-green-500">Activo</Badge>
+        return <Badge className="bg-green-500">Activo</Badge>;
       case "inactivo":
-        return <Badge variant="outline">Inactivo</Badge>
+        return <Badge variant="outline">Inactivo</Badge>;
       default:
-        return <Badge variant="outline">Desconocido</Badge>
+        return <Badge variant="outline">Desconocido</Badge>;
     }
-  }
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(false)
-  const [search, setSearch] = useState("")
-  const [searchInput, setSearchInput] = useState("")
-  const [filterRol, setFilterRol] = useState("todos")
-  const [filterEstado, setFilterEstado] = useState("todos-status")
-  const API_URL = process.env.REACT_APP_API_URL || "https://backend.lab-ux.site"
+  };
 
- useEffect(() => {
-  setLoading(true)
-  const params = new URLSearchParams()
-  if (search) params.append("q", search)
-  if (filterRol !== "todos") params.append("tipo_usuario", filterRol)
-  if (filterEstado !== "todos-status") params.append("estado", filterEstado)
-
-  fetch(`${API_URL}/usuarios?${params.toString()}`)
-    .then(res => res.json())
-    .then(data => {
-      // Si la respuesta es un array, úsala directamente
-      if (Array.isArray(data)) {
-        setUsers(data)
-      }
-      // Si la respuesta es un objeto con la propiedad 'usuarios', úsala
-      else if (data && Array.isArray(data.usuarios)) {
-        setUsers(data.usuarios)
-      }
-      // Si no hay datos válidos, pon un array vacío
-      else {
-        setUsers([])
-      }
-    })
-    .finally(() => setLoading(false))
-}, [search, filterRol, filterEstado])
-
-  // 2. Agregar usuario
-  const addUser = async (userData: Partial<User>) => {
-    const res = await fetch(`${API_URL}/usuarios`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    })
-    const newUser = await res.json()
-    setUsers(prev => [...prev, newUser])
-  }
-
-  // 3. Eliminar usuario
-  const deleteUser = async (id: number) => {
-    await fetch(`${API_URL}/usuarios/${id}`, { method: "DELETE" })
-    setUsers(prev => prev.filter(u => u.id !== id))
-  }
-
-  // 4. Actualizar usuario
-  const updateUser = async (id: number, userData: Partial<User>) => {
-    const res = await fetch(`${API_URL}/usuarios/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    })
-    const updated = await res.json()
-    setUsers(prev => prev.map(u => u.id === id ? updated : u))
-  }
-
-
-
-
-
-return (
-  <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-    <div className="flex items-center justify-between space-y-2">
-      {/* ...header y botón de nuevo usuario... */}
-    </div>
-
-    <div className="flex items-center space-x-2">
-      {/* ...filtros y búsqueda... */}
-    </div>
-
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+  return (
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
         <div className="flex items-center space-x-2">
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => resetForm()}>
                 <UserPlus className="mr-2 h-4 w-4" />
                 Nuevo Usuario
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] bg-background text-white">
               <DialogHeader>
-                <DialogTitle>Crear Nuevo Usuario</DialogTitle>
+                <DialogTitle>
+                  {currentUserId ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
+                </DialogTitle>
                 <DialogDescription>
-                  Complete la información para crear un nuevo usuario en el sistema.
+                  {currentUserId 
+                    ? 'Modifique la información del usuario.' 
+                    : 'Complete la información para crear un nuevo usuario en el sistema.'}
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="user-name">Nombre Completo</Label>
-                    <Input id="user-name" placeholder="Nombre y apellidos" />
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Nombre Completo</Label>
+                      <Input 
+                        id="name" 
+                        name="name"
+                        placeholder="Nombre y apellidos" 
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Correo Electrónico</Label>
+                      <Input 
+                        id="email" 
+                        name="email"
+                        type="email" 
+                        placeholder="correo@ejemplo.com" 
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
                   </div>
+                  {!currentUserId && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="password">Contraseña</Label>
+                        <Input 
+                          id="password" 
+                          name="password"
+                          type="password" 
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          required={!currentUserId}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                        <Input 
+                          id="confirmPassword" 
+                          type="password" 
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required={!currentUserId}
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div className="grid gap-2">
-                    <Label htmlFor="user-email">Correo Electrónico</Label>
-                    <Input id="user-email" type="email" placeholder="correo@ejemplo.com" />
+                    <Label htmlFor="tipo_usuario">Rol</Label>
+                    <Select 
+                      value={formData.tipo_usuario} 
+                      onValueChange={(value) => handleSelectChange(value, 'tipo_usuario')}
+                    >
+                      <SelectTrigger id="tipo_usuario">
+                        <SelectValue placeholder="Seleccione un rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                        <SelectItem value="alumno">Alumno</SelectItem>
+                        <SelectItem value="profesor">Profesor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      id="estado" 
+                      className="h-4 w-4 rounded border-gray-300" 
+                      checked={formData.estado === 'activo'}
+                      onChange={handleStatusChange}
+                    />
+                    <Label htmlFor="estado">Usuario activo</Label>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="user-password">Contraseña</Label>
-                    <Input id="user-password" type="password" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="user-confirm-password">Confirmar Contraseña</Label>
-                    <Input id="user-confirm-password" type="password" />
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="user-role">Rol</Label>
-                  <Select>
-                    <SelectTrigger id="user-role">
-                      <SelectValue placeholder="Seleccione un rol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                      <SelectItem value="editor">Editor</SelectItem>
-                      <SelectItem value="viewer">Visualizador</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="user-avatar">Avatar (opcional)</Label>
-                  <Input id="user-avatar" type="file" />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="user-active" className="h-4 w-4 rounded border-gray-300" defaultChecked />
-                  <Label htmlFor="user-active">Usuario activo</Label>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Crear Usuario</Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button type="submit">
+                    {currentUserId ? 'Actualizar Usuario' : 'Crear Usuario'}
+                  </Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
@@ -206,8 +265,8 @@ return (
       <div className="flex items-center space-x-2">
         <form
           onSubmit={e => {
-            e.preventDefault()
-            setSearch(searchInput)
+            e.preventDefault();
+            setSearch(searchInput);
           }}
           className="relative flex-1 max-w-sm"
         >
@@ -226,7 +285,7 @@ return (
             onChange={e => setSearchInput(e.target.value)}
             onKeyDown={e => {
               if (e.key === "Enter") {
-                setSearch(searchInput)
+                setSearch(searchInput);
               }
             }}
           />
@@ -238,8 +297,8 @@ return (
           <SelectContent>
             <SelectItem value="todos">Todos los roles</SelectItem>
             <SelectItem value="admin">Administrador</SelectItem>
-            <SelectItem value="alumno">alumno</SelectItem>
-            <SelectItem value="profesor">profesor</SelectItem>
+            <SelectItem value="alumno">Alumno</SelectItem>
+            <SelectItem value="profesor">Profesor</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filterEstado} onValueChange={setFilterEstado}>
@@ -294,17 +353,26 @@ return (
                               </div>
                             </div>
                           </td>
-                          <td className="p-4">{getRoleBadge(user.tipo_usuario  as RoleUser)}</td>
+                          <td className="p-4">{getRoleBadge(user.tipo_usuario as RoleUser)}</td>
                           <td className="p-4">{getStatusBadge(user.estado as StatusUser)}</td>
                           <td className="p-4">{user.fecha_registro}</td>
                           <td className="p-4 text-right">
-                            <Button variant="ghost" size="icon" className="mr-2">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="mr-2"
+                              onClick={() => openEditModal(user)}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" className="mr-2">
                               <Lock className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </td>
@@ -350,7 +418,11 @@ return (
                   </div>
                 </CardContent>
                 <CardContent className="flex justify-between pt-0">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => openEditModal(user)}
+                  >
                     <Edit className="mr-2 h-4 w-4" />
                     Editar
                   </Button>
@@ -358,7 +430,11 @@ return (
                     <Lock className="mr-2 h-4 w-4" />
                     Contraseña
                   </Button>
-                  <Button variant="destructive" size="sm">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDeleteUser(user.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </CardContent>
@@ -368,7 +444,5 @@ return (
         </TabsContent>
       </Tabs>
     </div>
-  </div>
-)
-
+  );
 }
