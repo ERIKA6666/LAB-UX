@@ -21,9 +21,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react";
 import { User, RoleUser, StatusUser } from "@/types/index";
-import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/usuarioService";
+import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/index";
+//import { set } from "react-hook-form";
 
 export default function UsuariosPage() {
+  // Estado para el loading
+  const [submitLoading, setSubmitLoading] = useState(false);
   // Estados para la lista de usuarios
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,6 +34,12 @@ export default function UsuariosPage() {
   const [searchInput, setSearchInput] = useState("");
   const [filterRol, setFilterRol] = useState("todos");
   const [filterEstado, setFilterEstado] = useState("todos-status");
+
+    // Estados para los diálogos
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deactivatingUser, setDeactivatingUser] = useState<User | null>(null);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState("");
 
   // Estados para el formulario
   const [formData, setFormData] = useState<Partial<User>>({
@@ -54,18 +63,41 @@ export default function UsuariosPage() {
 
   // Manejadores de usuarios
   const handleAddUser = async (userData: Partial<User>) => {
-    const newUser = await addUser(userData);
-    setUsers(prev => [...prev, newUser]);
+    setSubmitLoading(true);
+    try {
+      const newUser = await addUser(userData);
+      if (newUser) {
+        setUsers(prev => [...prev, newUser]);
+        return newUser;
+      }
+      throw new Error("No se recibió respuesta del servidor");
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const handleDeleteUser = async (id: number) => {
-    await deleteUser(id);
-    setUsers(prev => prev.filter(u => u.id !== id));
+    setSubmitLoading(true);
+    try {
+      await deleteUser(id);
+      setUsers(prev => prev.filter(u => u.id !== id));
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const handleUpdateUser = async (id: number, userData: Partial<User>) => {
-    const updated = await updateUser(id, userData);
-    setUsers(prev => prev.map(u => u.id === id ? updated : u));
+    setSubmitLoading(true);
+    try {
+      const updated = await updateUser(id, userData);
+      if (updated) {
+        setUsers(prev => prev.map(u => u.id === id ? updated : u));
+        return updated;
+      }
+      throw new Error("No se recibió respuesta del servidor");
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   // Manejadores del formulario
@@ -84,20 +116,30 @@ export default function UsuariosPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitLoading(true);
     
-    if (formData.password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
+    try {
+      if (!currentUserId && formData.password !== confirmPassword) {
+        throw new Error("Las contraseñas no coinciden");
+      }
 
-    if (currentUserId) {
-      await handleUpdateUser(currentUserId, formData);
-    } else {
-      await handleAddUser(formData);
+      if (currentUserId) {
+        await handleUpdateUser(currentUserId, formData);
+        setShowSuccessMessage("Usuario actualizado correctamente");
+      } else {
+        await handleAddUser(formData);
+        setShowSuccessMessage("Usuario creado correctamente");
+      }
+      
+      setIsDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message || "Ocurrió un error");
+    } finally {
+      setSubmitLoading(false);
+      setTimeout(() => setShowSuccessMessage(""), 3000);
     }
-    
-    setIsDialogOpen(false);
-    resetForm();
   };
 
   const resetForm = () => {
@@ -154,24 +196,30 @@ export default function UsuariosPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
         <div className="flex items-center space-x-2">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => resetForm()}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Nuevo Usuario
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] bg-background text-white">
-              <DialogHeader>
-                <DialogTitle>
-                  {currentUserId ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
-                </DialogTitle>
-                <DialogDescription>
-                  {currentUserId 
-                    ? 'Modifique la información del usuario.' 
-                    : 'Complete la información para crear un nuevo usuario en el sistema.'}
-                </DialogDescription>
-              </DialogHeader>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              if (!open) resetForm();
+              setIsDialogOpen(open);
+            }}>
+              <DialogTrigger asChild>
+                <Button onClick={() => {
+                  resetForm();
+                  setIsDialogOpen(true);
+                }}>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Nuevo Usuario
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px] bg-background text-white">
+                <DialogHeader>
+                  <DialogTitle>
+                    {currentUserId ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {currentUserId 
+                      ? 'Modifique la información del usuario.' 
+                      : 'Complete la información para crear un nuevo usuario en el sistema.'}
+                  </DialogDescription>
+                </DialogHeader>
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -252,11 +300,158 @@ export default function UsuariosPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">
-                    {currentUserId ? 'Actualizar Usuario' : 'Crear Usuario'}
+                  <Button type="submit" disabled={submitLoading}>
+                    {submitLoading ? (
+                      <div className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </div>
+                    ) : currentUserId ? 'Actualizar Usuario' : 'Crear Usuario'}
                   </Button>
                 </DialogFooter>
               </form>
+            </DialogContent>
+          </Dialog>
+          {/* Diálogo de Editar Usuario */}
+          <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Editar Usuario</DialogTitle>
+                <DialogDescription>Modifique la información del usuario {editingUser?.name}.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (editingUser) {
+                  await handleUpdateUser(editingUser.id, formData);
+                  setEditingUser(null);
+                  setShowSuccessMessage("Usuario actualizado correctamente");
+                  setTimeout(() => setShowSuccessMessage(""), 3000);
+                }
+              }}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-user-name">Nombre Completo</Label>
+                    <Input id="edit-user-name" defaultValue={editingUser?.name} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-user-email">Correo Electrónico</Label>
+                    <Input id="edit-user-email" type="email" defaultValue={editingUser?.email} />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-user-role">Rol</Label>
+                  <Select defaultValue={editingUser?.tipo_usuario}>
+                    <SelectTrigger id="edit-user-role">
+                      <SelectValue placeholder="Seleccione un rol" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="alumno">Alumno</SelectItem>
+                      <SelectItem value="profesor">Profesor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-user-avatar">Avatar (opcional)</Label>
+                  <Input id="edit-user-avatar" type="file" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit-user-active"
+                    className="h-4 w-4 rounded border-gray-300"
+                    defaultChecked={editingUser?.estado === "activo"}
+                  />
+                  <Label htmlFor="edit-user-active">Usuario activo</Label>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={submitLoading}>
+                  {submitLoading ? "Guardando..." : "Guardar Cambios"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+          {/* Diálogo de Desactivar/Activar Usuario */}
+          <Dialog open={!!deactivatingUser} onOpenChange={() => setDeactivatingUser(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{deactivatingUser?.estado === "activo" ? "Desactivar" : "Activar"} Usuario</DialogTitle>
+                <DialogDescription>
+                  ¿Está seguro que desea {deactivatingUser?.estado === "activo" ? "desactivar" : "activar"} al usuario{" "}
+                  {deactivatingUser?.name}?
+                  {deactivatingUser?.estado === "activo" &&
+                    " El usuario no podrá acceder al sistema hasta que sea reactivado."}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeactivatingUser(null)}>
+                  Cancelar
+                </Button>
+                 <Button
+                  variant={deactivatingUser?.estado === "activo" ? "destructive" : "default"}
+                  onClick={async () => {
+                    if (deactivatingUser) {
+                      const newStatus = deactivatingUser.estado === "activo" ? "inactivo" : "activo";
+                      
+                      // Actualiza el usuario en el backend
+                      await handleUpdateUser(deactivatingUser.id, {
+                        estado: newStatus
+                      });
+                      
+                      const action = deactivatingUser.estado === "activo" ? "desactivado" : "activado";
+                      setDeactivatingUser(null);
+                      setShowSuccessMessage(`Usuario ${action} correctamente`);
+                      setTimeout(() => setShowSuccessMessage(""), 3000);
+                    }
+                  }}
+                >
+                  {deactivatingUser?.estado === "activo" ? "Desactivar" : "Activar"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Diálogo de Eliminar Usuario */}
+          <Dialog open={!!deletingUser} onOpenChange={() => setDeletingUser(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Eliminar Usuario</DialogTitle>
+                <DialogDescription>
+                  ¿Está seguro que desea eliminar permanentemente al usuario {deletingUser?.name}? Esta acción no se puede
+                  deshacer y se perderán todos los datos asociados al usuario.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeletingUser(null)}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    if (deletingUser) {
+                      setSubmitLoading(true);
+                      try {
+                        await handleDeleteUser(deletingUser.id);
+                        setDeletingUser(null);
+                        setShowSuccessMessage("Usuario eliminado correctamente");
+                        setTimeout(() => setShowSuccessMessage(""), 3000);
+                      } finally {
+                        setSubmitLoading(false);
+                      }
+                    }
+                  }}
+                  disabled={submitLoading}
+                >
+                  {submitLoading ? "Eliminando..." : "Eliminar"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -361,17 +556,21 @@ export default function UsuariosPage() {
                               variant="ghost" 
                               size="icon" 
                               className="mr-2"
-                              onClick={() => openEditModal(user)}
+                              onClick={() => setEditingUser(user)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="mr-2">
+                            <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="mr-2"
+                            onClick={() => setDeactivatingUser(user)}>
                               <Lock className="h-4 w-4" />
                             </Button>
                             <Button 
                               variant="ghost" 
                               size="icon"
-                              onClick={() => handleDeleteUser(user.id)}
+                              onClick={() => setDeletingUser(user)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -426,14 +625,17 @@ export default function UsuariosPage() {
                     <Edit className="mr-2 h-4 w-4" />
                     Editar
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                  variant="outline" 
+                  size="sm"
+                   onClick={() => setDeactivatingUser(user)}>
                     <Lock className="mr-2 h-4 w-4" />
                     Contraseña
                   </Button>
-                  <Button 
+                 <Button 
                     variant="destructive" 
                     size="sm"
-                    onClick={() => handleDeleteUser(user.id)}
+                    onClick={() => setDeletingUser(user)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -443,6 +645,11 @@ export default function UsuariosPage() {
           </div>
         </TabsContent>
       </Tabs>
+      {showSuccessMessage && (
+      <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg">
+        {showSuccessMessage}
+      </div>
+      )}
     </div>
   );
 }
