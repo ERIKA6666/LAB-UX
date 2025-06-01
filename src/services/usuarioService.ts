@@ -40,14 +40,17 @@ export const addUser = async (userData: Partial<User>) => {
     // Asegúrate de que la API devuelva todos los campos necesarios
     return {
       id: responseData.id,
-      nombre: responseData.nombre || userData.nombre,
-      correo: responseData.correo || userData.correo,
-      tipo_usuario: responseData.tipo_usuario || userData.tipo_usuario,
-      estado: responseData.estado || userData.estado,
-      fecha_registro: responseData.fecha_registro || new Date().toISOString(),
-      avatar: responseData.avatar || '',
-      initials: responseData.initials || 
-        (responseData.nombre?.split(' ').map(n => n[0]).join('') || '')
+      correo: responseData.correo,
+      password: responseData.password, // Consider security implications
+      nombre: responseData.nombre,
+      apellido: responseData.apellido,
+      telefono: responseData.telefono,
+      username: responseData.username,
+      tipo_usuario: responseData.tipo_usuario,
+      fecha_registro: responseData.fecha_registro,
+      estado: responseData.estado,
+      avatar: responseData.avatar,
+      initials: responseData.initials,
     };
   } catch (error) {
     console.error("Error en addUser:", error);

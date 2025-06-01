@@ -68,17 +68,18 @@ export default function UsuariosPage() {
       const newUser = await addUser(userData);
       if (newUser) {
         // Asegura que todos los campos requeridos estén presentes
-        const completeUser = {
-          id: newUser.id,
-          nombre: newUser.nombre || formData.nombre,
-          correo: newUser.correo || formData.correo,
-          tipo_usuario: newUser.tipo_usuario || formData.tipo_usuario,
-          estado: newUser.estado || formData.estado,
-          fecha_registro: newUser.fecha_registro || new Date().toISOString(),
-          avatar: newUser.avatar || '',
-          initials: newUser.initials || (formData.nombre ? 
-            formData.nombre.split(' ').map(n => n[0]).join('') : '')
-        };
+        const completeUser: User = {
+        id: newUser.id,
+        nombre: newUser.nombre || formData.nombre,
+        correo: newUser.correo || formData.correo,
+        tipo_usuario: newUser.tipo_usuario || formData.tipo_usuario,
+        estado: newUser.estado || formData.estado,
+        fecha_registro: newUser.fecha_registro || new Date().toISOString(),
+        avatar: newUser.avatar || '',
+        initials: newUser.initials || (formData.nombre ? 
+          formData.nombre.split(' ').map(n => n[0]).join('') : ''),
+        password: newUser.password || '' // Manejo adecuado de password
+      };
         setUsers(prev => [...prev, completeUser]);
         return completeUser;
       }
@@ -146,8 +147,9 @@ export default function UsuariosPage() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
+      const err = error as Error;
       console.error("Error:", error);
-      alert(error.message || "Ocurrió un error");
+      alert(err.message || "Ocurrió un error");
     } finally {
       setSubmitLoading(false);
       setTimeout(() => setShowSuccessMessage(""), 3000);
@@ -166,17 +168,6 @@ export default function UsuariosPage() {
     setCurrentUserId(null);
   };
 
-  const openEditModal = (user: User) => {
-    setFormData({
-      nombre: user.nombre,
-      correo: user.correo,
-      tipo_usuario: user.tipo_usuario,
-      estado: user.estado,
-      password: '' // No mostramos la contraseña actual por seguridad
-    });
-    setCurrentUserId(user.id);
-    setIsDialogOpen(true);
-  };
 
   // Funciones para renderizar badges
   const getRoleBadge = (tipo_usuario: RoleUser) => {
@@ -636,11 +627,12 @@ export default function UsuariosPage() {
                 </CardContent>
                 <CardContent className="flex justify-between pt-0">
                   <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => openEditModal(user)}
+                    variant="ghost" 
+                    size="icon" 
+                    className="mr-2"
+                    onClick={() => setEditingUser(user)}
                   >
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="h-4 w-4" />
                     Editar
                   </Button>
                   <Button 
