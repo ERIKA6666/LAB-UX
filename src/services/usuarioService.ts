@@ -21,12 +21,38 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
 };
 
 export const addUser = async (userData: Partial<User>) => {
-  const res = await fetch(`${API_URL}/usuarios`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
-  return await res.json();
+  try {
+    const res = await fetch(`${API_URL}/usuarios`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Error al crear usuario");
+    }
+
+    const responseData = await res.json();
+    // Asegúrate de que la API devuelva todos los campos necesarios
+    return {
+      id: responseData.id,
+      nombre: responseData.nombre || userData.nombre,
+      correo: responseData.correo || userData.correo,
+      tipo_usuario: responseData.tipo_usuario || userData.tipo_usuario,
+      estado: responseData.estado || userData.estado,
+      fecha_registro: responseData.fecha_registro || new Date().toISOString(),
+      avatar: responseData.avatar || '',
+      initials: responseData.initials || 
+        (responseData.nombre?.split(' ').map(n => n[0]).join('') || '')
+    };
+  } catch (error) {
+    console.error("Error en addUser:", error);
+    throw error;
+  }
 };
 
 export const deleteUser = async (id: number) => {

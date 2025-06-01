@@ -43,9 +43,9 @@ export default function UsuariosPage() {
 
   // Estados para el formulario
   const [formData, setFormData] = useState<Partial<User>>({
-    name: '',
-    email: '',
-    tipo_usuario: 'alumno',
+    nombre: '',
+    correo: '',
+    tipo_usuario: 'alumno', // Valor por defecto
     estado: 'activo',
     password: ''
   });
@@ -67,8 +67,20 @@ export default function UsuariosPage() {
     try {
       const newUser = await addUser(userData);
       if (newUser) {
-        setUsers(prev => [...prev, newUser]);
-        return newUser;
+        // Asegura que todos los campos requeridos estén presentes
+        const completeUser = {
+          id: newUser.id,
+          nombre: newUser.nombre || formData.nombre,
+          correo: newUser.correo || formData.correo,
+          tipo_usuario: newUser.tipo_usuario || formData.tipo_usuario,
+          estado: newUser.estado || formData.estado,
+          fecha_registro: newUser.fecha_registro || new Date().toISOString(),
+          avatar: newUser.avatar || '',
+          initials: newUser.initials || (formData.nombre ? 
+            formData.nombre.split(' ').map(n => n[0]).join('') : '')
+        };
+        setUsers(prev => [...prev, completeUser]);
+        return completeUser;
       }
       throw new Error("No se recibió respuesta del servidor");
     } finally {
@@ -144,8 +156,8 @@ export default function UsuariosPage() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      email: '',
+      nombre: '',
+      correo: '',
       tipo_usuario: 'alumno',
       estado: 'activo',
       password: ''
@@ -156,8 +168,8 @@ export default function UsuariosPage() {
 
   const openEditModal = (user: User) => {
     setFormData({
-      name: user.name,
-      email: user.email,
+      nombre: user.nombre,
+      correo: user.correo,
       tipo_usuario: user.tipo_usuario,
       estado: user.estado,
       password: '' // No mostramos la contraseña actual por seguridad
@@ -224,24 +236,24 @@ export default function UsuariosPage() {
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="name">Nombre Completo</Label>
+                      <Label htmlFor="nombre">Nombre Completo</Label>
                       <Input 
-                        id="name" 
-                        name="name"
+                        id="nombre" 
+                        name="nombre"
                         placeholder="Nombre y apellidos" 
-                        value={formData.name}
+                        value={formData.nombre}
                         onChange={handleInputChange}
                         required
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="email">Correo Electrónico</Label>
+                      <Label htmlFor="correo">Correo Electrónico</Label>
                       <Input 
-                        id="email" 
-                        name="email"
+                        id="correo" 
+                        name="correo"
                         type="email" 
                         placeholder="correo@ejemplo.com" 
-                        value={formData.email}
+                        value={formData.correo}
                         onChange={handleInputChange}
                         required
                       />
@@ -320,7 +332,7 @@ export default function UsuariosPage() {
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Editar Usuario</DialogTitle>
-                <DialogDescription>Modifique la información del usuario {editingUser?.name}.</DialogDescription>
+                <DialogDescription>Modifique la información del usuario {editingUser?.nombre}.</DialogDescription>
               </DialogHeader>
               <form onSubmit={async (e) => {
                 e.preventDefault();
@@ -335,16 +347,22 @@ export default function UsuariosPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="edit-user-name">Nombre Completo</Label>
-                    <Input id="edit-user-name" defaultValue={editingUser?.name} />
+                    <Input id="edit-user-name" defaultValue={editingUser?.nombre} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="edit-user-email">Correo Electrónico</Label>
-                    <Input id="edit-user-email" type="email" defaultValue={editingUser?.email} />
+                    <Input id="edit-user-email" type="email" defaultValue={editingUser?.correo} />
                   </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="edit-user-role">Rol</Label>
-                  <Select defaultValue={editingUser?.tipo_usuario}>
+                  <Select 
+                    value={formData.tipo_usuario} 
+                    onValueChange={(value) => {
+                      console.log("Rol seleccionado:", value); // Para depuración
+                      handleSelectChange(value, 'tipo_usuario');
+                    }}
+                  >
                     <SelectTrigger id="edit-user-role">
                       <SelectValue placeholder="Seleccione un rol" />
                     </SelectTrigger>
@@ -385,7 +403,7 @@ export default function UsuariosPage() {
                 <DialogTitle>{deactivatingUser?.estado === "activo" ? "Desactivar" : "Activar"} Usuario</DialogTitle>
                 <DialogDescription>
                   ¿Está seguro que desea {deactivatingUser?.estado === "activo" ? "desactivar" : "activar"} al usuario{" "}
-                  {deactivatingUser?.name}?
+                  {deactivatingUser?.nombre}?
                   {deactivatingUser?.estado === "activo" &&
                     " El usuario no podrá acceder al sistema hasta que sea reactivado."}
                 </DialogDescription>
@@ -424,7 +442,7 @@ export default function UsuariosPage() {
               <DialogHeader>
                 <DialogTitle>Eliminar Usuario</DialogTitle>
                 <DialogDescription>
-                  ¿Está seguro que desea eliminar permanentemente al usuario {deletingUser?.name}? Esta acción no se puede
+                  ¿Está seguro que desea eliminar permanentemente al usuario {deletingUser?.nombre}? Esta acción no se puede
                   deshacer y se perderán todos los datos asociados al usuario.
                 </DialogDescription>
               </DialogHeader>
@@ -539,12 +557,12 @@ export default function UsuariosPage() {
                           <td className="p-4">
                             <div className="flex items-center space-x-3">
                               <Avatar>
-                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarImage src={user.avatar} alt={user.nombre} />
                                 <AvatarFallback>{user.initials}</AvatarFallback>
                               </Avatar>
                               <div>
-                                <div className="font-medium">{user.name}</div>
-                                <div className="text-sm text-muted-foreground">{user.email}</div>
+                                <div className="text-sm text-muted-foreground">{user.nombre}</div>
+                                <div className="text-sm text-muted-foreground">{user.correo}</div>
                               </div>
                             </div>
                           </td>
@@ -593,12 +611,12 @@ export default function UsuariosPage() {
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage src={user.avatar} alt={user.nombre} />
                         <AvatarFallback>{user.initials}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-lg">{user.name}</CardTitle>
-                        <CardDescription>{user.email}</CardDescription>
+                        <CardTitle className="text-lg">{user.nombre}</CardTitle>
+                        <CardDescription>{user.nombre}</CardDescription>
                       </div>
                     </div>
                     {getStatusBadge(user.estado as StatusUser)}

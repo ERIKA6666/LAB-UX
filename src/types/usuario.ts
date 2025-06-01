@@ -4,12 +4,15 @@ export type StatusUser = "activo" | "inactivo";
 
 export interface User {
   id: number;
-  name: string;
-  email: string;
+  correo: string;
+  password: string; // Optional for security reasons
+  nombre: string;
+  apellido?: string;
+  telefono?: string;
+  username?: string;
   tipo_usuario: RoleUser;
-  avatar: string;
-  initials: string;
-  fecha_registro: string;
-  estado: StatusUser;
-  password?: string; // Optional for security reasons
+  fecha_registro?: string;
+  estado?: StatusUser;
+  avatar?: string;
+  initials?: string;
 }
