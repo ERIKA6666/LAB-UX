@@ -57,7 +57,7 @@ export default function Support() {
           setRespuesta(resultado.error || 'Hubo un problema al procesar tu solicitud. Por favor, revisa los datos e inténtalo nuevamente.');
         }
         } catch (error) {
-          setRespuesta('Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.');
+          setRespuesta('Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.'+ error);
         }
         
     };
@@ -234,7 +234,7 @@ export default function Support() {
           </div>
           {guides.map((guide) => (
             <Dialog key={guide.id} open={openGuide === guide.id} onOpenChange={(open) => !open && setOpenGuide(null)}>
-              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background text-white">
+              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{guide.title}</DialogTitle>
                   <DialogDescription>{guide.description}</DialogDescription>

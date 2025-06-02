@@ -1,8 +1,6 @@
-import Link from "next/link"
+"use client"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft } from "lucide-react"
 import { metodologias, tiposPruebas } from "@/constans/data"
 
 export default function MetodologiasPage() {

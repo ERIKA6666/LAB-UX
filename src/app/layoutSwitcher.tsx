@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import LayoutNormal from "./layoutNormal";
 import LayoutAdmin from "./layoutAdmin";
+import  "../styles/globals.css"; // Asegúrate de importar tus estilos globales
+
 import { getUsuarioActual, cerrarSesion } from "../hooks/islogin"; // Ajusta según tu auth
 
 interface LayoutProps {

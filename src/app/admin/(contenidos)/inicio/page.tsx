@@ -50,11 +50,7 @@ export default function InicioPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="aspect-video relative overflow-hidden rounded-md border">
-                    <img
-                      src={banner.image || "/placeholder.svg"}
-                      alt={banner.title}
-                      className="object-cover w-full h-full"
-                    />
+                      <img src={banner.image || "/placeholder.svg"} alt={banner.title} className="object-cover w-full h-full" />
                     <Button variant="outline" size="icon" className="absolute bottom-2 right-2 bg-background/80">
                       <ImagePlus className="h-4 w-4" />
                     </Button>

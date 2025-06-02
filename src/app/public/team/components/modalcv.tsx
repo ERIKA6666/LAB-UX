@@ -25,7 +25,7 @@ export function ModalCv({ perfil }: ModalCvProps) {
       <DialogTrigger asChild>
         <Button variant="ghost">Ver Curriculum Vitae</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-4xl p-0 overflow-hidden bg-background text-white">
+      <DialogContent className="sm:max-w-4xl p-0 overflow-hidden ">
         <div className="flex flex-col md:flex-row h-[80vh]">
           {/* Imagen del profesor - lado izquierdo */}
           <div className="w-full md:w-1/3 h-64 md:h-full relative bg-muted">

@@ -1,44 +1,27 @@
-// src/types/usuario.interface.ts
-export type TipoUsuario = 'admin' | 'profesor' | 'alumno' | 'general';
-export type EstadoUsuario = 'activo' | 'inactivo';
+// interfaces/user.ts
+export type RoleUser = "admin" | "alumno" | "profesor";
+export type StatusUser = "activo" | "inactivo";
 
-export interface Usuario {
-  ID: number;
-  email: string;
-  password?: string; // No incluir en respuestas públicas
+export interface User {
+  id: number;
+  correo: string;
+  password: string; // Optional for security reasons
   nombre: string;
   apellido?: string;
   telefono?: string;
   username?: string;
-  tipo_usuario: TipoUsuario;
-  fecha_registro: Date | string;
-  estado: EstadoUsuario;
+  tipo_usuario: RoleUser;
+  fecha_registro?: string;
+  estado?: StatusUser;
+  avatar?: string;
+  initials?: string;
 }
 
-export interface UsuarioDetalle {
-  ID_usuario: number;
-  puesto_actual?: string;
-  oficina?: string;
-}
-
-// Para formularios de creación
-export interface UsuarioCreate {
+export interface LoginUsuarioRequest {
   email: string;
   password: string;
-  nombre: string;
-  apellido?: string;
-  telefono?: string;
-  username?: string;
-  tipo_usuario: TipoUsuario;
 }
 
-// Para actualizaciones
-export interface UsuarioUpdate {
-  email?: string;
-  nombre?: string;
-  apellido?: string;
-  telefono?: string;
-  username?: string;
-  tipo_usuario?: TipoUsuario;
-  estado?: EstadoUsuario;
+export interface ResetUsuarioRequest {
+  email: string;
 }

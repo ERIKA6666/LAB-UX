@@ -1,12 +1,12 @@
 // Home
-
+import { EventoNoticia, Proyecto } from "@/types";
 // Datos de ejemplo para el carrusel
 export const slides = [
     {
       id: 1,
       title: "Soluciones innovadoras para tu negocio",
       description: "Descubre cómo podemos ayudarte a crecer y alcanzar tus objetivos",
-      image: "bg-primary/90",
+      image: "bg-secondary/90",
       estado: "Activo",
     },
     {
@@ -98,217 +98,166 @@ export const team = [
 //Investigacion
 /////Proyectos 
 // Datos de ejemplo
-export const proyectos = [
+export const proyectos: Proyecto[] = [
   {
-    titulo: "Análisis de Experiencia de Usuario en Aplicaciones Móviles",
-    descripcionCorta: "Estudio de patrones de interacción",
-    descripcion:
-      "Investigación sobre cómo los usuarios interactúan con diferentes interfaces móviles y qué elementos mejoran la experiencia general.",
-    descripcionDetallada:
-      "Este proyecto investiga en profundidad los patrones de interacción de usuarios con aplicaciones móviles. Analizamos factores como el tiempo de permanencia, patrones de navegación, y puntos de fricción para identificar oportunidades de mejora en la experiencia del usuario. Utilizamos metodologías mixtas que incluyen pruebas de usabilidad, análisis de datos y entrevistas con usuarios.",
-    etiquetas: ["UX", "Móvil", "Interacción"],
-    imagen: "/placeholder.svg?height=200&width=400",
-    imagenes: [
-      "/placeholder.svg?height=400&width=800",
-      "/placeholder.svg?height=400&width=800&text=Imagen+2",
-      "/placeholder.svg?height=400&width=800&text=Imagen+3",
+    ID: 101,
+    nombre: "Sistema de Evaluación UX para Apps de Salud",
+    tipo_estudio: "Investigación UX en Salud Digital",
+    imagen: "/placeholder.svg",
+    descripcion: "Desarrollo de un framework para evaluar experiencia de usuario en aplicaciones de telemedicina",
+    fecha_inicio: "2024-03-15",
+    fecha_fin: "2024-09-30",
+    progreso: 35,
+    estado: "en_progreso",
+    fecha_creacion: "2024-01-10",
+    fecha_actualizacion: "2024-05-20",
+    proyecto_areas_investigacion: [
+      { ID_proyecto: 101, ID_area: 12 }, // Salud Digital
+      { ID_proyecto: 101, ID_area: 3 }   // UX Research
     ],
-    estado: "En progreso",
-    fechaInicio: "15/01/2023",
-    fechaFin: "30/06/2023",
-    progreso: 65,
-    colaboradores: [
-      {
-        nombre: "Ana",
-        apellido: "Martínez",
-        rol: "Investigadora Principal",
-        avatar: "/placeholder.svg?height=40&width=40",
+    proyecto_colaboradores: [
+      { 
+        ID_proyecto: 101, 
+        ID_usuario: 15,
+        rol: "Líder de Investigación",
+        nombre_externo: undefined,
+        email_externo: undefined,
+        institucion_externa: undefined
       },
       {
-        nombre: "Carlos",
-        apellido: "Rodríguez",
-        rol: "Diseñador UX",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Elena",
-        apellido: "Gómez",
-        rol: "Analista de Datos",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-    ],
+        ID_proyecto: 101,
+        nombre_externo: "Dra. Valeria Campos",
+        email_externo: "v.campos@hospital.org",
+        institucion_externa: "Hospital Central",
+        rol: "Asesora Médica"
+      }
+    ]
   },
   {
-    titulo: "Optimización de Interfaces para Accesibilidad",
-    descripcionCorta: "Mejorando la accesibilidad web",
-    descripcion:
-      "Proyecto enfocado en desarrollar guías y prácticas para crear interfaces web accesibles para personas con diferentes capacidades.",
-    descripcionDetallada:
-      "Este proyecto busca establecer estándares y mejores prácticas para el diseño de interfaces web accesibles. Trabajamos con usuarios con diversas capacidades para entender sus necesidades específicas y desarrollar soluciones que mejoren su experiencia digital. El resultado será una guía completa de implementación de accesibilidad para desarrolladores y diseñadores.",
-    etiquetas: ["Accesibilidad", "Inclusión", "Diseño"],
-    imagen: "/placeholder.svg?height=200&width=400",
-    imagenes: [
-      "/placeholder.svg?height=400&width=800",
-      "/placeholder.svg?height=400&width=800&text=Accesibilidad+2",
-      "/placeholder.svg?height=400&width=800&text=Accesibilidad+3",
-      "/placeholder.svg?height=400&width=800&text=Accesibilidad+4",
+    ID: 102,
+    nombre: "Analítica de Comportamiento en Plataformas Educativas",
+    tipo_estudio: "Estudio de Analytics",
+    imagen: "/placeholder.svg",
+    descripcion: "Recolección y análisis de datos de interacción en LMS para mejorar engagement",
+    fecha_inicio: "2024-01-10",
+    fecha_fin: "2024-12-15",
+    progreso: 60,
+    estado: "en_progreso",
+    fecha_creacion: "2023-11-20",
+    fecha_actualizacion: "2024-06-10",
+    proyecto_areas_investigacion: [
+      { ID_proyecto: 102, ID_area: 7 },  // Educación
+      { ID_proyecto: 102, ID_area: 9 },  // Analítica Web
+      { ID_proyecto: 102, ID_area: 4 }   // Machine Learning
     ],
-    estado: "Completado",
-    fechaInicio: "10/03/2022",
-    fechaFin: "15/12/2022",
+    proyecto_colaboradores: [
+      {
+        ID_proyecto: 102,
+        ID_usuario: 22,
+        rol: "Data Scientist"
+      },
+      {
+        ID_proyecto: 102,
+        ID_usuario: 8,
+        rol: "UX Analyst"
+      }
+    ]
+  },
+  {
+    ID: 103,
+    nombre: "Guía de Accesibilidad para Fintech 2024",
+    tipo_estudio: "Benchmark de Accesibilidad",
+    descripcion: "Estudio comparativo de componentes accesibles en apps financieras",
+    fecha_inicio: "2024-06-01",
+    fecha_fin: "2024-08-30",
+    progreso: 10,
+    estado: "planificacion",
+    fecha_creacion: "2024-04-15",
+    fecha_actualizacion: "2024-05-28",
+    proyecto_areas_investigacion: [
+      { ID_proyecto: 103, ID_area: 5 },  // Fintech
+      { ID_proyecto: 103, ID_area: 2 }   // Accesibilidad
+    ],
+    proyecto_colaboradores: [
+      {
+        ID_proyecto: 103,
+        ID_usuario: 3,
+        rol: "Especialista en Accesibilidad"
+      },
+      {
+        ID_proyecto: 103,
+        nombre_externo: "Lic. Omar Fernández",
+        email_externo: "o.fernandez@fintech-advisors.com",
+        institucion_externa: "Fintech Advisors",
+        rol: "Consultor Sectorial"
+      }
+    ]
+  },
+  {
+    ID: 104,
+    nombre: "Impacto de IA Generativa en Diseño de Interfaces",
+    tipo_estudio: "Investigación Experimental",
+    imagen: "/placeholder.svg",
+    descripcion: "Evaluación de herramientas como Figma AI y Galileo AI en flujos de diseño",
+    fecha_inicio: "2023-09-01",
+    fecha_fin: "2024-02-28",
     progreso: 100,
-    colaboradores: [
-      {
-        nombre: "Miguel",
-        apellido: "Sánchez",
-        rol: "Especialista en Accesibilidad",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Laura",
-        apellido: "Fernández",
-        rol: "Desarrolladora Frontend",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
+    estado: "completado",
+    fecha_creacion: "2023-07-10",
+    fecha_actualizacion: "2024-03-05",
+    proyecto_areas_investigacion: [
+      { ID_proyecto: 104, ID_area: 11 }, // IA
+      { ID_proyecto: 104, ID_area: 1 }   // UI Design
     ],
+    proyecto_colaboradores: [
+      {
+        ID_proyecto: 104,
+        ID_usuario: 7,
+        rol: "Investigador Principal"
+      },
+      {
+        ID_proyecto: 104,
+        ID_usuario: 12,
+        rol: "Diseñador UI"
+      },
+      {
+        ID_proyecto: 104,
+        nombre_externo: "Dr. Alan Turing",
+        email_externo: "investigacion@ai-lab.edu",
+        institucion_externa: "AI Research Lab",
+        rol: "Asesor Científico"
+      }
+    ]
   },
   {
-    titulo: "Patrones de Navegación en Comercio Electrónico",
-    descripcionCorta: "Análisis de comportamiento de compra",
-    descripcion:
-      "Estudio sobre cómo los usuarios navegan por sitios de comercio electrónico y qué factores influyen en las decisiones de compra.",
-    descripcionDetallada:
-      "Esta investigación analiza los patrones de navegación y comportamiento de compra en plataformas de comercio electrónico. Estudiamos el recorrido del usuario desde que ingresa al sitio hasta que completa una compra, identificando puntos de abandono y oportunidades para optimizar la conversión. Utilizamos mapas de calor, análisis de embudos y pruebas A/B para obtener insights accionables.",
-    etiquetas: ["E-commerce", "Navegación", "Conversión"],
-    imagen: "/placeholder.svg?height=200&width=400",
-    imagenes: ["/placeholder.svg?height=400&width=800", "/placeholder.svg?height=400&width=800&text=E-commerce+2"],
-    estado: "En progreso",
-    fechaInicio: "05/09/2022",
-    fechaFin: "30/07/2023",
-    progreso: 80,
-    colaboradores: [
-      {
-        nombre: "Javier",
-        apellido: "López",
-        rol: "Analista de Conversión",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Sofía",
-        apellido: "Torres",
-        rol: "Especialista en Marketing Digital",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Daniel",
-        apellido: "Ruiz",
-        rol: "Desarrollador Full Stack",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-    ],
-  },
-  {
-    titulo: "Diseño Centrado en el Usuario para Aplicaciones Educativas",
-    descripcionCorta: "Mejorando experiencias de aprendizaje",
-    descripcion:
-      "Investigación sobre cómo optimizar interfaces educativas para mejorar la retención de información y la experiencia de aprendizaje.",
-    descripcionDetallada:
-      "Este proyecto investiga cómo el diseño de interfaces educativas afecta la retención de información y la experiencia general de aprendizaje. Trabajamos con estudiantes y educadores para desarrollar principios de diseño que mejoren la efectividad de las plataformas educativas digitales, considerando factores como la presentación de contenido, interactividad y sistemas de retroalimentación.",
-    etiquetas: ["Educación", "Aprendizaje", "DCU"],
-    imagen: "/placeholder.svg?height=200&width=400",
-    imagenes: [
-      "/placeholder.svg?height=400&width=800",
-      "/placeholder.svg?height=400&width=800&text=Educación+2",
-      "/placeholder.svg?height=400&width=800&text=Educación+3",
-    ],
-    estado: "Planificado",
-    fechaInicio: "01/08/2023",
-    fechaFin: "15/03/2024",
-    progreso: 15,
-    colaboradores: [
-      {
-        nombre: "Patricia",
-        apellido: "Navarro",
-        rol: "Pedagoga Digital",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Roberto",
-        apellido: "García",
-        rol: "Diseñador de Experiencia",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-    ],
-  },
-  {
-    titulo: "Evaluación Heurística de Plataformas Gubernamentales",
-    descripcionCorta: "Mejorando servicios públicos digitales",
-    descripcion:
-      "Análisis de usabilidad de plataformas de gobierno digital para identificar problemas y proponer mejoras.",
-    descripcionDetallada:
-      "Este proyecto realiza una evaluación exhaustiva de las plataformas de gobierno digital utilizando principios heurísticos de usabilidad. Identificamos barreras que dificultan el acceso a servicios públicos digitales y proponemos soluciones concretas para mejorar la experiencia ciudadana. El objetivo es hacer que los servicios gubernamentales sean más accesibles e intuitivos para todos los ciudadanos.",
-    etiquetas: ["Gobierno Digital", "Evaluación", "Servicios Públicos"],
-    imagen: "/placeholder.svg?height=200&width=400",
-    imagenes: ["/placeholder.svg?height=400&width=800", "/placeholder.svg?height=400&width=800&text=Gobierno+2"],
-    estado: "En pausa",
-    fechaInicio: "10/11/2022",
-    fechaFin: "Pendiente",
+    ID: 105,
+    nombre: "Sistema de Design Tokens para Gobierno",
+    tipo_estudio: "Desarrollo de Sistema de Diseño",
+    descripcion: "Creación de biblioteca de tokens para estandarizar interfaces en portales públicos",
+    fecha_inicio: "2024-04-01",
+    fecha_fin: "2024-11-30",
     progreso: 45,
-    colaboradores: [
-      {
-        nombre: "Marta",
-        apellido: "Jiménez",
-        rol: "Consultora de Usabilidad",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Alejandro",
-        apellido: "Díaz",
-        rol: "Especialista en Gobierno Digital",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
+    estado: "en_progreso",
+    fecha_creacion: "2024-02-18",
+    fecha_actualizacion: "2024-06-15",
+    proyecto_areas_investigacion: [
+      { ID_proyecto: 105, ID_area: 8 },  // Gobierno Digital
+      { ID_proyecto: 105, ID_area: 6 }   // Sistemas de Diseño
     ],
-  },
-  {
-    titulo: "Impacto del Diseño Minimalista en la Usabilidad",
-    descripcionCorta: "Análisis de tendencias de diseño",
-    descripcion:
-      "Estudio sobre cómo las tendencias de diseño minimalista afectan la usabilidad y la percepción del usuario.",
-    descripcionDetallada:
-      "Esta investigación examina el impacto del diseño minimalista en la usabilidad y percepción de los usuarios. Analizamos cómo la simplificación de interfaces afecta la eficiencia, la satisfacción y la comprensión de los usuarios. El estudio compara interfaces minimalistas con diseños más tradicionales para determinar en qué contextos cada enfoque resulta más efectivo.",
-    etiquetas: ["Minimalismo", "Tendencias", "Percepción"],
-    imagen: "/placeholder.svg?height=200&width=400",
-    imagenes: [
-      "/placeholder.svg?height=400&width=800",
-      "/placeholder.svg?height=400&width=800&text=Minimalismo+2",
-      "/placeholder.svg?height=400&width=800&text=Minimalismo+3",
-    ],
-    estado: "Completado",
-    fechaInicio: "20/02/2022",
-    fechaFin: "30/10/2022",
-    progreso: 100,
-    colaboradores: [
+    proyecto_colaboradores: [
       {
-        nombre: "Isabel",
-        apellido: "Moreno",
-        rol: "Diseñadora UI/UX",
-        avatar: "/placeholder.svg?height=40&width=40",
+        ID_proyecto: 105,
+        ID_usuario: 9,
+        rol: "Design Systems Lead"
       },
       {
-        nombre: "Pablo",
-        apellido: "Herrera",
-        rol: "Investigador UX",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        nombre: "Lucía",
-        apellido: "Castro",
-        rol: "Psicóloga Cognitiva",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-    ],
-  },
-]
+        ID_proyecto: 105,
+        ID_usuario: 17,
+        rol: "Frontend Architect"
+      }
+    ]
+  }
+];
 //metodologias 
 // Datos de ejemplo - Metodologías
 export const metodologias = [
@@ -506,163 +455,204 @@ export const glosario = [
   },
 ]
 //difusion
-// Datos de ejemplo
-export const eventos = [
+export const eventos: EventoNoticia[] = [
   {
-    id: 1,
-    titulo: "Conferencia de Innovación Tecnológica",
-    descripcion:
-      "Únete a nosotros para descubrir las últimas tendencias en innovación tecnológica y cómo están transformando nuestra sociedad.",
-    descripcionCompleta:
-      "En esta conferencia, expertos de la industria compartirán sus conocimientos sobre las últimas tendencias en innovación tecnológica, incluyendo inteligencia artificial, blockchain, realidad aumentada y computación cuántica. Discutiremos cómo estas tecnologías están transformando diversos sectores y qué podemos esperar en el futuro próximo. Habrá sesiones de preguntas y respuestas, así como oportunidades para establecer contactos con profesionales del sector.",
-    fecha: "15 Mar 2024, 10:00 - 13:00",
-    categoria: "Tecnología",
-    imagen: "/placeholder.svg?height=300&width=500",
-    ubicacion: "Auditorio Principal, Edificio Central",
-    organizador: "Departamento de Tecnología",
+    ID: 1,
+    titulo: "Conferencia de Inteligencia Artificial",
+    descripcion: "Evento anual sobre los últimos avances en IA y machine learning",
+    fecha: "2023-11-15T18:00:00",
+    lugar: "Auditorio Principal, Campus Central",
+    tipo: "evento",
+    imagen: "/placeholder.svg",
+    materiales: "Presentaciones, Códigos de ejemplo",
+    fecha_creacion: "2023-09-10T10:30:00",
+    ID_usuario: 5,
+    asistentes: [
+      {
+        ID_evento: 1,
+        ID_usuario: 10,
+        nombre_externo: undefined,
+        email_externo: undefined,
+        institucion_externa: undefined
+      },
+      {
+        ID_evento: 1,
+        ID_usuario: undefined,
+        nombre_externo: "María González",
+        email_externo: "maria.gonzalez@externo.com",
+        institucion_externa: "Universidad Nacional"
+      }
+    ],
+    areas_investigacion: [
+      { ID_evento: 1, ID_area: 3 },
+      { ID_evento: 1, ID_area: 7 }
+    ]
   },
   {
-    id: 2,
-    titulo: "Taller de Desarrollo Sostenible",
-    descripcion:
-      "Aprende sobre prácticas sostenibles y cómo implementarlas en tu comunidad para crear un futuro más verde.",
-    descripcionCompleta:
-      "Este taller práctico te proporcionará las herramientas y conocimientos necesarios para implementar prácticas sostenibles en tu vida diaria y en tu comunidad. Abordaremos temas como la reducción de residuos, el consumo responsable, la eficiencia energética y la agricultura urbana. Los participantes trabajarán en grupos para desarrollar proyectos sostenibles que puedan implementarse en sus comunidades locales.",
-    fecha: "22 Mar 2024, 15:00 - 18:00",
-    categoria: "Medio Ambiente",
-    imagen: "/placeholder.svg?height=300&width=500",
-    ubicacion: "Sala Verde, Centro Comunitario",
-    organizador: "Comité de Sostenibilidad",
+    ID: 2,
+    titulo: "Taller de Desarrollo Web Moderno",
+    descripcion: "Taller práctico sobre React, Next.js y TypeScript",
+    fecha: "2023-12-05T16:00:00",
+    lugar: "Laboratorio de Computación 3",
+    tipo: "evento",
+    imagen: "/placeholder.svg",
+    fecha_creacion: "2023-10-20T14:15:00",
+    ID_usuario: 8,
+    asistentes: [
+      {
+        ID_evento: 2,
+        ID_usuario: 12,
+        nombre_externo: undefined,
+        email_externo: undefined,
+        institucion_externa: undefined
+      }
+    ],
+    areas_investigacion: [
+      { ID_evento: 2, ID_area: 5 }
+    ]
   },
   {
-    id: 3,
-    titulo: "Exposición de Arte Digital",
-    descripcion:
-      "Explora las intersecciones entre arte y tecnología en nuestra exposición de arte digital con artistas locales e internacionales.",
-    descripcionCompleta:
-      "Esta exposición presenta obras de artistas locales e internacionales que exploran las intersecciones entre arte y tecnología. Las obras incluyen instalaciones interactivas, realidad virtual, arte generativo y otras formas de expresión digital. Los visitantes podrán interactuar con muchas de las obras y conversar con los artistas sobre sus procesos creativos y visiones artísticas.",
-    fecha: "10 Mar 2024, 09:00 - 20:00",
-    categoria: "Arte",
-    imagen: "/placeholder.svg?height=300&width=500",
-    ubicacion: "Galería de Arte Contemporáneo",
-    organizador: "Colectivo de Artistas Digitales",
-  },
-]
-
-export const noticias = [
+    ID: 3,
+    titulo: "Hackathon de Innovación Tecnológica",
+    descripcion: "Competencia de desarrollo de soluciones tecnológicas en 48 horas",
+    fecha: "2024-02-20T09:00:00",
+    lugar: "Centro de Innovación",
+    tipo: "evento",
+    imagen: "/placeholder.svg",
+    materiales: "Guía del participante, APIs disponibles",
+    fecha_creacion: "2023-11-01T11:20:00",
+    ID_usuario: 3,
+    asistentes: [
+      {
+        ID_evento: 3,
+        ID_usuario: 15,
+        nombre_externo: undefined,
+        email_externo: undefined,
+        institucion_externa: undefined
+      },
+      {
+        ID_evento: 3,
+        ID_usuario: undefined,
+        nombre_externo: "Carlos Mendoza",
+        email_externo: "carlos.mendoza@otrauni.edu",
+        institucion_externa: "Instituto Tecnológico"
+      },
+      {
+        ID_evento: 3,
+        ID_usuario: undefined,
+        nombre_externo: "Ana Lucía Ramírez",
+        email_externo: "a.ramirez@empresa.com",
+        institucion_externa: "Tech Solutions Inc."
+      }
+    ],
+    areas_investigacion: [
+      { ID_evento: 3, ID_area: 2 },
+      { ID_evento: 3, ID_area: 4 },
+      { ID_evento: 3, ID_area: 8 }
+    ]
+  }
+];
+export const noticias: EventoNoticia[] = [
   {
-    id: 1,
-    titulo: "Nueva alianza estratégica con empresas tecnológicas",
-    descripcion:
-      "Hemos establecido una nueva alianza con importantes empresas tecnológicas para impulsar la innovación en nuestra comunidad.",
-    contenidoCompleto:
-      "Nos complace anunciar que hemos establecido una nueva alianza estratégica con varias empresas líderes en el sector tecnológico, incluyendo TechCorp, InnovaSoft y Digital Solutions. Esta colaboración tiene como objetivo impulsar la innovación tecnológica en nuestra comunidad y crear nuevas oportunidades para estudiantes, profesionales y emprendedores locales.\n\nComo parte de esta alianza, se implementarán programas de capacitación, mentorías, hackathons y fondos de inversión para proyectos innovadores. Las empresas participantes también ofrecerán prácticas profesionales y oportunidades de empleo para los miembros de nuestra comunidad.\n\n'Esta alianza representa un paso importante en nuestra misión de fomentar el desarrollo tecnológico y la innovación en la región', comentó María Rodríguez, directora de nuestra organización. 'Estamos entusiasmados por las oportunidades que se abrirán para nuestra comunidad'.\n\nLos primeros programas comenzarán a implementarse el próximo mes, y se realizará un evento de lanzamiento oficial el 15 de abril en nuestras instalaciones.",
-    fecha: "28 Mar 2024",
-    imagen: "/placeholder.svg?height=300&width=500",
-    autor: "Carlos Méndez, Coordinador de Alianzas Estratégicas",
-  },
-  {
-    id: 2,
-    titulo: "Resultados del programa de becas 2024",
-    descripcion:
-      "Nos complace anunciar los resultados de nuestro programa de becas para el año 2024. Este año, hemos otorgado más de 50 becas a estudiantes destacados en diversas disciplinas académicas.",
-    contenidoCompleto:
-      "El comité de selección del Programa de Becas 2024 ha finalizado el proceso de evaluación y nos complace anunciar que hemos otorgado un total de 53 becas a estudiantes destacados en diversas disciplinas académicas.\n\nEste año recibimos más de 300 solicitudes, lo que representa un aumento del 25% respecto al año anterior. Las becas fueron distribuidas en las siguientes categorías:\n\n- Ciencias e Ingeniería: 18 becas\n- Humanidades y Ciencias Sociales: 12 becas\n- Artes y Diseño: 8 becas\n- Ciencias de la Salud: 10 becas\n- Emprendimiento e Innovación: 5 becas\n\nLos estudiantes seleccionados recibirán apoyo financiero para sus estudios, así como acceso a programas de mentoría, talleres de desarrollo profesional y oportunidades de networking.\n\n'La calidad de los candidatos este año fue excepcional', comentó el Dr. Javier López, presidente del comité de selección. 'Estamos seguros de que estos jóvenes talentos tendrán un impacto significativo en sus respectivos campos'.\n\nLa ceremonia de entrega de becas se realizará el próximo 10 de abril en el Auditorio Principal. Felicitamos a todos los seleccionados y agradecemos a todos los participantes por su interés en nuestro programa.",
-    fecha: "25 Mar 2024",
-    imagen: "/placeholder.svg?height=300&width=500",
-    autor: "Ana García, Directora del Programa de Becas",
-  },
-  {
-    id: 3,
-    titulo: "Inauguración de nuevo centro comunitario",
-    descripcion:
-      "El próximo mes inauguraremos un nuevo centro comunitario que ofrecerá diversos servicios y actividades para todos los miembros de nuestra comunidad, desde talleres educativos hasta eventos culturales.",
-    contenidoCompleto:
-      "Nos complace anunciar que el próximo 15 de abril inauguraremos nuestro nuevo Centro Comunitario, un espacio diseñado para servir como punto de encuentro y desarrollo para todos los miembros de nuestra comunidad.\n\nEl nuevo centro, ubicado en la Avenida Principal #123, contará con instalaciones modernas y accesibles, incluyendo:\n\n- Biblioteca y sala de estudios\n- Laboratorio de computación con acceso a internet\n- Salones multiusos para talleres y cursos\n- Auditorio para eventos culturales y conferencias\n- Área de juegos y recreación para niños\n- Huerto comunitario\n- Cafetería social\n\nEl Centro Comunitario ofrecerá una amplia gama de programas y servicios, incluyendo talleres educativos, asesoría legal y psicológica, actividades culturales, programas para adultos mayores, y apoyo a emprendedores locales.\n\n'Este centro representa nuestra visión de crear espacios inclusivos donde todos los miembros de la comunidad puedan aprender, crecer y conectarse', explicó Roberto Sánchez, coordinador del proyecto. 'Hemos trabajado arduamente para asegurar que el diseño y los programas respondan a las necesidades reales de nuestra comunidad'.\n\nLa inauguración incluirá una jornada de puertas abiertas con actividades para toda la familia, presentaciones artísticas y la oportunidad de inscribirse en los diversos programas que se ofrecerán. Invitamos a todos los miembros de la comunidad a acompañarnos en este importante evento.",
-    fecha: "20 Mar 2024",
-    imagen: "/placeholder.svg?height=300&width=500",
-    autor: "Laura Torres, Coordinadora de Comunicación",
-  },
-]
-
-export const proximosEventos = [
-  {
-    id: 1,
-    titulo: "Foro Internacional de Educación",
-    descripcion: "Un espacio para dialogar sobre los desafíos y oportunidades en la educación contemporánea.",
-    descripcionCompleta:
-      "El Foro Internacional de Educación reunirá a expertos, educadores, investigadores y estudiantes para dialogar sobre los desafíos y oportunidades en la educación contemporánea. Se abordarán temas como la innovación pedagógica, la educación inclusiva, las competencias del siglo XXI, y el impacto de la tecnología en los procesos de enseñanza-aprendizaje. El evento contará con conferencias magistrales, paneles de discusión, talleres prácticos y espacios de networking.",
-    fecha: "10 Abr 2024, 09:00 - 18:00",
-    dia: "10",
-    mes: "Abr",
-    categoria: "Educación",
-    ubicacion: "Centro de Convenciones",
-    ponentes:
-      "Dra. María González (Universidad Nacional), Dr. John Smith (Harvard University), Mtro. Carlos Ramírez (UNESCO)",
-    audiencia: "Profesionales de la educación, investigadores, estudiantes de pedagogía",
-    nota: "Se otorgarán certificados de participación con valor curricular.",
+    ID: 4,
+    titulo: "Investigadora gana premio internacional",
+    descripcion: "La Dra. Laura Sánchez recibió el premio por su trabajo en nanotecnología",
+    fecha: "2023-10-05T00:00:00",
+    tipo: "noticia",
+    imagen: "/placeholder.svg",
+    fecha_creacion: "2023-10-06T08:45:00",
+    ID_usuario: 2,
+    areas_investigacion: [
+      { ID_evento: 4, ID_area: 6 }
+    ]
   },
   {
-    id: 2,
-    titulo: "Hackathon por la Inclusión Digital",
-    descripcion: "48 horas de innovación y desarrollo de soluciones tecnológicas.",
-    descripcionCompleta:
-      "El Hackathon por la Inclusión Digital es un evento de 48 horas donde equipos multidisciplinarios trabajarán en el desarrollo de soluciones tecnológicas para promover la inclusión digital en comunidades vulnerables. Los participantes tendrán acceso a mentores, recursos tecnológicos y datos para crear prototipos funcionales que aborden desafíos reales. Los mejores proyectos recibirán financiamiento y apoyo para su implementación.",
-    fecha: "15-17 Abr 2024",
-    dia: "15",
-    mes: "Abr",
-    categoria: "Tecnología",
-    ubicacion: "Campus Tecnológico",
-    ponentes: "Ing. Roberto Méndez (Microsoft), Lic. Ana Castro (Fundación Digital), Ing. Pedro Sánchez (Google)",
-    audiencia: "Desarrolladores, diseñadores, emprendedores sociales",
-    nota: "Los equipos pueden tener un máximo de 5 integrantes. Se proporcionarán comidas durante todo el evento.",
+    ID: 5,
+    titulo: "Nuevo laboratorio de robótica inaugurado",
+    descripcion: "El centro cuenta ahora con equipos de última generación para investigación en robótica",
+    tipo: "noticia",
+    imagen: "/placeholder.svg",
+    fecha_creacion: "2023-09-15T16:30:00",
+    ID_usuario: 7
   },
   {
-    id: 3,
-    titulo: "Seminario de Liderazgo",
-    descripcion: "Desarrolla habilidades de liderazgo efectivo y gestión del cambio.",
-    descripcionCompleta:
-      "Este seminario intensivo está diseñado para desarrollar habilidades de liderazgo efectivo y estrategias para gestionar el cambio en entornos organizacionales complejos. Los participantes aprenderán sobre estilos de liderazgo, comunicación efectiva, resolución de conflictos, gestión de equipos diversos y adaptación al cambio. La metodología incluye estudios de caso, ejercicios prácticos, retroalimentación personalizada y planes de acción individuales.",
-    fecha: "22 Abr 2024, 14:00 - 18:00",
-    dia: "22",
-    mes: "Abr",
-    categoria: "Desarrollo",
-    ubicacion: "Auditorio Principal",
-    ponentes: "Lic. Laura Martínez (Consultora), Dr. Javier Rodríguez (Universidad Empresarial)",
-    audiencia: "Gerentes, coordinadores, líderes de equipo",
-    nota: "Cupo limitado a 30 participantes. Se entregará material didáctico y certificado de participación.",
+    ID: 6,
+    titulo: "Convenio con empresa líder en tecnología",
+    descripcion: "Se firmó un acuerdo de colaboración para investigación conjunta y prácticas profesionales",
+    fecha: "2023-11-01T00:00:00",
+    tipo: "noticia",
+    fecha_creacion: "2023-11-02T09:10:00",
+    ID_usuario: 4,
+    areas_investigacion: [
+      { ID_evento: 6, ID_area: 1 },
+      { ID_evento: 6, ID_area: 9 }
+    ]
+  }
+];
+export const proximosEventos: EventoNoticia[] = [
+  {
+    ID: 7,
+    titulo: "Congreso Internacional de Ciencias de Datos 2024",
+    descripcion: "Evento que reunirá a los principales expertos mundiales en ciencia de datos",
+    fecha: "2024-05-20T09:00:00",
+    lugar: "Centro de Convenciones",
+    tipo: "proximo_evento",
+    imagen: "/placeholder.svg",
+    fecha_creacion: "2023-10-25T11:20:00",
+    ID_usuario: 6,
+    asistentes: [
+      {
+        ID_evento: 7,
+        ID_usuario: 9,
+        nombre_externo: undefined,
+        email_externo: undefined,
+        institucion_externa: undefined
+      }
+    ],
+    areas_investigacion: [
+      { ID_evento: 7, ID_area: 3 },
+      { ID_evento: 7, ID_area: 10 }
+    ]
   },
   {
-    id: 4,
-    titulo: "Concierto Benéfico",
-    descripcion: "Música en vivo para recaudar fondos para proyectos comunitarios.",
-    descripcionCompleta:
-      "Este concierto benéfico reunirá a destacados artistas locales e internacionales que donarán su talento para recaudar fondos destinados a proyectos comunitarios. El programa incluye música clásica, jazz, rock y música tradicional. Todos los fondos recaudados serán destinados a la construcción de un centro cultural en una comunidad de bajos recursos.",
-    fecha: "28 Abr 2024, 19:00 - 22:00",
-    dia: "28",
-    mes: "Abr",
-    categoria: "Cultura",
-    ubicacion: "Teatro Municipal",
-    ponentes: "Orquesta Sinfónica Juvenil, Banda Resonancia, Solista María Jiménez",
-    audiencia: "Público general",
-    nota: "Entrada general: $150. Estudiantes y adultos mayores: $100. Venta de boletos en taquilla y en línea.",
+    ID: 8,
+    titulo: "Seminario de Ciberseguridad Avanzada",
+    descripcion: "Seminario especializado para profesionales de seguridad informática",
+    fecha: "2024-03-15T14:00:00",
+    lugar: "Aula Magna",
+    tipo: "proximo_evento",
+    imagen: "/placeholder.svg",
+    materiales: "Requisitos: Traer computadora portátil",
+    fecha_creacion: "2023-11-05T10:15:00",
+    ID_usuario: 1
   },
   {
-    id: 5,
-    titulo: "Feria de Emprendimiento",
-    descripcion: "Exposición de proyectos innovadores y oportunidades de networking.",
-    descripcionCompleta:
-      "La Feria de Emprendimiento es un espacio para que emprendedores locales presenten sus proyectos innovadores, establezcan contactos con inversionistas y reciban retroalimentación de expertos. El evento incluirá stands de exposición, charlas inspiradoras, talleres prácticos, sesiones de pitch y rondas de networking. También contará con la presencia de representantes de fondos de inversión y programas de aceleración.",
-    fecha: "5 May 2024, 10:00 - 19:00",
-    dia: "5",
-    mes: "May",
-    categoria: "Negocios",
-    ubicacion: "Parque de Innovación",
-    ponentes: "Emprendedores exitosos, inversionistas, mentores de negocios",
-    audiencia: "Emprendedores, startups, inversionistas, estudiantes de negocios",
-    nota: "Inscripción gratuita para visitantes. Costo para expositores: $500 por stand.",
-  },
-]
+    ID: 9,
+    titulo: "Feria de Empleo Tecnológico",
+    descripcion: "Las principales empresas del sector buscarán talento entre nuestros estudiantes",
+    fecha: "2024-04-10T10:00:00",
+    lugar: "Plaza Central del Campus",
+    tipo: "proximo_evento",
+    fecha_creacion: "2023-10-30T13:40:00",
+    ID_usuario: 11,
+    asistentes: [
+      {
+        ID_evento: 9,
+        ID_usuario: undefined,
+        nombre_externo: "Roberto Jiménez",
+        email_externo: "r.jimenez@recursoshumanos.com",
+        institucion_externa: "TechCorp International"
+      },
+      {
+        ID_evento: 9,
+        ID_usuario: undefined,
+        nombre_externo: "Sofía Hernández",
+        email_externo: "s.hernandez@talento.digital",
+        institucion_externa: "Digital Talent Agency"
+      }
+    ]
+  }
+];
 //support
 export const preguntasFrecuentes = [
   { 
