@@ -13,6 +13,8 @@ export interface Proyecto {
   estado: EstadoProyecto;
   fecha_creacion: Date | string;
   fecha_actualizacion?: Date | string;
+  proyecto_areas_investigacion?: ProyectoAreaInvestigacion[];
+  proyecto_colaboradores?: ProyectoColaborador[];
 }
 
 export interface ProyectoAreaInvestigacion {

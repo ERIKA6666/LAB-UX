@@ -6,7 +6,9 @@ export interface MetodologiaPrueba {
   nombre: string;
   descripcion?: string;
   tipo: TipoMetodologiaPrueba;
+  imagen?: string;
   fecha_creacion: Date | string;
+  caracteristicas: MetodologiaCaracteristica[];
 }
 
 export interface MetodologiaCaracteristica {

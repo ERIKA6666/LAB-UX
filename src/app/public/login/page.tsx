@@ -3,18 +3,17 @@
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Mail } from "lucide-react"
-import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { usuarioService } from "@/services/usuarioService"
-import { LoginUsuarioRequest, ResetUsuarioRequest } from "@/types/usuario"
+import { LoginUsuarioRequest, ResetUsuarioRequest } from "@/types"
+import { login, PasswordReset } from "@/services/usuarioService";
+
 
 export default function LoginPage() {
-  const router = useRouter()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -31,15 +30,16 @@ export default function LoginPage() {
     const loginData: LoginUsuarioRequest = { email, password }
 
     try {
-      const result = await usuarioService.login(loginData)
+      const result = await login(loginData)
       if (result.success) {
         window.location.href = '/admin'
       } else {
         setErrorMessage(result.error || "Correo o contraseña incorrectos.")
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Error desconocido al iniciar sesión.")
-    } finally {
+    } catch (error) {
+        console.error("Error en addUser:", error);
+        throw error;
+      } finally {
       setIsSubmitting(false)
     }
   }
@@ -51,14 +51,15 @@ export default function LoginPage() {
     setSuccessMessage("")
     const loginData: ResetUsuarioRequest = { email: resetEmail}
     try {
-      const result = await usuarioService.PasswordReset(loginData) // Asegúrate de que `resetPassword` exista en el servicio
+      const result = await PasswordReset(loginData) // Asegúrate de que `resetPassword` exista en el servicio
       if (result.success) {
         setSuccessMessage("Te hemos enviado un correo con instrucciones para restablecer tu contraseña.")
       } else {
         setErrorMessage(result.error || "No se pudo enviar el correo de recuperación.")
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Error al intentar enviar el correo.")
+    } catch (error) {
+      console.error("Error en addUser:", error);
+      throw error;
     } finally {
       setIsSubmitting(false)
     }

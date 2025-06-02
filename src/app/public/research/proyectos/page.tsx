@@ -1,24 +1,17 @@
 'use client'
 
-import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
-import { proyectos } from "@/constans/data"
+import { proyectos,  } from "@/constans/data"
 import { useProjects } from "@/hooks/useProjects"
 import { ModalProyecto } from "./components/modalProyecto"
 
 export default function ProyectosPage() {  
   const {
     selectedProject,
-    currentImageIndex,
     openProjectModal,
     closeProjectModal,
-    nextImage,
-    prevImage,
-    setCurrentImageIndex
   } = useProjects()
 
   return (
@@ -40,31 +33,33 @@ export default function ProyectosPage() {
             >
               <div className="aspect-video relative">
                 <Image
-                  src={proyecto.imagenes[0] || "/placeholder.svg"}
-                  alt={proyecto.titulo}
+                  src={proyecto.imagen || "/placeholder.svg"}
+                  alt={proyecto.nombre}
                   fill
                   className="object-cover"
                 />
                 <div className="absolute top-2 right-2">
-                  <Badge className={(proyecto.estado)}>
+                  <Badge className={proyecto.estado}>
                     {proyecto.estado}
                   </Badge>
                 </div>
               </div>
               <CardHeader>
-                <CardTitle>{proyecto.titulo}</CardTitle>
-                <CardDescription>{proyecto.descripcionCorta}</CardDescription>
+                <CardTitle>{proyecto.nombre}</CardTitle>
+                <CardDescription>{proyecto.descripcion}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
                   {proyecto.descripcion}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {proyecto.etiquetas?.map((etiqueta, i) => (
-                    <Badge key={i} variant="secondary">
-                      {etiqueta}
-                    </Badge>
-                  ))}
+                  {proyecto.proyecto_areas_investigacion 
+                    ? proyecto.proyecto_areas_investigacion.map((area, idx) => (
+                        <Badge key={idx} className="bg-blue-100 text-blue-800">
+                          {area.ID_area}
+                        </Badge>
+                      ))
+                    : null}
                 </div>
               </CardContent>
             </Card>
@@ -75,10 +70,6 @@ export default function ProyectosPage() {
       <ModalProyecto
         selectedProject={selectedProject}
         onClose={closeProjectModal}
-        currentImageIndex={currentImageIndex}
-        nextImage={nextImage}
-        prevImage={prevImage}
-        setCurrentImageIndex={setCurrentImageIndex}
       />
     </div>
   )

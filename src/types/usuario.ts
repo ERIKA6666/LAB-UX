@@ -16,3 +16,12 @@ export interface User {
   avatar?: string;
   initials?: string;
 }
+
+export interface LoginUsuarioRequest {
+  email: string;
+  password: string;
+}
+
+export interface ResetUsuarioRequest {
+  email: string;
+}

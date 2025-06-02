@@ -70,3 +70,48 @@ export const updateUser = async (id: number, userData: Partial<User>) => {
   });
   return await res.json();
 };
+
+// ...existing code...
+
+export const getUserById = async (id: number) => {
+  const res = await fetch(`${API_URL}/usuarios/${id}`);
+  if (!res.ok) {
+    throw new Error("No se pudo obtener el usuario");
+  }
+  return await res.json();
+};
+
+// ...login 
+export async function login(data: { email: string; password: string }) {
+  try {
+    const response = await fetch(`${API_URL}/public/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error en login:", error);
+    throw error;
+  }
+}
+
+export async function PasswordReset(data: { email: string }) {
+  try {
+    const response = await fetch(`${API_URL}/password-reset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    return result; // { success: boolean, error?: string }
+  } catch (error) {
+    console.error("Error en addUser:", error);
+    throw error;
+  }
+}

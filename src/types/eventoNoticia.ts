@@ -12,6 +12,8 @@ export interface EventoNoticia {
   materiales?: string;
   fecha_creacion: Date | string;
   ID_usuario?: number;
+  asistentes?: EventoAsistente[];
+  areas_investigacion?: EventoAreaInvestigacion[];
 }
 
 export interface EventoAsistente {

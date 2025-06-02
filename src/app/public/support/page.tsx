@@ -57,7 +57,7 @@ export default function Support() {
           setRespuesta(resultado.error || 'Hubo un problema al procesar tu solicitud. Por favor, revisa los datos e inténtalo nuevamente.');
         }
         } catch (error) {
-          setRespuesta('Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.');
+          setRespuesta('Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.'+ error);
         }
         
     };
