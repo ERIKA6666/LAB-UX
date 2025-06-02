@@ -192,7 +192,7 @@ export default function DifusionPage() {
 
       {/* Modal para Noticias */}
       <Dialog open={selectedNoticia !== null} onOpenChange={(open) => !open && setSelectedNoticia(null)}>
-        <DialogContent className="max-w-3xl bg-background text-white">
+        <DialogContent className="max-w-3xl ">
           <DialogHeader>
             <DialogTitle className="text-2xl">{selectedNoticia?.titulo}</DialogTitle>
             <DialogDescription className="text-sm">{selectedNoticia?.fecha}</DialogDescription>
@@ -235,7 +235,7 @@ export default function DifusionPage() {
 
       {/* Modal para Eventos Recientes */}
       <Dialog open={selectedEvento !== null} onOpenChange={(open) => !open && setSelectedEvento(null)}>
-        <DialogContent className="max-w-3xl bg-background text-white">
+        <DialogContent className="max-w-3xl ">
           <DialogHeader>
             <DialogTitle className="text-2xl">{selectedEvento?.titulo}</DialogTitle>
             <DialogDescription className="flex items-center gap-2">
@@ -314,7 +314,7 @@ export default function DifusionPage() {
 
       {/* Modal para Próximos Eventos */}
       <Dialog open={selectedProximoEvento !== null} onOpenChange={(open) => !open && setSelectedProximoEvento(null)}>
-        <DialogContent className="max-w-3x bg-background text-white">
+        <DialogContent className="max-w-3x ">
           <DialogHeader>
             <DialogTitle className="text-2xl">{selectedProximoEvento?.titulo}</DialogTitle>
             <DialogDescription className="flex items-center gap-2">

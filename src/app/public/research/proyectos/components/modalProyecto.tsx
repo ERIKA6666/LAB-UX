@@ -30,7 +30,7 @@ export function ModalProyecto({
 
   return (
     <Dialog open={!!selectedProject} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background text-white">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto ">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>{selectedProject.titulo}</DialogTitle>

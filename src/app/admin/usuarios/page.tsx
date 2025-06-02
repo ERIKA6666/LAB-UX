@@ -212,7 +212,7 @@ export default function UsuariosPage() {
                   Nuevo Usuario
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px] bg-background text-white">
+              <DialogContent className="sm:max-w-[600px] ">
                 <DialogHeader>
                   <DialogTitle>
                     {currentUserId ? 'Editar Usuario' : 'Crear Nuevo Usuario'}

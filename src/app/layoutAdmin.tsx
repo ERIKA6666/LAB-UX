@@ -1,6 +1,5 @@
 'use client'
 import type React from "react"
-import "@/app/globals.css"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import { SidebarProvider } from "@/components/ui/sidebar"

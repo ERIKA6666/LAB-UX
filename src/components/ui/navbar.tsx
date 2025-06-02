@@ -8,12 +8,10 @@ import { Menu, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { DropdownMenuCheckboxItemProps, Label } from "@radix-ui/react-dropdown-menu"
+import { DropdownMenuCheckboxItemProps} from "@radix-ui/react-dropdown-menu"
 import {
     DropdownMenu,
-    DropdownMenuCheckboxItem,
     DropdownMenuContent,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
     DropdownMenuItem
@@ -28,7 +26,7 @@ import {
 import { navbarItems, siteName } from "@/constans/navbar"
 
 //navbar items
-import { getUsuarioActual, cerrarSesion } from "@/hooks/islogin"; // o desde donde lo tengas
+import { getUsuarioActual} from "@/hooks/islogin"; // o desde donde lo tengas
 
 
 

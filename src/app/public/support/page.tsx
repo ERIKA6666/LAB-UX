@@ -234,7 +234,7 @@ export default function Support() {
           </div>
           {guides.map((guide) => (
             <Dialog key={guide.id} open={openGuide === guide.id} onOpenChange={(open) => !open && setOpenGuide(null)}>
-              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background text-white">
+              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{guide.title}</DialogTitle>
                   <DialogDescription>{guide.description}</DialogDescription>

@@ -6,7 +6,7 @@ export const slides = [
       id: 1,
       title: "Soluciones innovadoras para tu negocio",
       description: "Descubre cómo podemos ayudarte a crecer y alcanzar tus objetivos",
-      image: "bg-primary/90",
+      image: "bg-secondary/90",
       estado: "Activo",
     },
     {
