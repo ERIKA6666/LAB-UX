@@ -34,7 +34,7 @@ export default function ProyectosPage() {
               <div className="aspect-video relative">
                 <Image
                   src={proyecto.imagen || "/placeholder.svg"}
-                  alt={proyecto.nombre}
+                  alt={proyecto.nombre || "Imagen del proyecto"}
                   fill
                   className="object-cover"
                 />
