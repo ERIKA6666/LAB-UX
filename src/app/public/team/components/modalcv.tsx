@@ -11,10 +11,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { Perfil } from "@/types/perfil"
+
+import {User} from "@/types"
 
 interface ModalCvProps {
-  perfil: Perfil;
+  perfil: User;
 }
 
 export function ModalCv({ perfil }: ModalCvProps) {
@@ -29,14 +30,14 @@ export function ModalCv({ perfil }: ModalCvProps) {
         <div className="flex flex-col md:flex-row h-[80vh]">
           {/* Imagen del profesor - lado izquierdo */}
           <div className="w-full md:w-1/3 h-64 md:h-full relative bg-muted">
-            <img src="/placeholder.svg?height=800&width=400" alt="Profesor" className="w-full h-full object-cover" />
+            <img src={perfil.avatar || ""} alt={perfil.tipo_usuario} className="w-full h-full object-cover" />
           </div>
 
           {/* Curriculum Vitae - lado derecho */}
           <div className="w-full md:w-2/3 p-6 overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">nombre</DialogTitle>
-              <DialogDescription>Profesor de Ciencias Computacionales</DialogDescription>
+              <DialogTitle className="text-2xl">{perfil.nombre}</DialogTitle>
+              <DialogDescription>{perfil.initials}</DialogDescription>
             </DialogHeader>
 
             <div className="mt-6 space-y-6">
@@ -44,13 +45,10 @@ export function ModalCv({ perfil }: ModalCvProps) {
                 <h3 className="text-lg font-semibold mb-2">Información Personal</h3>
                 <div className="space-y-1">
                   <p>
-                    <span className="font-medium">Email:</span> juan.perez@universidad.edu
+                    <span className="font-medium">Email:</span> {perfil.correo}
                   </p>
                   <p>
-                    <span className="font-medium">Teléfono:</span> (123) 456-7890
-                  </p>
-                  <p>
-                    <span className="font-medium">Oficina:</span> Edificio de Ciencias, Sala 305
+                    <span className="font-medium">Teléfono:</span> {perfil.telefono || "No disponible"}
                   </p>
                 </div>
               </section>
@@ -58,38 +56,30 @@ export function ModalCv({ perfil }: ModalCvProps) {
               <section>
                 <h3 className="text-lg font-semibold mb-2">Formación Académica</h3>
                 <div className="space-y-2">
-                  <div>
-                    <p className="font-medium">Doctorado en Ciencias Computacionales</p>
-                    <p>Universidad Nacional, 2010-2014</p>
+                  {perfil.formacion_academica?.map((formacion, index) => (
+                  <div key={index}>
+                    <p className="font-medium">{formacion.titulo}</p>
+                    <p>{formacion.institucion}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formacion.fecha_inicio} - {formacion.fecha_fin|| "Presente"}
+                    </p>
                   </div>
-                  <div>
-                    <p className="font-medium">Maestría en Inteligencia Artificial</p>
-                    <p>Universidad Tecnológica, 2008-2010</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Licenciatura en Ingeniería Informática</p>
-                    <p>Universidad Estatal, 2004-2008</p>
-                  </div>
+                  ))}
                 </div>
               </section>
 
               <section>
                 <h3 className="text-lg font-semibold mb-2">Experiencia Profesional</h3>
                 <div className="space-y-2">
-                  <div>
-                    <p className="font-medium">Profesor Titular</p>
-                    <p>Universidad Actual, 2018-Presente</p>
+                  {perfil.areas_investigacion?.map((experiencia, index) => (
+                  <div key={index}>
+                    <p className="font-medium">{experiencia.nombre}</p>
                     <p className="text-sm text-muted-foreground">
-                      Imparte cursos de programación avanzada, inteligencia artificial y análisis de datos.
+                      {experiencia.descripcion}
                     </p>
+                    <p className="text-sm text-muted-foreground">{experiencia.descripcion}</p>
                   </div>
-                  <div>
-                    <p className="font-medium">Profesor Asociado</p>
-                    <p>Universidad Tecnológica, 2014-2018</p>
-                    <p className="text-sm text-muted-foreground">
-                      Impartió cursos de algoritmos y estructuras de datos.
-                    </p>
-                  </div>
+                  ))}
                 </div>
               </section>
 
