@@ -80,6 +80,7 @@ export default function UsuariosPage() {
           formData.nombre.split(' ').map(n => n[0]).join('') : ''),
         password: newUser.password || '' // Manejo adecuado de password
       };
+        await reloadUsers(); // <-- recarga la tabla
         setUsers(prev => [...prev, completeUser]);
         return completeUser;
       }
@@ -94,24 +95,28 @@ export default function UsuariosPage() {
     try {
       await deleteUser(id);
       setUsers(prev => prev.filter(u => u.ID!== id));
+      await reloadUsers(); // <-- recarga la tabla
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  const handleUpdateUser = async (id: number, userData: Partial<User>) => {
-    setSubmitLoading(true);
-    try {
-      const updated = await updateUser(id, userData);
-      if (updated) {
-        setUsers(prev => prev.map(u => u.ID === id ? updated : u));
-        return updated;
-      }
-      throw new Error("No se recibió respuesta del servidor");
-    } finally {
-      setSubmitLoading(false);
+const handleUpdateUser = async (id: number, userData: Partial<User>) => {
+  setSubmitLoading(true);
+  try {
+    const updated = await updateUser(id, userData);
+    if (updated) {
+      await reloadUsers(); // <-- recarga la tabla
+      setUsers(prev => prev.map(u => 
+        u.ID === id ? { ...u, ...updated } : u
+      ));
+      return updated;
     }
-  };
+    throw new Error("No se recibió respuesta del servidor");
+  } finally {
+    setSubmitLoading(false);
+  }
+};
 
   // Manejadores del formulario
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +129,9 @@ export default function UsuariosPage() {
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    
     setFormData(prev => ({ ...prev, estado: e.target.checked ? 'activo' : 'inactivo' }));
+    
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,6 +222,14 @@ export default function UsuariosPage() {
       });
     }
   }, [editingUser]);
+
+  //recargar usuarios al cerrar el diálogo de edición
+    const reloadUsers = async () => {
+    setLoading(true);
+    const data = await fetchUsers(search, filterRol, filterEstado);
+    setUsers(data);
+    setLoading(false);
+  };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -350,10 +365,13 @@ export default function UsuariosPage() {
               <form onSubmit={async (e) => {
                 e.preventDefault();
                 if (editingUser) {
-                  await handleUpdateUser(editingUser.ID, formData);
-                  setEditingUser(null);
-                  setShowSuccessMessage("Usuario actualizado correctamente");
-                  setTimeout(() => setShowSuccessMessage(""), 3000);
+                  try {
+                    await handleUpdateUser(editingUser.ID, formData);
+                    setEditingUser(null);
+                    setShowSuccessMessage("Usuario actualizado correctamente");
+                  } catch (error) {
+                    console.error("Error al actualizar usuario:", error);
+                  }
                 }
               }}>
               <div className="grid gap-4 py-4">
@@ -443,7 +461,6 @@ export default function UsuariosPage() {
                   onClick={async () => {
                     if (deactivatingUser) {
                       const newStatus = deactivatingUser.estado === "activo" ? "inactivo" : "activo";
-                      
                       // Actualiza el usuario en el backend
                       await handleUpdateUser(deactivatingUser.ID, {
                         estado: newStatus
