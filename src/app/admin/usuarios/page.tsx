@@ -69,7 +69,7 @@ export default function UsuariosPage() {
       if (newUser) {
         // Asegura que todos los campos requeridos estén presentes
         const completeUser: User = {
-        id: newUser.id,
+        ID: newUser.id,
         nombre: newUser.nombre || formData.nombre,
         correo: newUser.correo || formData.correo,
         tipo_usuario: newUser.tipo_usuario || formData.tipo_usuario,
@@ -93,7 +93,7 @@ export default function UsuariosPage() {
     setSubmitLoading(true);
     try {
       await deleteUser(id);
-      setUsers(prev => prev.filter(u => u.id !== id));
+      setUsers(prev => prev.filter(u => u.ID!== id));
     } finally {
       setSubmitLoading(false);
     }
@@ -104,7 +104,7 @@ export default function UsuariosPage() {
     try {
       const updated = await updateUser(id, userData);
       if (updated) {
-        setUsers(prev => prev.map(u => u.id === id ? updated : u));
+        setUsers(prev => prev.map(u => u.ID === id ? updated : u));
         return updated;
       }
       throw new Error("No se recibió respuesta del servidor");
@@ -193,6 +193,16 @@ export default function UsuariosPage() {
         return <Badge variant="outline">Desconocido</Badge>;
     }
   };
+
+  // Obtiene las iniciales del nombre y apellido
+  function getInitials(nombre: string = "") {
+    const partes = nombre.trim().split(" ");
+    if (partes.length === 1) return partes[0][0]?.toUpperCase() || "";
+    return (
+      (partes[0][0] || "") +
+      (partes[partes.length - 1][0] || "")
+    ).toUpperCase();
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -328,7 +338,7 @@ export default function UsuariosPage() {
               <form onSubmit={async (e) => {
                 e.preventDefault();
                 if (editingUser) {
-                  await handleUpdateUser(editingUser.id, formData);
+                  await handleUpdateUser(editingUser.ID, formData);
                   setEditingUser(null);
                   setShowSuccessMessage("Usuario actualizado correctamente");
                   setTimeout(() => setShowSuccessMessage(""), 3000);
@@ -394,7 +404,8 @@ export default function UsuariosPage() {
                 <DialogTitle>{deactivatingUser?.estado === "activo" ? "Desactivar" : "Activar"} Usuario</DialogTitle>
                 <DialogDescription>
                   ¿Está seguro que desea {deactivatingUser?.estado === "activo" ? "desactivar" : "activar"} al usuario{" "}
-                  {deactivatingUser?.nombre}?
+                  {deactivatingUser?.nombre}? {" "}
+                  {deactivatingUser?.ID}? 
                   {deactivatingUser?.estado === "activo" &&
                     " El usuario no podrá acceder al sistema hasta que sea reactivado."}
                 </DialogDescription>
@@ -410,7 +421,7 @@ export default function UsuariosPage() {
                       const newStatus = deactivatingUser.estado === "activo" ? "inactivo" : "activo";
                       
                       // Actualiza el usuario en el backend
-                      await handleUpdateUser(deactivatingUser.id, {
+                      await handleUpdateUser(deactivatingUser.ID, {
                         estado: newStatus
                       });
                       
@@ -447,7 +458,7 @@ export default function UsuariosPage() {
                     if (deletingUser) {
                       setSubmitLoading(true);
                       try {
-                        await handleDeleteUser(deletingUser.id);
+                        await handleDeleteUser(deletingUser.ID);
                         setDeletingUser(null);
                         setShowSuccessMessage("Usuario eliminado correctamente");
                         setTimeout(() => setShowSuccessMessage(""), 3000);
@@ -544,12 +555,12 @@ export default function UsuariosPage() {
                     </thead>
                     <tbody>
                       {users.map((user) => (
-                        <tr key={user.id} className="border-b">
+                        <tr key={user.ID} className="border-b">
                           <td className="p-4">
                             <div className="flex items-center space-x-3">
                               <Avatar>
                                 <AvatarImage src={user.avatar} alt={user.nombre} />
-                                <AvatarFallback>{user.initials}</AvatarFallback>
+                                <AvatarFallback>{getInitials(user.nombre)}</AvatarFallback>
                               </Avatar>
                               <div>
                                 <div className="text-sm text-muted-foreground">{user.nombre}</div>
@@ -570,10 +581,10 @@ export default function UsuariosPage() {
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="mr-2"
-                            onClick={() => setDeactivatingUser(user)}>
+                              variant="ghost" 
+                              size="icon" 
+                              className="mr-2"
+                              onClick={() => setDeactivatingUser(user)}>
                               <Lock className="h-4 w-4" />
                             </Button>
                             <Button 
@@ -597,7 +608,7 @@ export default function UsuariosPage() {
         <TabsContent value="grid" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {users.map((user) => (
-              <Card key={user.id}>
+              <Card key={user.ID}>
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
@@ -636,13 +647,13 @@ export default function UsuariosPage() {
                     Editar
                   </Button>
                   <Button 
-                  variant="outline" 
-                  size="sm"
-                   onClick={() => setDeactivatingUser(user)}>
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setDeactivatingUser(user)}>
                     <Lock className="mr-2 h-4 w-4" />
                     Contraseña
                   </Button>
-                 <Button 
+                  <Button 
                     variant="destructive" 
                     size="sm"
                     onClick={() => setDeletingUser(user)}

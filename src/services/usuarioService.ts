@@ -39,7 +39,7 @@ export const addUser = async (userData: Partial<User>) => {
     const responseData = await res.json();
     // Asegúrate de que la API devuelva todos los campos necesarios
     return {
-      id: responseData.id,
+      id: responseData.ID,
       correo: responseData.correo,
       password: responseData.password, // Consider security implications
       nombre: responseData.nombre,
@@ -62,8 +62,8 @@ export const deleteUser = async (id: number) => {
   await fetch(`${API_URL}/usuarios/${id}`, { method: "DELETE" });
 };
 
-export const updateUser = async (id: number, userData: Partial<User>) => {
-  const res = await fetch(`${API_URL}/usuarios/${id}`, {
+export const updateUser = async (ID: number, userData: Partial<User>) => {
+  const res = await fetch(`${API_URL}/usuarios/${ID}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
