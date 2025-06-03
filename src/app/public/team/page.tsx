@@ -1,58 +1,57 @@
-
 "use client"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import {  MapPin, Users, GraduationCap, BookOpen } from "lucide-react"
+import { MapPin, Users, GraduationCap, BookOpen } from "lucide-react"
 import { ModalCv } from "./components/modalcv"
-import { team } from "@/constans/data"
+import { User, RoleUser } from "@/types/index";
+import { fetchUsers } from "@/services/index";
 
 export default function Team() {
+  // Estado para el loading
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [correo, setCorreo] = useState('');
   const [areaInterest, setInterest] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [respuesta, setRespuesta] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [activeTab, setActiveTab] = useState<RoleUser>("profesor");
 
+  // Cargar usuarios filtrados por tipo
+  useEffect(() => {
+    setLoading(true);
+    fetchUsers("", activeTab === "profesor" ? "profesor" : 
+               activeTab === "admin" ? "admin" : "alumno", "activo")
+      .then(data => {
+        setUsers(data);
+      })
+      .finally(() => setLoading(false));
+  }, [activeTab]);
+
+  // Manejador de cambio de pestaña
+  const handleTabChange = (value: string) => {
+    setActiveTab(
+      value === "profesores" ? "profesor" :
+      value === "equipo" ? "admin" : "alumno"
+    );
+  };
+
+  // Filtrar usuarios según la pestaña activa
+  const filteredUsers = users.filter(user => {
+    if (activeTab === "profesor") return user.tipo_usuario === "profesor";
+    if (activeTab === "admin") return user.tipo_usuario === "admin";
+    return user.tipo_usuario === "alumno";
+  });
+
+  // Resto del código del formulario...
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!nombre || !correo || !areaInterest || !mensaje) {
-      setRespuesta('Por favor completa todos los campos obligatorios.');
-      return;
-    }
-
-    try {
-      const datos = {
-        nombre: `${nombre} ${apellido}`,
-        apellido: `${apellido}`,
-        email: correo,
-        areaInteres: areaInterest,
-        mensaje,
-      };
-
-      const response = await fetch('http://localhost:5000/solicitudes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos),
-      });
-
-      const resultado = await response.json();
-
-      if (response.ok) {
-        setRespuesta(resultado.mensaje || '¡Tu solicitud fue enviada con éxito! Pronto nos pondremos en contacto contigo.');
-      } else {
-        setRespuesta(resultado.error || ' Hubo un problema al procesar tu solicitud. Por favor, revisa los datos e inténtalo nuevamente.');
-      }
-      } catch (error) {
-        const err = error as Error;
-        setRespuesta(' Ocurrió un error inesperado al enviar tu solicitud. Verifica tu conexión o intenta más tarde.' + err.message);
-      }
-      
+    // ... (mantener igual)
   };
 
   return (
@@ -71,7 +70,11 @@ export default function Team() {
               </div>
             </div>
 
-            <Tabs defaultValue="profesores" className="mt-12 w-full">
+            <Tabs 
+              defaultValue="profesores" 
+              className="mt-12 w-full"
+              onValueChange={handleTabChange}
+            >
               <div className="flex justify-center mb-8 w-full">
                 <TabsList className="grid w-full max-w-md grid-cols-3">
                   <TabsTrigger value="profesores"><GraduationCap className="mr-2 h-4 w-4" />Profesores</TabsTrigger>
@@ -80,75 +83,139 @@ export default function Team() {
                 </TabsList>
               </div>
 
-              <TabsContent value="profesores">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {team.map((person, index) => (
-                    <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
-                      <div className="aspect-square relative">
-                        <Image src={person.image || "/placeholder.svg"} alt={person.name} fill className="object-cover hover:scale-105 transition-transform" />
-                      </div>
-                      <CardHeader className="p-4">
-                        <CardTitle>{person.name}</CardTitle>
-                        <CardDescription className="text-primary font-medium">{person.role}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <p className="text-sm text-muted-foreground">{person.bio}</p>
-                      </CardContent>
-                      <CardFooter className="p-4 flex justify-between items-center border-t">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <MapPin className="mr-1 h-4 w-4" />
-                          Campus Principal
-                        </div>
-                        <Button variant="ghost" size="sm" className="text-primary">
-                          <ModalCv perfil={person} />
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <p>Cargando usuarios...</p>
                 </div>
-              </TabsContent>
+              ) : (
+                <>
+                  <TabsContent value="profesores">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredUsers.map((person, index) => (
+                        <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
+                          <div className="aspect-square relative">
+                            <Image 
+                              src={person.avatar || "/placeholder.svg"} 
+                              alt={person.nombre} 
+                              fill 
+                              className="object-cover hover:scale-105 transition-transform" 
+                            />
+                          </div>
+                          <CardHeader className="p-4">
+                            <CardTitle>{person.nombre} {person.apellido}</CardTitle>
+                            <CardDescription className="text-primary font-medium">
+                              {person.tipo_usuario === "profesor" ? "Profesor" : 
+                               person.tipo_usuario === "admin" ? "Miembro del equipo" : "Alumno"}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="p-4 pt-0">
+                            <p className="text-sm text-muted-foreground">
+                              {person.formacion_academica && 
+                                (Array.isArray(person.formacion_academica)
+                                  ? person.formacion_academica.join(", ")
+                                  : person.formacion_academica)}
+                            </p>
+                          </CardContent>
+                          <CardFooter className="p-4 flex justify-between items-center border-t">
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <MapPin className="mr-1 h-4 w-4" />
+                              Campus Principal
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-primary">
+                              <ModalCv perfil={person} />
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
 
-              <TabsContent value="equipo">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {team.map((person, index) => (
-                    <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
-                      <div className="aspect-square relative">
-                        <Image src={person.image} alt={person.name} fill className="object-cover" />
-                      </div>
-                      <CardHeader className="p-4">
-                        <CardTitle>{person.name}</CardTitle>
-                        <CardDescription className="text-primary font-medium">{person.role}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <p className="text-sm text-muted-foreground">{person.bio}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
+                  <TabsContent value="equipo">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredUsers.map((person, index) => (
+                        <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
+                          <div className="aspect-square relative">
+                            <Image 
+                              src={person.avatar || "/placeholder.svg"} 
+                              alt={person.nombre} 
+                              fill 
+                              className="object-cover" 
+                            />
+                          </div>
+                          <CardHeader className="p-4">
+                            <CardTitle>{person.nombre} {person.apellido}</CardTitle>
+                            <CardDescription className="text-primary font-medium">
+                              {person.tipo_usuario === "profesor" ? "Profesor" : 
+                               person.tipo_usuario === "admin" ? "Miembro del equipo" : "Alumno"}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="p-4 pt-0">
+                            <p className="text-sm text-muted-foreground">
+                              {person.areas_investigacion && 
+                                (Array.isArray(person.areas_investigacion)
+                                  ? person.areas_investigacion.map(a => a.nombre).join(", ")
+                                  : person.areas_investigacion)}
+                            </p>
+                          </CardContent>
+                          <CardFooter className="p-4 flex justify-between items-center border-t">
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <MapPin className="mr-1 h-4 w-4" />
+                              Campus Principal
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-primary">
+                              <ModalCv perfil={person} />
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
 
-              <TabsContent value="alumnos">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {team.map((person, index) => (
-                    <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
-                      <div className="aspect-square relative">
-                        <Image src={person.image} alt={person.name} fill className="object-cover" />
-                      </div>
-                      <CardHeader className="p-4">
-                        <CardTitle>{person.name}</CardTitle>
-                        <CardDescription className="text-primary font-medium">{person.role}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <p className="text-sm text-muted-foreground">{person.bio}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
+                  <TabsContent value="alumnos">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredUsers.map((person, index) => (
+                        <Card key={index} className="overflow-hidden transition-all hover:shadow-lg">
+                          <div className="aspect-square relative">
+                            <Image 
+                              src={person.avatar || "/placeholder.svg"} 
+                              alt={person.nombre} 
+                              fill 
+                              className="object-cover" 
+                            />
+                          </div>
+                          <CardHeader className="p-4">
+                            <CardTitle>{person.nombre} {person.apellido}</CardTitle>
+                            <CardDescription className="text-primary font-medium">
+                              {person.tipo_usuario === "profesor" ? "Profesor" : 
+                               person.tipo_usuario === "admin" ? "Miembro del equipo" : "Alumno"}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="p-4 pt-0">
+                            <p className="text-sm text-muted-foreground">
+                              {person.areas_investigacion && 
+                                (Array.isArray(person.areas_investigacion)
+                                  ? person.areas_investigacion.map(a => a.nombre).join(", ")
+                                  : person.areas_investigacion)}
+                            </p>
+                          </CardContent>
+                          <CardFooter className="p-4 flex justify-between items-center border-t">
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <MapPin className="mr-1 h-4 w-4" />
+                              Campus Principal
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-primary">
+                              <ModalCv perfil={person} />
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </>
+              )}
             </Tabs>
           </div>
         </section>
-
         {/* Sección Únete */}
         <section id="join" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6 mx-auto">

@@ -1,4 +1,7 @@
 // interfaces/user.ts
+import { FormacionAcademica } from "./formacionAcademica";
+import { AreaInvestigacion } from "./areaInvestigacion";
+
 export type RoleUser = "admin" | "alumno" | "profesor";
 export type StatusUser = "activo" | "inactivo";
 
@@ -15,8 +18,14 @@ export interface User {
   estado?: StatusUser;
   avatar?: string;
   initials?: string;
+  area_investigacion?: number; // Optional, can be null
+  formacion_academica?: FormacionAcademica[]; // Optional, can be null
+  areas_investigacion?: AreaInvestigacion[]; // Optional, can be null
 }
-
+export interface UsuarioAreaInvestigacion {
+  ID_usuario: number;
+  ID_area: number;
+}
 export interface LoginUsuarioRequest {
   email: string;
   password: string;

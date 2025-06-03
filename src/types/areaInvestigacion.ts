@@ -4,8 +4,3 @@ export interface AreaInvestigacion {
   nombre: string;
   descripcion?: string;
 }
-
-export interface UsuarioAreaInvestigacion {
-  ID_usuario: number;
-  ID_area: number;
-}

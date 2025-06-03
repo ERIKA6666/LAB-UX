@@ -4,7 +4,7 @@ export interface FormacionAcademica {
   ID_usuario: number;
   institucion: string;
   titulo: string;
-  fecha_inicio?: Date | string;
-  fecha_fin?: Date | string;
+  fecha_inicio?:  string;
+  fecha_fin?: string;
   descripcion?: string;
 }
