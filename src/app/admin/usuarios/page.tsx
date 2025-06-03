@@ -204,6 +204,18 @@ export default function UsuariosPage() {
     ).toUpperCase();
   }
 
+  useEffect(() => {
+    if (editingUser) {
+      setFormData({
+        nombre: editingUser.nombre || '',
+        correo: editingUser.correo || '',
+        tipo_usuario: editingUser.tipo_usuario || 'alumno',
+        estado: editingUser.estado || 'activo',
+        password: '', // No mostrar password por seguridad
+      });
+    }
+  }, [editingUser]);
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -347,22 +359,34 @@ export default function UsuariosPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="edit-user-name">Nombre Completo</Label>
-                    <Input id="edit-user-name" defaultValue={editingUser?.nombre} />
+                    <Label htmlFor="nombre">Nombre Completo</Label>
+                    <Input
+                      id="nombre"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={handleInputChange}
+                      defaultValue={editingUser?.nombre || ''}
+                      placeholder="Nombre y apellidos"
+                      required
+                    />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="edit-user-email">Correo Electrónico</Label>
-                    <Input id="edit-user-email" type="email" defaultValue={editingUser?.correo} />
+                    <Label htmlFor="correo">Correo Electrónico</Label>
+                    <Input
+                      id="correo"
+                      name="correo"
+                      type="email"
+                      value={formData.correo}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="edit-user-role">Rol</Label>
-                  <Select 
-                    value={formData.tipo_usuario} 
-                    onValueChange={(value) => {
-                      console.log("Rol seleccionado:", value); // Para depuración
-                      handleSelectChange(value, 'tipo_usuario');
-                    }}
+                  <Label htmlFor="rol">Rol</Label>
+                  <Select
+                    value={formData.tipo_usuario}
+                    onValueChange={(value) => handleSelectChange(value, 'tipo_usuario')}
                   >
                     <SelectTrigger id="edit-user-role">
                       <SelectValue placeholder="Seleccione un rol" />
@@ -374,16 +398,16 @@ export default function UsuariosPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-user-avatar">Avatar (opcional)</Label>
-                  <Input id="edit-user-avatar" type="file" />
-                </div>
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     id="edit-user-active"
                     className="h-4 w-4 rounded border-gray-300"
-                    defaultChecked={editingUser?.estado === "activo"}
+                    checked={formData.estado === "activo"}
+                    onChange={e => setFormData(prev => ({
+                      ...prev,
+                      estado: e.target.checked ? "activo" : "inactivo"
+                    }))}
                   />
                   <Label htmlFor="edit-user-active">Usuario activo</Label>
                 </div>
