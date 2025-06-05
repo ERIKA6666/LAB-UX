@@ -31,15 +31,17 @@ export default function LoginPage() {
 
     try {
       const result = await login(loginData)
-      if (result.success) {
+      if (result.success && result.usuario) {
+        // Guarda el usuario en localStorage para que LayoutSwitcher lo detecte
+        localStorage.setItem("usuario", JSON.stringify(result.usuario))
         window.location.href = '/admin/inicio'
       } else {
         setErrorMessage(result.error || "Correo o contraseña incorrectos.")
       }
     } catch (error) {
-        console.error("Error en addUser:", error);
-        throw error;
-      } finally {
+      console.error("Error en login:", error)
+      setErrorMessage("Ocurrió un error inesperado.")
+    } finally {
       setIsSubmitting(false)
     }
   }
