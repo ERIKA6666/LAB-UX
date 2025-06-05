@@ -34,19 +34,31 @@ export const getProyectoById = async (id: number) => {
   return await res.json();
 };
 
-export const addProyecto = async (proyectoData: Omit<Proyecto, 'ID' | 'fecha_creacion' | 'fecha_actualizacion' | 'progreso'>) => {
+export const addProyecto = async (
+  proyectoData: Omit<Proyecto, 'ID' | 'fecha_creacion' | 'fecha_actualizacion' | 'progreso'> & { imagen?: File }
+) => {
   try {
+    const formData = new FormData();
+    // Agrega los campos normales
+    Object.entries(proyectoData).forEach(([key, value]) => {
+      if (value !== undefined && key !== "imagen") {
+        formData.append(key, value as string);
+      }
+    });
+    // Agrega la imagen si existe
+    if (proyectoData.imagen) {
+      formData.append("imagen", proyectoData.imagen);
+    }
+    formData.append("fecha_creacion", new Date().toISOString());
+    formData.append("progreso", "0");
+
     const res = await fetch(`${API_URL}/proyectos`, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
+      headers: {
         "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+        // No pongas Content-Type, el navegador lo agrega automáticamente
       },
-      body: JSON.stringify({
-        ...proyectoData,
-        fecha_creacion: new Date().toISOString(),
-        progreso: 0 // Inicializa con 0% de progreso
-      }),
+      body: formData,
     });
 
     if (!res.ok) {
@@ -61,19 +73,30 @@ export const addProyecto = async (proyectoData: Omit<Proyecto, 'ID' | 'fecha_cre
   }
 };
 
-export const updateProyecto = async (id: number, proyectoData: Partial<Proyecto>) => {
+export const updateProyecto = async (
+  id: number,
+  proyectoData: Partial<Proyecto> & { imagen?: File }
+) => {
+  const formData = new FormData();
+  Object.entries(proyectoData).forEach(([key, value]) => {
+    if (value !== undefined && key !== "imagen") {
+      formData.append(key, value as string);
+    }
+  });
+  if (proyectoData.imagen) {
+    formData.append("imagen", proyectoData.imagen);
+  }
+  formData.append("fecha_actualizacion", new Date().toISOString());
+
   const res = await fetch(`${API_URL}/proyectos/${id}`, {
     method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
+    headers: {
       "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+      // No pongas Content-Type aquí
     },
-    body: JSON.stringify({
-      ...proyectoData,
-      fecha_actualizacion: new Date().toISOString() // Actualiza la fecha de modificación
-    }),
+    body: formData,
   });
-  
+
   if (!res.ok) {
     const errorData = await res.json();
     throw new Error(errorData.message || "Error al actualizar proyecto");

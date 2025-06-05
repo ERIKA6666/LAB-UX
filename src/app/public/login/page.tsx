@@ -32,7 +32,7 @@ export default function LoginPage() {
     try {
       const result = await login(loginData)
       if (result.success) {
-        window.location.href = '/admin'
+        window.location.href = '/admin/inicio'
       } else {
         setErrorMessage(result.error || "Correo o contraseña incorrectos.")
       }
