@@ -72,7 +72,7 @@ export const updateUser = async (ID: number, userData: Partial<User>) => {
 };
 
 // ...existing code...
-
+  
 export const getUserById = async (id: number) => {
   const res = await fetch(`${API_URL}/usuarios/${id}`);
   if (!res.ok) {
@@ -84,7 +84,7 @@ export const getUserById = async (id: number) => {
 // ...login 
 export async function login(data: { email: string; password: string }) {
   try {
-    const response = await fetch(`${API_URL}/public/login`, {
+    const response = await fetch(`${API_URL}/usuarios/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -103,7 +103,7 @@ export async function login(data: { email: string; password: string }) {
 
 export async function PasswordReset(data: { email: string }) {
   try {
-    const response = await fetch(`${API_URL}/password-reset`, {
+    const response = await fetch(`${API_URL}/usuarios/reset_password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
