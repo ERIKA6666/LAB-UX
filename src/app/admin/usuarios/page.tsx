@@ -44,6 +44,9 @@ export default function UsuariosPage() {
   // Estados para el formulario
   const [formData, setFormData] = useState<Partial<User>>({
     nombre: '',
+    username: '',
+    apellido: '',
+    telefono: '',
     correo: '',
     tipo_usuario: 'alumno', // Valor por defecto
     estado: 'activo',
@@ -71,6 +74,9 @@ export default function UsuariosPage() {
         const completeUser: User = {
         ID: newUser.id,
         nombre: newUser.nombre || formData.nombre,
+        username: newUser.username || '',
+        apellido: newUser.apellido || formData.apellido,
+        telefono: newUser.telefono || '',
         correo: newUser.correo || formData.correo,
         tipo_usuario: newUser.tipo_usuario || formData.tipo_usuario,
         estado: newUser.estado || formData.estado,
@@ -166,7 +172,10 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
   const resetForm = () => {
     setFormData({
       nombre: '',
+      username: '',
       correo: '',
+      apellido: '',
+      telefono: '',
       tipo_usuario: 'alumno',
       estado: 'activo',
       password: ''
@@ -215,7 +224,10 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
     if (editingUser) {
       setFormData({
         nombre: editingUser.nombre || '',
+        username: editingUser.username || '',
         correo: editingUser.correo || '',
+        apellido: editingUser.apellido || '',
+        telefono: editingUser.telefono || '',
         tipo_usuario: editingUser.tipo_usuario || 'alumno',
         estado: editingUser.estado || 'activo',
         password: '', // No mostrar password por seguridad
@@ -264,12 +276,45 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="nombre">Nombre Completo</Label>
+                      <Label htmlFor="username">Nombre de Usuario</Label>
+                      <Input 
+                        id="username" 
+                        name="username"
+                        placeholder="Nombre de usuario" 
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="nombre">Nombre</Label>
                       <Input 
                         id="nombre" 
                         name="nombre"
-                        placeholder="Nombre y apellidos" 
+                        placeholder="Nombre" 
                         value={formData.nombre}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="apellido">Apellido</Label>
+                      <Input 
+                        id="apellido" 
+                        name="apellido"
+                        placeholder="Apellidos" 
+                        value={formData.apellido}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input 
+                        id="telefono" 
+                        name="telefono"
+                        placeholder="Teléfono" 
+                        value={formData.telefono}
                         onChange={handleInputChange}
                         required
                       />
@@ -286,6 +331,22 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                         required
                       />
                     </div>
+                    <div className="grid gap-2">
+                    <Label htmlFor="tipo_usuario">Rol</Label>
+                    <Select 
+                      value={formData.tipo_usuario} 
+                      onValueChange={(value) => handleSelectChange(value, 'tipo_usuario')}
+                    >
+                      <SelectTrigger id="tipo_usuario">
+                        <SelectValue placeholder="Seleccione un rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                        <SelectItem value="alumno">Alumno</SelectItem>
+                        <SelectItem value="profesor">Profesor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   </div>
                   {!currentUserId && (
                     <div className="grid grid-cols-2 gap-4">
@@ -312,22 +373,6 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                       </div>
                     </div>
                   )}
-                  <div className="grid gap-2">
-                    <Label htmlFor="tipo_usuario">Rol</Label>
-                    <Select 
-                      value={formData.tipo_usuario} 
-                      onValueChange={(value) => handleSelectChange(value, 'tipo_usuario')}
-                    >
-                      <SelectTrigger id="tipo_usuario">
-                        <SelectValue placeholder="Seleccione un rol" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="admin">Administrador</SelectItem>
-                        <SelectItem value="alumno">Alumno</SelectItem>
-                        <SelectItem value="profesor">Profesor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                   <div className="flex items-center space-x-2">
                     <input 
                       type="checkbox" 
@@ -377,7 +422,19 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="nombre">Nombre Completo</Label>
+                    <Label htmlFor="username">Nombre de Usuario</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      defaultValue={editingUser?.username || ''}
+                      placeholder="Nombre de usuario"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="nombre">Nombre</Label>
                     <Input
                       id="nombre"
                       name="nombre"
@@ -385,6 +442,30 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                       onChange={handleInputChange}
                       defaultValue={editingUser?.nombre || ''}
                       placeholder="Nombre y apellidos"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="nombre">Apellido</Label>
+                    <Input
+                      id="apellido"
+                      name="apellido"
+                      value={formData.apellido}
+                      onChange={handleInputChange}
+                      defaultValue={editingUser?.apellido || ''}
+                      placeholder="Apellido"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                      defaultValue={editingUser?.telefono|| ''}
+                      placeholder="Teléfono"
                       required
                     />
                   </div>
@@ -399,8 +480,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                       required
                     />
                   </div>
-                </div>
-                <div className="grid gap-2">
+                  <div className="grid gap-2">
                   <Label htmlFor="rol">Rol</Label>
                   <Select
                     value={formData.tipo_usuario}
@@ -415,6 +495,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                       <SelectItem value="profesor">Profesor</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
@@ -692,7 +773,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                     size="sm"
                     onClick={() => setDeactivatingUser(user)}>
                     <Lock className="mr-2 h-4 w-4" />
-                    Contraseña
+                    Desactivar Usuario
                   </Button>
                   <Button 
                     variant="destructive" 
