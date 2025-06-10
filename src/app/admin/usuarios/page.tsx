@@ -20,8 +20,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react";
-import { User, RoleUser, StatusUser } from "@/types/index";
+import { User, RoleUser, StatusUser, AreaInvestigacion } from "@/types/index";
 import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/index";
+import { fetchAreasInvestigacion } from "@/services/areainvestigacion";
 //import { set } from "react-hook-form";
 
 export default function UsuariosPage() {
@@ -56,6 +57,10 @@ export default function UsuariosPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
+  // Estado para las áreas y selección del usuario
+  const [areas, setAreas] = useState<AreaInvestigacion[]>([]);
+  const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
+
   // Cargar usuarios
   useEffect(() => {
     setLoading(true);
@@ -63,6 +68,11 @@ export default function UsuariosPage() {
       .then(data => setUsers(data))
       .finally(() => setLoading(false));
   }, [search, filterRol, filterEstado]);
+
+  // Cargar áreas de investigación
+  useEffect(() => {
+    fetchAreasInvestigacion().then(setAreas);
+  }, []);
 
   // Manejadores de usuarios
   const handleAddUser = async (userData: Partial<User>) => {
@@ -153,7 +163,10 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
         await handleUpdateUser(currentUserId, formData);
         setShowSuccessMessage("Usuario actualizado correctamente");
       } else {
-        await handleAddUser(formData);
+        await handleAddUser({
+          ...formData,
+          areasInvestigacion: selectedAreas, // o el nombre que use tu backend
+        });
         setShowSuccessMessage("Usuario creado correctamente");
       }
       
@@ -232,6 +245,12 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
         estado: editingUser.estado || 'activo',
         password: '', // No mostrar password por seguridad
       });
+      // Precarga las áreas seleccionadas del usuario
+      setSelectedAreas(
+        editingUser.areas_investigacion
+          ? editingUser.areas_investigacion.map(a => a.ID)
+          : []
+      );
     }
   }, [editingUser]);
 
@@ -383,6 +402,27 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                     />
                     <Label htmlFor="estado">Usuario activo</Label>
                   </div>
+                  <div className="grid gap-2">
+                    <Label>Áreas de Investigación</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {areas.map(area => (
+                        <label key={area.ID} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedAreas.includes(area.ID)}
+                            onChange={e => {
+                              if (e.target.checked) {
+                                setSelectedAreas(prev => [...prev, area.ID]);
+                              } else {
+                                setSelectedAreas(prev => prev.filter(id => id !== area.ID));
+                              }
+                            }}
+                          />
+                          <span>{area.nombre}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={submitLoading}>
@@ -411,7 +451,10 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                 e.preventDefault();
                 if (editingUser) {
                   try {
-                    await handleUpdateUser(editingUser.ID, formData);
+                    await handleUpdateUser(editingUser.ID, {
+                      ...formData,
+                      areasInvestigacion: selectedAreas, // Envía las áreas seleccionadas
+                    });
                     setEditingUser(null);
                     setShowSuccessMessage("Usuario actualizado correctamente");
                   } catch (error) {
@@ -509,6 +552,28 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                     }))}
                   />
                   <Label htmlFor="edit-user-active">Usuario activo</Label>
+                </div>
+                {/* Áreas de investigación checklist */}
+                <div className="grid gap-2">
+                  <Label>Áreas de Investigación</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {areas.map(area => (
+                      <label key={area.ID} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedAreas.includes(area.ID)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setSelectedAreas(prev => [...prev, area.ID]);
+                            } else {
+                              setSelectedAreas(prev => prev.filter(id => id !== area.ID));
+                            }
+                          }}
+                        />
+                        <span>{area.nombre}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
               <DialogFooter>
