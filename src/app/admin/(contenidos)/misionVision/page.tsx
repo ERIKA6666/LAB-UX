@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -8,6 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ImagePlus, Save, Plus, Edit, Trash2  } from "lucide-react"
 import { Mision, Vision, Valores } from "@/constans/data"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+
+import { ContenidoSitio } from "@/types"
+
 
 export default function MisionVisionPage() {
   const [mision, setMision] = useState(Mision)
@@ -15,7 +19,62 @@ export default function MisionVisionPage() {
   const [vision, setVision] = useState(Vision)
 
   const [valores, setValores] = useState(Valores)
+ // Estado para manejar el diálogo de confirmación
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [valorEdit, setValorEdit] = useState()
 
+// Refs para inputs de archivo
+  const misionFileInputRef = useRef<HTMLInputElement>(null)
+  const visionFileInputRef = useRef<HTMLInputElement>(null)
+  const valoresFileInputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  // Handlers para cargar imágenes
+  const handleMisionImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        setMision({ ...mision, image: ev.target?.result as string })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+  //Handler para eliminar un valor
+    const handleDeleteValor = (id: number) => {
+    setValores(valores.filter(valor => valor.id !== id))
+  }
+
+  const handleVisionImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        setVision({ ...vision, image: ev.target?.result as string })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleValorImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        const nuevosValores = [...valores]
+        nuevosValores[index] = {
+          ...nuevosValores[index],
+          iconoPath: ev.target?.result as string,
+        }
+        setValores(nuevosValores)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+  // Handler para abrir el diálogo de edición
+  const handleEditValor = (valor:any) => {
+    setValorEdit(valor)
+    setEditDialogOpen(true)
+  }
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -55,9 +114,20 @@ export default function MisionVisionPage() {
               <Label>Imagen de la Misión (opcional)</Label>
               <div className="flex items-center gap-4">
                 <div className="h-32 w-32 rounded-md border flex items-center justify-center bg-muted">
-                  <img src={Mision.image} alt="Misión" className="max-h-full max-w-full" />
+                  <img src={mision.image} alt="Misión" className="max-h-full max-w-full" />
                 </div>
-                <Button variant="outline">
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={misionFileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleMisionImageChange}
+                />
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => misionFileInputRef.current?.click()}
+                >
                   <ImagePlus className="mr-2 h-4 w-4" />
                   Cambiar Imagen
                 </Button>
@@ -78,7 +148,7 @@ export default function MisionVisionPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="vision-text">Texto de la Visión</Label>
-              <Textarea id="vision-text" rows={6} value={Vision.texto} 
+              <Textarea id="vision-text" rows={6} value={vision.texto} 
               onChange={(e) => setVision({
                   ...vision,          // Mantener todas las otras propiedades
                   texto: e.target.value  // Actualizar solo textOne
@@ -88,9 +158,20 @@ export default function MisionVisionPage() {
               <Label>Imagen de la Visión (opcional)</Label>
               <div className="flex items-center gap-4">
                 <div className="h-32 w-32 rounded-md border flex items-center justify-center bg-muted">
-                  <img src={Vision.image} alt="Visión" className="max-h-full max-w-full" />
+                  <img src={vision.image} alt="Visión" className="max-h-full max-w-full" />
                 </div>
-                <Button variant="outline">
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={visionFileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleVisionImageChange}
+                />
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => visionFileInputRef.current?.click()}
+                >
                   <ImagePlus className="mr-2 h-4 w-4" />
                   Cambiar Imagen
                 </Button>
@@ -122,7 +203,7 @@ export default function MisionVisionPage() {
 
             {/* Valores existentes */}
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {Valores.map((valor) => (
+              {valores.map((valor,idx) => (
                 <Card key={valor.id} className="p-3">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
@@ -139,45 +220,78 @@ export default function MisionVisionPage() {
                     </div>
                     <Textarea defaultValue={valor.descripcion} rows={2} className="text-xs resize-none" />
                     <div className="flex justify-between items-center">
-                      <Button variant="outline" size="xs" className="text-xs">
-                        <ImagePlus className="mr-1 h-3 w-3" />
-                        Imagen
+                      <input
+                      type="file"
+                      accept="image/*"
+                      ref={el => {valoresFileInputRefs.current[idx] = el}}
+                      style={{ display: "none" }}
+                      onChange={e => handleValorImageChange(idx, e)}
+                    />
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="text-xs"
+                      type="button"
+                      onClick={() => valoresFileInputRefs.current[idx]?.click()}
+                    >
+                      <ImagePlus className="mr-1 h-3 w-3" />
+                      Imagen
+                    </Button>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="xs" onClick={() => handleEditValor(valor)}>
+                        <Edit className="h-3 w-3" />
                       </Button>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="xs">
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button variant="ghost" size="xs">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
+                     <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleDeleteValor(valor.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
-                </Card>
+                </div>
+              </Card>
               ))}
             </div>
           </div>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Vista Previa</CardTitle>
-          <CardDescription>Así se verá la sección de Misión y Visión en el sitio</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-md p-6 space-y-8">
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold">{Mision.title}</h3>
-              <p className="text-muted-foreground">{Mision.texto}</p>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold">{Vision.title}</h3>
-              <p className="text-muted-foreground">{Vision.texto}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Valor</DialogTitle>
+          </DialogHeader>
+          {valorEdit && (
+            <form
+              onSubmit={e => {
+                e.preventDefault()
+                setValores(valores.map(v => v.id === valorEdit.id? valorEdit : v))
+                setEditDialogOpen(false)
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <Label>Título</Label>
+                <Input
+                  value={valorEdit.titulo}
+                  onChange={e => setValorEdit({ ...valorEdit, titulo: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Descripción</Label>
+                <Textarea
+                  value={valorEdit.descripcion}
+                  onChange={e => setValorEdit({ ...valorEdit, descripcion: e.target.value })}
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit">Guardar</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
