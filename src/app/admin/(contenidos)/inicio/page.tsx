@@ -10,8 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ImagePlus, Save, Trash2 } from "lucide-react"
 import { ContenidoSitio, EstadoContenido, TipoContenido } from "@/types"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"// ...existing code...
-const [editDialogOpen, setEditDialogOpen] = useState(false)
-const [valorEdit, setValorEdit] = useState(null)
+
 // ...existing code...
 
 // Datos iniciales mockeados según la interfaz
@@ -41,6 +40,10 @@ const initialBanners: ContenidoSitio[] = [
 ]
 
 export default function InicioPage() {
+  //estados para dialog de eliminar 
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [bannerToDelete, setBannerToDelete] = useState<number | null>(null)
+
   const [banners, setBanners] = useState<ContenidoSitio[]>(initialBanners)
   const [nextId, setNextId] = useState<number>(initialBanners.length > 0 ? Math.max(...initialBanners.map(b => b.ID)) + 1 : 1)
   const fileInputRefs = useRef<{[key: number]: HTMLInputElement | null}>({})
@@ -54,8 +57,16 @@ export default function InicioPage() {
   )
 
   const handleDeleteBanner = (id: number) => {
-    setBanners(banners.filter(banner => banner.ID !== id))
+    setBannerToDelete(id)
+    setConfirmDialogOpen(true)
   }
+  const confirmDelete = () => {
+  if (bannerToDelete) {
+    setBanners(banners.filter(valor => valor.ID !== bannerToDelete))
+    setConfirmDialogOpen(false)
+    setBannerToDelete(null)
+  }
+}
 
   const handleAddBanner = () => {
     const newBanner: ContenidoSitio = {
@@ -281,6 +292,22 @@ export default function InicioPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar eliminación</DialogTitle>
+          </DialogHeader>
+          <p>¿Estás seguro que deseas eliminar este banner? Esta acción no se puede deshacer.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -61,22 +61,22 @@ export function Carousel() {
       <div className="relative h-full w-full">
         {slides.map((slide, index) => (
           <div
-            key={slide.id}
+            key={slide.ID}
             className={cn(
               "absolute inset-0 flex items-center justify-center transition-opacity duration-1000",
               index === currentIndex ? "opacity-100" : "opacity-0 pointer-events-none",
             )}
           >
             {/* Background with color overlay */}
-            <div className={cn("absolute inset-0 flex items-center justify-center", slide.image)}>
+            <div className={cn("absolute inset-0 flex items-center justify-center", slide.imagen)}>
               {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
             </div>
 
             {/* Content */}
             <div className="relative z-10 text-center max-w-3xl px-6 ">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{slide.title}</h2>
-              <p className="text-lg sm:text-xl md:text-2xl">{slide.description}</p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{slide.titulo}</h2>
+              <p className="text-lg sm:text-xl md:text-2xl">{slide.texto}</p>
               <Button className="mt-6 text-secondary">Saber más</Button>
             </div>
           </div>

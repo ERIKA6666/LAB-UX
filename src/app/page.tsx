@@ -16,10 +16,10 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Texto de la Misión */}
             <div className="order-2 md:order-1">
-              <h2 className="text-3xl font-bold mb-2">{Mision.title}</h2>
+              <h2 className="text-3xl font-bold mb-2">{Mision.titulo}</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg font-thin mb-4">
-                {Mision.title}
+                {Mision.titulo}
               </p>
               <p className="text-lg font-thin">
                {Mision.texto}
@@ -30,7 +30,7 @@ export default function Home() {
             <div className="order-1 md:order-2">
               <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
-                  src={Mision.image}
+                  src={Mision.imagen}
                   alt={Mision.texto}
                   fill
                   className="object-cover"
@@ -48,8 +48,8 @@ export default function Home() {
             <div>
               <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
-                  src={Vision.image}
-                  alt={Vision.title}
+                  src={Vision.imagen}
+                  alt={Vision.titulo}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -59,7 +59,7 @@ export default function Home() {
 
             {/* Texto de la Visión */}
             <div>
-              <h2 className="text-3xl font-bold mb-2">{Vision.title}</h2>
+              <h2 className="text-3xl font-bold mb-2">{Vision.titulo}</h2>
               <div className="w-20 h-1 bg-primary mb-6"></div>
               <p className="text-lg font-thin mb-4">
               {Vision.texto}
@@ -96,7 +96,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-2">{valor.titulo}</h3>
-              <p className="font-thin">{valor.descripcion}</p>
+              <p className="font-thin">{valor.texto}</p>
             </div>
           ))}
         </div>

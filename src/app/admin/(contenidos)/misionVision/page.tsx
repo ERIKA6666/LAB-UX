@@ -6,50 +6,56 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ImagePlus, Save, Plus, Edit, Trash2  } from "lucide-react"
+import { ImagePlus, Save, Plus, Edit, Trash2 } from "lucide-react"
 import { Mision, Vision, Valores } from "@/constans/data"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-
-import { ContenidoSitio } from "@/types"
-
+import { ContenidoSitio, Valor } from "@/types"
 
 export default function MisionVisionPage() {
-  const [mision, setMision] = useState(Mision)
-
-  const [vision, setVision] = useState(Vision)
-
-  const [valores, setValores] = useState(Valores)
- // Estado para manejar el diálogo de confirmación
+  const [mision, setMision] = useState<ContenidoSitio>(Mision)
+  const [vision, setVision] = useState<ContenidoSitio>(Vision)
+  const [valores, setValores] = useState<Valor[]>(Valores)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [valorEdit, setValorEdit] = useState()
+  const [valorEdit, setValorEdit] = useState<Valor | null>(null)
 
-// Refs para inputs de archivo
   const misionFileInputRef = useRef<HTMLInputElement>(null)
   const visionFileInputRef = useRef<HTMLInputElement>(null)
   const valoresFileInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  // Handlers para cargar imágenes
+  //mensaje para eliminar 
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [valorToDelete, setValorToDelete] = useState<number | null>(null)
+
   const handleMisionImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
       reader.onload = (ev) => {
-        setMision({ ...mision, image: ev.target?.result as string })
+        setMision({ ...mision, imagen: ev.target?.result as string })
       }
       reader.readAsDataURL(file)
     }
   }
-  //Handler para eliminar un valor
-    const handleDeleteValor = (id: number) => {
-    setValores(valores.filter(valor => valor.id !== id))
+  const handleDeleteValor = (id: number) => {
+    setValorToDelete(id)
+    setConfirmDialogOpen(true)
   }
+
+  const confirmDelete = () => {
+    if (valorToDelete) {
+      setValores(valores.filter(valor => valor.ID !== valorToDelete))
+      setConfirmDialogOpen(false)
+      setValorToDelete(null)
+    }
+  }
+
 
   const handleVisionImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
       reader.onload = (ev) => {
-        setVision({ ...vision, image: ev.target?.result as string })
+        setVision({ ...vision, imagen: ev.target?.result as string })
       }
       reader.readAsDataURL(file)
     }
@@ -70,11 +76,20 @@ export default function MisionVisionPage() {
       reader.readAsDataURL(file)
     }
   }
-  // Handler para abrir el diálogo de edición
-  const handleEditValor = (valor:any) => {
+
+  const handleEditValor = (valor: Valor) => {
     setValorEdit(valor)
     setEditDialogOpen(true)
   }
+
+  const handleSaveEditedValor = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (valorEdit) {
+      setValores(valores.map(v => v.ID === valorEdit.ID ? valorEdit : v))
+      setEditDialogOpen(false)
+    }
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -96,7 +111,7 @@ export default function MisionVisionPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="mision-title">Título de la Misión</Label>
-              <Input id="mision-title" defaultValue={Mision.title}/>
+              <Input id="mision-title" defaultValue={Mision.titulo}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="mision-text">Texto de la Misión</Label>
@@ -114,7 +129,7 @@ export default function MisionVisionPage() {
               <Label>Imagen de la Misión (opcional)</Label>
               <div className="flex items-center gap-4">
                 <div className="h-32 w-32 rounded-md border flex items-center justify-center bg-muted">
-                  <img src={mision.image} alt="Misión" className="max-h-full max-w-full" />
+                  <img src={mision.imagen} alt="Misión" className="max-h-full max-w-full" />
                 </div>
                 <input
                   type="file"
@@ -158,7 +173,7 @@ export default function MisionVisionPage() {
               <Label>Imagen de la Visión (opcional)</Label>
               <div className="flex items-center gap-4">
                 <div className="h-32 w-32 rounded-md border flex items-center justify-center bg-muted">
-                  <img src={vision.image} alt="Visión" className="max-h-full max-w-full" />
+                  <img src={vision.imagen} alt="Visión" className="max-h-full max-w-full" />
                 </div>
                 <input
                   type="file"
@@ -204,7 +219,7 @@ export default function MisionVisionPage() {
             {/* Valores existentes */}
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {valores.map((valor,idx) => (
-                <Card key={valor.id} className="p-3">
+                <Card key={valor.ID} className="p-3">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-md border overflow-hidden flex-shrink-0">
@@ -218,7 +233,7 @@ export default function MisionVisionPage() {
                         <Input defaultValue={valor.titulo} className="text-sm font-medium " />
                       </div>
                     </div>
-                    <Textarea defaultValue={valor.descripcion} rows={2} className="text-xs resize-none" />
+                    <Textarea defaultValue={valor.texto} rows={2} className="text-xs resize-none" />
                     <div className="flex justify-between items-center">
                       <input
                       type="file"
@@ -244,7 +259,7 @@ export default function MisionVisionPage() {
                      <Button 
                       variant="destructive" 
                       size="sm"
-                      onClick={() => handleDeleteValor(valor.id)}
+                      onClick={() => handleDeleteValor(valor.ID)}
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -266,7 +281,7 @@ export default function MisionVisionPage() {
             <form
               onSubmit={e => {
                 e.preventDefault()
-                setValores(valores.map(v => v.id === valorEdit.id? valorEdit : v))
+                setValores(valores.map(v => v.ID === valorEdit.ID? valorEdit : v))
                 setEditDialogOpen(false)
               }}
               className="space-y-4"
@@ -281,8 +296,8 @@ export default function MisionVisionPage() {
               <div>
                 <Label>Descripción</Label>
                 <Textarea
-                  value={valorEdit.descripcion}
-                  onChange={e => setValorEdit({ ...valorEdit, descripcion: e.target.value })}
+                  value={valorEdit.texto}
+                  onChange={e => setValorEdit({ ...valorEdit, texto: e.target.value })}
                 />
               </div>
               <DialogFooter>
@@ -292,6 +307,22 @@ export default function MisionVisionPage() {
           )}
         </DialogContent>
       </Dialog>
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmar eliminación</DialogTitle>
+        </DialogHeader>
+        <p>¿Estás seguro que deseas eliminar este valor? Esta acción no se puede deshacer.</p>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+            Cancelar
+          </Button>
+          <Button variant="destructive" onClick={confirmDelete}>
+            Eliminar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </div>
   )
 }
