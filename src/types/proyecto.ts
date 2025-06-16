@@ -5,7 +5,7 @@ export interface Proyecto {
   ID: number;
   nombre: string;
   tipo_estudio?: string;
-  imagen?: string;
+  imagen?: string | File;
   descripcion?: string;
   fecha_inicio?: Date | string;
   fecha_fin?: Date | string;
