@@ -20,15 +20,16 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
   return [];
 };
 
-export const addUser = async (userData: Partial<User>) => {
+// Cambiado para aceptar FormData y enviar archivos (foto)
+export const addUser = async (userData: FormData) => {
   try {
     const res = await fetch(`${API_URL}/usuarios`, {
       method: "POST",
       headers: { 
-        "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+        // No pongas Content-Type, el navegador lo agrega automáticamente con FormData
       },
-      body: JSON.stringify(userData),
+      body: userData,
     });
 
     if (!res.ok) {
@@ -37,11 +38,10 @@ export const addUser = async (userData: Partial<User>) => {
     }
 
     const responseData = await res.json();
-    // Asegúrate de que la API devuelva todos los campos necesarios
     return {
       id: responseData.ID,
       correo: responseData.correo,
-      password: responseData.password, // Consider security implications
+      password: responseData.password,
       nombre: responseData.nombre,
       apellido: responseData.apellido,
       telefono: responseData.telefono,
@@ -62,17 +62,23 @@ export const deleteUser = async (id: number) => {
   await fetch(`${API_URL}/usuarios/${id}`, { method: "DELETE" });
 };
 
-export const updateUser = async (ID: number, userData: Partial<User>) => {
+// Cambiado para aceptar FormData y enviar archivos (foto)
+export const updateUser = async (ID: number, userData: FormData) => {
   const res = await fetch(`${API_URL}/usuarios/${ID}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
+    headers: { 
+      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+      // No pongas Content-Type aquí
+    },
+    body: userData,
   });
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al actualizar usuario");
+  }
   return await res.json();
 };
 
-// ...existing code...
-  
 export const getUserById = async (id: number) => {
   const res = await fetch(`${API_URL}/usuarios/${id}`);
   if (!res.ok) {
@@ -81,7 +87,6 @@ export const getUserById = async (id: number) => {
   return await res.json();
 };
 
-// ...login 
 export async function login(data: { email: string; password: string }) {
   try {
     const response = await fetch(`${API_URL}/usuarios/login`, {

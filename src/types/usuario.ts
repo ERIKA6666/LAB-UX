@@ -16,7 +16,7 @@ export interface User {
   tipo_usuario: RoleUser;
   fecha_registro?: string;
   estado?: StatusUser;
-  avatar?: string;
+  foto?: string;
   initials?: string;
   area_investigacion?: number; // Optional, can be null
   formacion_academica?: FormacionAcademica[]; // Optional, can be null

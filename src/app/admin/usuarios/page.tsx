@@ -23,6 +23,7 @@ import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react";
 import { User, RoleUser, StatusUser, AreaInvestigacion } from "@/types/index";
 import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/index";
 import { fetchAreasInvestigacion } from "@/services/areainvestigacion";
+import { API_URL } from "@/constans/Api";
 //import { set } from "react-hook-form";
 
 export default function UsuariosPage() {
@@ -51,7 +52,8 @@ export default function UsuariosPage() {
     correo: '',
     tipo_usuario: 'alumno', // Valor por defecto
     estado: 'activo',
-    password: ''
+    password: '',
+    foto: undefined, // nuevo campo
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -78,7 +80,20 @@ export default function UsuariosPage() {
   const handleAddUser = async (userData: Partial<User>) => {
     setSubmitLoading(true);
     try {
-      const newUser = await addUser(userData);
+      const form = new FormData();
+      Object.entries(userData).forEach(([key, value]) => {
+        if (value !== undefined && key !== "foto") {
+          form.append(key, value as string);
+        }
+      });
+      if (userData.foto) {
+        form.append("foto", userData.foto);
+      }
+      // Si tienes áreas seleccionadas
+      if (selectedAreas.length > 0) {
+        form.append("areasInvestigacion", JSON.stringify(selectedAreas));
+      }
+      const newUser = await addUser(form); // addUser debe aceptar FormData
       if (newUser) {
         // Asegura que todos los campos requeridos estén presentes
         const completeUser: User = {
@@ -120,7 +135,19 @@ export default function UsuariosPage() {
 const handleUpdateUser = async (id: number, userData: Partial<User>) => {
   setSubmitLoading(true);
   try {
-    const updated = await updateUser(id, userData);
+    const form = new FormData();
+    Object.entries(userData).forEach(([key, value]) => {
+      if (value !== undefined && key !== "foto") {
+        form.append(key, value as string);
+      }
+    });
+    if (userData.foto) {
+      form.append("foto", userData.foto);
+    }
+    if (selectedAreas.length > 0) {
+      form.append("areasInvestigacion", JSON.stringify(selectedAreas));
+    }
+    const updated = await updateUser(id, form); // updateUser debe aceptar FormData
     if (updated) {
       await reloadUsers(); // <-- recarga la tabla
       setUsers(prev => prev.map(u => 
@@ -191,7 +218,8 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
       telefono: '',
       tipo_usuario: 'alumno',
       estado: 'activo',
-      password: ''
+      password: '',
+      foto: undefined, // nuevo campo
     });
     setConfirmPassword('');
     setCurrentUserId(null);
@@ -260,6 +288,12 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
     const data = await fetchUsers(search, filterRol, filterEstado);
     setUsers(data);
     setLoading(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({ ...prev, foto: e.target.files![0] }));
+    }
   };
 
   return (
@@ -423,6 +457,16 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                       ))}
                     </div>
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="foto">Foto de Usuario</Label>
+                    <Input
+                      id="foto"
+                      name="foto"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={submitLoading}>
@@ -574,6 +618,24 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                       </label>
                     ))}
                   </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="foto-edit">Foto de Usuario</Label>
+                  <Input
+                    id="foto-edit"
+                    name="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  {/* Mostrar preview si ya tiene foto */}
+                  {editingUser?.avatar && (
+                    <img
+                      src={editingUser.avatar}
+                      alt="Foto actual"
+                      className="w-20 h-20 object-cover rounded mt-2"
+                    />
+                  )}
                 </div>
               </div>
               <DialogFooter>
@@ -800,7 +862,11 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar} alt={user.nombre} />
+                        <AvatarImage src={
+                                                  typeof user.foto === "string"
+                                                    ? `${API_URL}/uploads/${user.foto}`
+                                                    : URL.createObjectURL(user.foto)
+                                                } alt={user.nombre} />
                         <AvatarFallback>{user.initials}</AvatarFallback>
                       </Avatar>
                       <div>
