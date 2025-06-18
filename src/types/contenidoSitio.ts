@@ -9,9 +9,9 @@ export interface ContenidoSitio {
   texto?: string;
   imagen?: string;
   link_redireccion?: string;
-  estado: EstadoContenido;
+  estado?: EstadoContenido;
   orden?: number;
-  fecha_creacion: string;
+  fecha_creacion?: string;
   fecha_actualizacion?: string;
 }
 

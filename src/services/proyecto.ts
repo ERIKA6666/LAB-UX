@@ -1,3 +1,4 @@
+"use client"
 import { Proyecto, EstadoProyecto, ProyectoAreaInvestigacion, ProyectoColaborador } from "@/types/proyecto";
 import { API_URL } from "@/constans/Api";
 
@@ -172,7 +173,7 @@ async function handleResponse(response: Response) {
 
 export const checkBackendConnection = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_URL}/health`);
+    const response = await fetch(`${API_URL}/proyectos`);
     return response.ok;
   } catch (error) {
     console.error("Error conectando al backend:", error);

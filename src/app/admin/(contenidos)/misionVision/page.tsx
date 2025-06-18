@@ -89,6 +89,18 @@ export default function MisionVisionPage() {
       setEditDialogOpen(false)
     }
   }
+  //add valor
+  const [newValorDialogOpen, setNewValorDialogOpen] = useState(false)
+  const [newValor, setNewValor] = useState<Valor>({
+    ID: Date.now(),
+    titulo: "",
+    texto: "",
+    iconoPath: "",
+    tipo: "valores", // o el valor por defecto que uses
+    estado: "activo", // o el valor por defecto que uses
+    fecha_creacion: new Date().toISOString(), // o el formato que uses
+  })
+  const newValorIconInputRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -210,10 +222,21 @@ export default function MisionVisionPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-lg font-medium">Lista de Valores</h4>
-              <Button variant="outline" size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Añadir Valor
-              </Button>
+             <Button variant="outline" size="sm" onClick={() => {
+              setNewValor({
+                ID: Date.now(),
+                titulo: "",
+                texto: "",
+                iconoPath: "",
+                tipo: "valores", // o el valor por defecto que uses
+                estado: "activo", // o el valor por defecto que uses
+                fecha_creacion: new Date().toISOString(), // o el formato que uses
+              })
+              setNewValorDialogOpen(true)
+            }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Añadir Valor
+          </Button>
             </div>
 
             {/* Valores existentes */}
@@ -323,6 +346,73 @@ export default function MisionVisionPage() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    <Dialog open={newValorDialogOpen} onOpenChange={setNewValorDialogOpen}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Nuevo Valor</DialogTitle>
+    </DialogHeader>
+    <form
+      onSubmit={e => {
+        e.preventDefault()
+        setValores([...valores, newValor])
+        setNewValorDialogOpen(false)
+      }}
+      className="space-y-4"
+    >
+      <div>
+        <Label>Título</Label>
+        <Input
+          value={newValor.titulo}
+          onChange={e => setNewValor({ ...newValor, titulo: e.target.value })}
+          required
+        />
+      </div>
+      <div>
+        <Label>Descripción</Label>
+        <Textarea
+          value={newValor.texto}
+          onChange={e => setNewValor({ ...newValor, texto: e.target.value })}
+          required
+        />
+      </div>
+      <div>
+       <Label>Icono</Label>
+        <div className="flex items-center gap-4">
+          <input
+            type="file"
+            accept="image/*"
+            ref={newValorIconInputRef}
+            style={{ display: "none" }}
+            onChange={e => {
+              const file = e.target.files?.[0]
+              if (file) {
+                const reader = new FileReader()
+                reader.onload = (ev) => {
+                  setNewValor({ ...newValor, iconoPath: ev.target?.result as string })
+                }
+                reader.readAsDataURL(file)
+              }
+            }}
+          />
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => newValorIconInputRef.current?.click()}
+          >
+            <ImagePlus className="mr-2 h-4 w-4" />
+            Cambiar Imagen
+          </Button>
+          {newValor.iconoPath && (
+            <img src={newValor.iconoPath} alt="Icono" className="h-12 w-12 rounded-md border" />
+          )}
+        </div>
+      </div>
+      <DialogFooter>
+        <Button type="submit">Guardar</Button>
+      </DialogFooter>
+    </form>
+  </DialogContent>
+</Dialog>
     </div>
   )
 }
