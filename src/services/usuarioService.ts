@@ -9,31 +9,15 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
   if (filterRol !== "todos") params.append("tipo_usuario", filterRol);
   if (filterEstado !== "todos-status") params.append("estado", filterEstado);
 
-  const response = await fetch(`${API_URL}/usuarios?${params.toString()}`,{
-    method: "GET",
-    headers: { 
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-      // No pongas Content-Type aquí, el navegador lo maneja automáticamente
-    },
-  }
-);
-  
-  if (!response.ok) {
-    throw new Error(`Error ${response.status}: ${response.statusText}`);
-  }
-
+  const response = await fetch(`${API_URL}/usuarios?${params.toString()}`);
   const data = await response.json();
-
-  // Asegúrate de que la respuesta tenga el formato esperado
-  if (data && data.success && Array.isArray(data.usuarios)) {
+  
+  if (Array.isArray(data)) {
+    return data;
+  } else if (data && Array.isArray(data.usuarios)) {
     return data.usuarios;
   }
-  else if (Array.isArray(data)) {
-    // Si la respuesta es un array directamente, lo retornamos 
-    return data;
-  }
-  
-  throw new Error("Formato de respuesta inesperado del servidor");
+  return [];
 };
 // Cambiado para aceptar FormData y enviar archivos (foto)
 export const addUser = async (userData: FormData) => {
