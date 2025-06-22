@@ -19,6 +19,7 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
   }
   return [];
 };
+
 // Cambiado para aceptar FormData y enviar archivos (foto)
 export const addUser = async (userData: FormData) => {
   try {

@@ -6,7 +6,7 @@ export type RoleUser = "admin" | "alumno" | "profesor" | "todos";
 export type StatusUser = "activo" | "inactivo";
 
 export interface User {
-  ID: number;
+  id: number;
   correo: string;
   password: string; // Optional for security reasons
   nombre: string;

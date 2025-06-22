@@ -18,17 +18,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback} from "@/components/ui/avatar";
 import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react";
-import { User, RoleUser, StatusUser, AreaInvestigacion } from "@/types/index";
-import { fetchUsers, addUser, deleteUser, updateUser, getUserAvatarUrl, checkBackendConnection } from "@/services/index";
-import { fetchAreasInvestigacion } from "@/services/areainvestigacion";
-import { useToast } from "@/components/hooks/use-toast";
+import { User, RoleUser, StatusUser,} from "@/types/index";
+import { fetchUsers, addUser, deleteUser, updateUser} from "@/services/index";
+//import { fetchAreasInvestigacion } from "@/services/areainvestigacion";
+//import { useToast } from "@/components/hooks/use-toast";
 //import { set } from "react-hook-form";
 
 export default function UsuariosPage() {
-   const [error, setError] = useState<string | null>(null);
-   const { toast } = useToast();
+   //const [error, setError] = useState<string | null>(null);
+   //const { toast } = useToast();
   // Estado para el loading
   const [submitLoading, setSubmitLoading] = useState(false);
   // Estados para la lista de usuarios
@@ -62,46 +62,19 @@ export default function UsuariosPage() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   // Estado para las áreas y selección del usuario
-  const [areas, setAreas] = useState<AreaInvestigacion[]>([]);
+  //const [areas, setAreas] = useState<AreaInvestigacion[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
 
-  // Cargar usuarios
-const loadUsuarios = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const data = await fetchUsers(
-      search, 
-      filterRol === "todos" ? "" : filterRol,
-      filterEstado === "todos-status" ? "" : filterEstado
-    );
-    
-    console.log("Usuarios recibidos:", data); // Para depuración
-    
-    setUsers(data);
-    
-  } catch (err) {
-    console.error("Error al cargar usuarios:", err);
-    const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-    setError(errorMessage);
-    toast({
-      title: "Error",
-      description: errorMessage,
-      variant: "destructive",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-  useEffect(() => {
-    loadUsuarios();
+ useEffect(() => {
+    setLoading(true);
+    fetchUsers(search, filterRol, filterEstado)
+      .then(data => setUsers(data))
+      .finally(() => setLoading(false));
   }, [search, filterRol, filterEstado]);
-
-
   // Cargar áreas de investigación
-  useEffect(() => {
-    fetchAreasInvestigacion().then(setAreas);
-  }, []);
+  //useEffect(() => {
+    //fetchAreasInvestigacion().then(setAreas);
+  //}, []);
 
   // Manejadores de usuarios
   const handleAddUser = async (userData: Partial<User>) => {
@@ -124,7 +97,7 @@ const loadUsuarios = async () => {
       if (newUser) {
         // Asegura que todos los campos requeridos estén presentes
         const completeUser: User = {
-        ID: newUser.id,
+        id: newUser.id,
         nombre: newUser.nombre || formData.nombre,
         username: newUser.username || '',
         apellido: newUser.apellido || formData.apellido,
@@ -152,7 +125,7 @@ const loadUsuarios = async () => {
     setSubmitLoading(true);
     try {
       await deleteUser(id);
-      setUsers(prev => prev.filter(u => u.ID!== id));
+      setUsers(prev => prev.filter(u => u.id!== id));
       await reloadUsers(); // <-- recarga la tabla
     } finally {
       setSubmitLoading(false);
@@ -178,7 +151,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
     if (updated) {
       await reloadUsers(); // <-- recarga la tabla
       setUsers(prev => prev.map(u => 
-        u.ID === id ? { ...u, ...updated } : u
+        u.id === id ? { ...u, ...updated } : u
       ));
       return updated;
     }
@@ -219,7 +192,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
       } else {
         await handleAddUser({
           ...formData,
-          areasInvestigacion: selectedAreas, // o el nombre que use tu backend
+          //areasInvestigacion: selectedAreas, // o el nombre que use tu backend
         });
         setShowSuccessMessage("Usuario creado correctamente");
       }
@@ -325,19 +298,6 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      {error && (
-        <div className="bg-destructive/15 p-4 rounded-md border border-destructive">
-          <p className="text-destructive">{error}</p>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="mt-2"
-            onClick={loadUsuarios}
-          >
-            Reintentar
-          </Button>
-        </div>
-      )}
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
         <div className="flex items-center space-x-2">
@@ -479,6 +439,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                   <div className="grid gap-2">
                     <Label>Áreas de Investigación</Label>
                     <div className="flex flex-wrap gap-2">
+                      {/*
                       {areas.map(area => (
                         <label key={area.ID} className="flex items-center space-x-2">
                           <input
@@ -495,6 +456,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                           <span>{area.nombre}</span>
                         </label>
                       ))}
+                      */}
                     </div>
                   </div>
                   <div className="grid gap-2">
@@ -535,9 +497,9 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                 e.preventDefault();
                 if (editingUser) {
                   try {
-                    await handleUpdateUser(editingUser.ID, {
+                    await handleUpdateUser(editingUser.id, {
                       ...formData,
-                      areasInvestigacion: selectedAreas, // Envía las áreas seleccionadas
+                      //areasInvestigacion: selectedAreas, // Envía las áreas seleccionadas
                     });
                     setEditingUser(null);
                     setShowSuccessMessage("Usuario actualizado correctamente");
@@ -641,6 +603,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                 <div className="grid gap-2">
                   <Label>Áreas de Investigación</Label>
                   <div className="flex flex-wrap gap-2">
+                    {/*
                     {areas.map(area => (
                       <label key={area.ID} className="flex items-center space-x-2">
                         <input
@@ -656,7 +619,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                         />
                         <span>{area.nombre}</span>
                       </label>
-                    ))}
+                    ))}*/}
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -670,7 +633,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                   />
                   {/* Mostrar preview si ya tiene foto */}
                   {editingUser?.avatar && (
-                    <i-mg
+                    <img
                       src={editingUser.avatar}
                       alt="Foto actual"
                       className="w-20 h-20 object-cover rounded mt-2"
@@ -695,7 +658,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                 <DialogDescription>
                   ¿Está seguro que desea {deactivatingUser?.estado === "activo" ? "desactivar" : "activar"} al usuario{" "}
                   {deactivatingUser?.nombre}? {" "}
-                  {deactivatingUser?.ID}? 
+                  {deactivatingUser?.id}? 
                   {deactivatingUser?.estado === "activo" &&
                     " El usuario no podrá acceder al sistema hasta que sea reactivado."}
                 </DialogDescription>
@@ -710,7 +673,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                     if (deactivatingUser) {
                       const newStatus = deactivatingUser.estado === "activo" ? "inactivo" : "activo";
                       // Actualiza el usuario en el backend
-                      await handleUpdateUser(deactivatingUser.ID, {
+                      await handleUpdateUser(deactivatingUser.id, {
                         estado: newStatus
                       });
                       
@@ -747,7 +710,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                     if (deletingUser) {
                       setSubmitLoading(true);
                       try {
-                        await handleDeleteUser(deletingUser.ID);
+                        await handleDeleteUser(deletingUser.id);
                         setDeletingUser(null);
                         setShowSuccessMessage("Usuario eliminado correctamente");
                         setTimeout(() => setShowSuccessMessage(""), 3000);
@@ -844,14 +807,15 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                     </thead>
                     <tbody>
                       {users.map((user) => (
-                        <tr key={user.ID} className="border-b">
+                        <tr key={user.id} className="border-b">
                           <td className="p-4">
                             <div className="flex items-center space-x-3">
                               <Avatar>
+                                {/*
                                 <AvatarImage
                                   src={getUserAvatarUrl(user)}
                                   alt={user.nombre}
-                                />
+                                />*/}
                                 <AvatarFallback>{getInitials(user.nombre)}</AvatarFallback>
                               </Avatar>
                               <div>
@@ -900,15 +864,17 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
         <TabsContent value="grid" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {users.map((user) => (
-              <Card key={user.ID}>
+              <Card key={user.id}>
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
+                        {/*
                         <AvatarImage
                           src={getUserAvatarUrl(user)}
                           alt={user.nombre}
                         />
+                        */}
                         <AvatarFallback>{user.initials}</AvatarFallback>
                       </Avatar>
                       <div>
