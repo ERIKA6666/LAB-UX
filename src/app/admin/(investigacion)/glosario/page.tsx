@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,96 +16,129 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit, Plus, Save, Search, Trash2 } from "lucide-react";
-
-// Definición de tipos
-type TermCategory = "general" | "interfaces" | "estructura" | "evaluacion" | "accesibilidad";
-
-interface Term {
-  id: number;
-  term: string;
-  definition: string;
-  category: TermCategory;
-}
+import { fetchTerminos, addTermino, updateTermino, deleteTermino, fetchTerminosByLetra } from "@/services";
+import { useToast } from "@/components/hooks/use-toast";
+import { Glosario } from "@/types/glosario";
+import {terminos} from "@/constans/data"
 
 export default function GlosarioPage() {
-  const [terms, setTerms] = useState<Term[]>([
-    {
-      id: 1,
-      term: "Usabilidad",
-      definition:
-        "Medida en la que un producto puede ser usado por usuarios específicos para conseguir objetivos específicos con efectividad, eficiencia y satisfacción en un contexto de uso especificado.",
-      category: "general",
-    },
-    {
-      id: 2,
-      term: "Experiencia de Usuario (UX)",
-      definition:
-        "Conjunto de factores y elementos relativos a la interacción del usuario con un entorno o dispositivo concretos, cuyo resultado es la generación de una percepción positiva o negativa de dicho servicio, producto o dispositivo.",
-      category: "general",
-    },
-    {
-      id: 3,
-      term: "Interfaz de Usuario (UI)",
-      definition:
-        "Medio con que el usuario puede comunicarse con una máquina, equipo, computadora o dispositivo, y comprende todos los puntos de contacto entre el usuario y el equipo.",
-      category: "interfaces",
-    },
-    {
-      id: 4,
-      term: "Arquitectura de Información",
-      definition:
-        "Arte y ciencia de organizar y etiquetar sitios web, intranets, comunidades en línea y software para apoyar la usabilidad y la encontrabilidad.",
-      category: "estructura",
-    },
-    {
-      id: 5,
-      term: "Prueba A/B",
-      definition:
-        "Experimento donde dos o más variantes de una página se muestran a usuarios de manera aleatoria para determinar cuál de las dos variantes tiene mejor rendimiento.",
-      category: "evaluacion",
-    },
-    {
-      id: 6,
-      term: "Mapa de Calor",
-      definition:
-        "Representación gráfica de datos donde los valores individuales contenidos en una matriz se representan como colores, mostrando dónde los usuarios hacen clic o hacia dónde miran en una interfaz.",
-      category: "evaluacion",
-    },
-    {
-      id: 7,
-      term: "Accesibilidad Web",
-      definition:
-        "Práctica inclusiva de hacer sitios web utilizables por la mayor cantidad de personas posible, incluyendo aquellas con discapacidades.",
-      category: "accesibilidad",
-    },
-    {
-      id: 8,
-      term: "Diseño Responsivo",
-      definition:
-        "Enfoque de diseño web que hace que las páginas web se vean bien en todos los dispositivos y tamaños de pantalla.",
-      category: "interfaces",
-    },
-  ]);
-
+  const { toast } = useToast();
+  const [terms, setTerms] = useState<Glosario[]>([]);
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("");
   const [selectedLetter, setSelectedLetter] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingTerm, setEditingTerm] = useState<Glosario | null>(null);
+  const [formData, setFormData] = useState({
+    termino: "",
+    descripcion: "",
+  });
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-  const filteredTerms = terms.filter((term) => {
-    const matchesFilter =
-      filter === "" ||
-      term.term.toLowerCase().includes(filter.toLowerCase()) ||
-      term.definition.toLowerCase().includes(filter.toLowerCase());
+  // Cargar términos iniciales
+  useEffect(() => {
+    loadTerms();
+  }, );
 
-    const matchesLetter = selectedLetter === "" || term.term.toUpperCase().startsWith(selectedLetter);
+  // Cargar términos por letra cuando cambia la selección
+  useEffect(() => {
+    if (selectedLetter) {
+      loadTermsByLetter(selectedLetter);
+    } else if (selectedLetter === "" && filter === "") {
+      loadTerms();
+    }
+  }, [selectedLetter]);
 
-    return matchesFilter && matchesLetter;
-  });
+  const loadTerms = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchTerminos(filter);
+      setTerms(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los términos",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Group terms by first letter with proper typing
-  const groupedTerms = filteredTerms.reduce<Record<string, Term[]>>((acc, term) => {
-    const firstLetter = term.term.charAt(0).toUpperCase();
+  const loadTermsByLetter = async (letter: string) => {
+    setLoading(true);
+    try {
+      const data = await fetchTerminosByLetra(letter);
+      setTerms(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `No se pudieron cargar términos con la letra ${letter}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    await loadTerms();
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingTerm) {
+        await updateTermino(editingTerm.ID, formData);
+        toast({ title: "Término actualizado correctamente" });
+      } else {
+        await addTermino(formData);
+        toast({ title: "Término añadido correctamente" });
+      }
+      setIsDialogOpen(false);
+      setEditingTerm(null);
+      setFormData({ termino: "", descripcion: "" });
+      loadTerms();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error desconocido",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteTermino(id);
+      toast({ title: "Término eliminado correctamente" });
+      loadTerms();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el término",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openEditDialog = (term: Glosario) => {
+    setEditingTerm(term);
+    setFormData({
+      termino: term.termino,
+      descripcion: term.descripcion,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const groupedTerms = terms.reduce<Record<string, Glosario[]>>((acc, term) => {
+    const firstLetter = term.termino.charAt(0).toUpperCase();
     if (!acc[firstLetter]) {
       acc[firstLetter] = [];
     }
@@ -118,38 +151,57 @@ export default function GlosarioPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Glosario de Usabilidad</h2>
         <div className="flex items-center space-x-2">
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => { setEditingTerm(null); setFormData({ termino: "", descripcion: "" }); }}>
                 <Plus className="mr-2 h-4 w-4" />
                 Nuevo Término
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Añadir Nuevo Término</DialogTitle>
-                <DialogDescription>Complete la información para añadir un nuevo término al glosario.</DialogDescription>
+                <DialogTitle>
+                  {editingTerm ? "Editar Término" : "Añadir Nuevo Término"}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingTerm ? "Modifique la información del término" : "Complete la información para añadir un nuevo término al glosario."}
+                </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="term-name">Término</Label>
-                  <Input id="term-name" placeholder="Nombre del término" />
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="termino">Término</Label>
+                    <Input
+                      id="termino"
+                      name="termino"
+                      placeholder="Nombre del término"
+                      value={formData.termino}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="descripcion">Definición</Label>
+                    <Textarea
+                      id="descripcion"
+                      name="descripcion"
+                      placeholder="Definición del término"
+                      rows={4}
+                      value={formData.descripcion}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="term-definition">Definición</Label>
-                  <Textarea id="term-definition" placeholder="Definición del término" rows={4} />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="term-category">Categoría</Label>
-                  <Input id="term-category" placeholder="Categoría del término" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Añadir Término</Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button type="submit">
+                    {editingTerm ? "Actualizar Término" : "Añadir Término"}
+                  </Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
-          <Button>
+          <Button onClick={handleSearch}>
             <Save className="mr-2 h-4 w-4" />
             Guardar Cambios
           </Button>
@@ -166,18 +218,26 @@ export default function GlosarioPage() {
               className="pl-8"
               value={filter}
               onChange={(e) => {
-                setFilter(e.target.value)
-                setSelectedLetter("")
+                setFilter(e.target.value);
+                setSelectedLetter("");
               }}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             />
           </div>
+          <Button onClick={handleSearch}>
+            <Search className="h-4 w-4 mr-2" />
+            Buscar
+          </Button>
         </div>
 
         <div className="flex flex-wrap gap-1">
           <Button
             variant={selectedLetter === "" ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedLetter("")}
+            onClick={() => {
+              setSelectedLetter("");
+              loadTerms();
+            }}
           >
             Todos
           </Button>
@@ -187,7 +247,7 @@ export default function GlosarioPage() {
               variant={selectedLetter === letter ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedLetter(letter)}
-              disabled={!Object.keys(groupedTerms).includes(letter)}
+              disabled={loading}
             >
               {letter}
             </Button>
@@ -197,44 +257,53 @@ export default function GlosarioPage() {
         <Card>
           <CardHeader>
             <CardTitle>Términos del Glosario</CardTitle>
-            <CardDescription>{filteredTerms.length} términos encontrados</CardDescription>
+            <CardDescription>
+              {loading ? "Cargando..." : `${terms.length} término${terms.length !== 1 ? 's' : ''} encontrado${terms.length !== 1 ? 's' : ''}`}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {Object.keys(groupedTerms)
-                .sort()
-                .map((letter) => (
-                  <div key={letter} id={`letter-${letter}`} className="scroll-mt-20">
-                    <h3 className="text-2xl font-bold mb-4 border-b pb-2">{letter}</h3>
-                    <div className="space-y-4">
-                      {groupedTerms[letter]
-                        .sort((a, b) => a.term.localeCompare(b.term))
-                        .map((term) => (
-                          <div key={term.id} className="border-b pb-4 last:border-0">
-                            <div className="flex justify-between items-start">
-                              <h4 className="text-lg font-semibold">{term.term}</h4>
-                              <div className="flex space-x-2">
-                                <Button variant="ghost" size="icon">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+              {loading ? (
+                <div className="flex justify-center items-center h-32">
+                  <p className="text-muted-foreground">Cargando términos...</p>
+                </div>
+              ) : Object.keys(groupedTerms).length > 0 ? (
+                Object.keys(groupedTerms)
+                  .sort()
+                  .map((letter) => (
+                    <div key={letter} id={`letter-${letter}`} className="scroll-mt-20">
+                      <h3 className="text-2xl font-bold mb-4 border-b pb-2">{letter}</h3>
+                      <div className="space-y-4">
+                        {groupedTerms[letter]
+                          .sort((a, b) => a.termino.localeCompare(b.termino))
+                          .map((term) => (
+                            <div key={term.ID} className="border-b pb-4 last:border-0">
+                              <div className="flex justify-between items-start">
+                                <h4 className="text-lg font-semibold">{term.termino}</h4>
+                                <div className="flex space-x-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon"
+                                    onClick={() => openEditDialog(term)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon"
+                                    onClick={() => handleDelete(term.ID)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
+                              <p className="text-muted-foreground mt-1">{term.descripcion}</p>
                             </div>
-                            <p className="text-muted-foreground mt-1">{term.definition}</p>
-                            <div className="mt-2">
-                              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                                {term.category}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-
-              {filteredTerms.length === 0 && (
+                  ))
+              ) : (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">No se encontraron términos que coincidan con la búsqueda.</p>
                 </div>

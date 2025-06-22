@@ -9,9 +9,9 @@ export interface ContenidoSitio {
   texto?: string;
   imagen?: string;
   link_redireccion?: string;
-  estado: EstadoContenido;
+  estado?: EstadoContenido;
   orden?: number;
-  fecha_creacion: string;
+  fecha_creacion?: string;
   fecha_actualizacion?: string;
 }
 
@@ -19,4 +19,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+}
+export interface Valor extends ContenidoSitio {
+  iconoPath?: string; // campo extra solo para frontend
 }

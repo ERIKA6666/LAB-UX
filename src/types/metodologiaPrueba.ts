@@ -1,5 +1,5 @@
 // src/types/metodologia-prueba.interface.ts
-export type TipoMetodologiaPrueba = 'metodologia' | 'prueba';
+export type TipoMetodologiaPrueba = 'metodologia' | 'prueba' | 'todos';
 
 export interface MetodologiaPrueba {
   ID: number;

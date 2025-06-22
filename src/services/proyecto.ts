@@ -1,273 +1,182 @@
-// services/proyectoService.ts
-"use client";
-import { Proyecto, EstadoProyecto, ProyectoAreaInvestigacion, ProyectoColaborador } from "../types";
-import { API_URL } from "../constans/Api";
+"use client"
+import { Proyecto, EstadoProyecto, ProyectoAreaInvestigacion, ProyectoColaborador } from "@/types/proyecto";
+import { API_URL } from "@/constans/Api";
 
+// Configuración común para fetch
+const fetchConfig = {
+  baseUrl: API_URL,
+  getHeaders: () => ({
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+  }),
+};
+
+// Operaciones CRUD básicas
 export const fetchProyectos = async (
   search: string = '',
-  filterEstado: EstadoProyecto | 'todos' = 'todos',
-  sortBy: 'fecha_inicio' | 'fecha_fin' | 'progreso' = 'fecha_inicio',
+  estado?: EstadoProyecto,
+  sortBy: string = 'fecha_inicio',
   sortOrder: 'asc' | 'desc' = 'desc'
-) => {
+): Promise<Proyecto[]> => {
   const params = new URLSearchParams();
   if (search) params.append("q", search);
-  if (filterEstado !== 'todos') params.append("estado", filterEstado);
+  if (estado) params.append("estado", estado);
   params.append("sortBy", sortBy);
   params.append("sortOrder", sortOrder);
 
-  const response = await fetch(`${API_URL}/proyectos?${params.toString()}`);
-  const data = await response.json();
-  
-  if (Array.isArray(data)) {
-    return data;
-  } else if (data && Array.isArray(data.proyectos)) {
-    return data.proyectos;
-  }
-  return [];
-};
-
-export const getProyectoById = async (id: number) => {
-  const res = await fetch(`${API_URL}/proyectos/${id}`);
-  if (!res.ok) {
-    throw new Error("No se pudo obtener el proyecto");
-  }
-  return await res.json();
-};
-
-export const addProyecto = async (
-  proyectoData: Omit<Proyecto, 'ID' | 'fecha_creacion' | 'fecha_actualizacion' | 'progreso'> & { imagen?: File }
-) => {
   try {
-    const formData = new FormData();
-    // Agrega los campos normales
-    Object.entries(proyectoData).forEach(([key, value]) => {
-      if (value !== undefined && key !== "imagen") {
-        formData.append(key, value as string);
+    const response = await fetch(`${API_URL}/proyectos?${params.toString()}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
       }
     });
-    // Agrega la imagen si existe
-    if (proyectoData.imagen) {
-      formData.append("imagen", proyectoData.imagen);
-    }
-    formData.append("fecha_creacion", new Date().toISOString());
-    formData.append("progreso", "0");
 
-    const res = await fetch(`${API_URL}/proyectos`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-        // No pongas Content-Type, el navegador lo agrega automáticamente
-      },
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error al crear proyecto");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
     }
 
-    return await res.json();
+    return await response.json();
   } catch (error) {
-    console.error("Error en addProyecto:", error);
+    console.error("Error fetching proyectos:", error);
     throw error;
   }
 };
 
-export const updateProyecto = async (
-  id: number,
-  proyectoData: Partial<Proyecto> & { imagen?: File }
-) => {
-  const formData = new FormData();
-  Object.entries(proyectoData).forEach(([key, value]) => {
-    if (value !== undefined && key !== "imagen") {
-      formData.append(key, value as string);
-    }
-  });
-  if (proyectoData.imagen) {
-    formData.append("imagen", proyectoData.imagen);
-  }
-  formData.append("fecha_actualizacion", new Date().toISOString());
+export const getProyectoById = async (id: number): Promise<Proyecto> => {
+  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}`);
+  return handleResponse(response);
+};
 
-  const res = await fetch(`${API_URL}/proyectos/${id}`, {
+export const createProyecto = async (proyectoData: FormData): Promise<Proyecto> => {
+  proyectoData.append("fecha_creacion", new Date().toISOString());
+  
+  const response = await fetch(`${fetchConfig.baseUrl}/proyectos`, {
+    method: "POST",
+    headers: {
+      "Authorization": fetchConfig.getHeaders().Authorization
+    },
+    body: proyectoData,
+  });
+  return handleResponse(response);
+};
+
+export const updateProyecto = async (id: number, proyectoData: FormData): Promise<Proyecto> => {
+  proyectoData.append("fecha_actualizacion", new Date().toISOString());
+  
+  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}`, {
     method: "PUT",
     headers: {
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-      // No pongas Content-Type aquí
+      "Authorization": fetchConfig.getHeaders().Authorization
     },
-    body: formData,
+    body: proyectoData,
   });
-
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar proyecto");
-  }
-
-  return await res.json();
+  return handleResponse(response);
 };
 
-export const deleteProyecto = async (id: number) => {
-  const res = await fetch(`${API_URL}/proyectos/${id}`, {
+export const deleteProyecto = async (id: number): Promise<void> => {
+  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}`, {
     method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    }
+    headers: fetchConfig.getHeaders(),
   });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al eliminar proyecto");
-  }
+  await handleResponse(response);
 };
 
-export const updateProgresoProyecto = async (id: number, progreso: number) => {
-  const res = await fetch(`${API_URL}/proyectos/${id}/progreso`, {
+// Operaciones específicas
+export const updateProgresoProyecto = async (id: number, progreso: number): Promise<Proyecto> => {
+  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}/progreso`, {
     method: "PATCH",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
+    headers: fetchConfig.getHeaders(),
     body: JSON.stringify({ progreso }),
   });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar progreso");
-  }
-
-  return await res.json();
+  return handleResponse(response);
 };
 
-export const changeEstadoProyecto = async (id: number, estado: EstadoProyecto) => {
-  const res = await fetch(`${API_URL}/proyectos/${id}/estado`, {
+export const changeEstadoProyecto = async (id: number, estado: EstadoProyecto): Promise<Proyecto> => {
+  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}/estado`, {
     method: "PATCH",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
+    headers: fetchConfig.getHeaders(),
     body: JSON.stringify({ estado }),
   });
+  return handleResponse(response);
+};
+
+// Gestión de áreas de investigación
+export const manageProyectoAreas = {
+  add: async (data: ProyectoAreaInvestigacion): Promise<ProyectoAreaInvestigacion> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/areas-investigacion`, {
+      method: "POST",
+      headers: fetchConfig.getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
   
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al cambiar estado del proyecto");
-  }
-
-  return await res.json();
-};
-
-// Servicios para Áreas de Investigación de Proyectos
-export const addAreaToProyecto = async (areaData: ProyectoAreaInvestigacion) => {
-  const res = await fetch(`${API_URL}/proyectos/areas-investigacion`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(areaData),
-  });
+  remove: async (proyectoId: number, areaId: number): Promise<void> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${proyectoId}/areas-investigacion/${areaId}`, {
+      method: "DELETE",
+      headers: fetchConfig.getHeaders(),
+    });
+    await handleResponse(response);
+  },
   
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al agregar área al proyecto");
+  getByProyecto: async (proyectoId: number): Promise<ProyectoAreaInvestigacion[]> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${proyectoId}/areas-investigacion`);
+    return handleResponse(response);
   }
-
-  return await res.json();
 };
 
-export const removeAreaFromProyecto = async (ID_proyecto: number, ID_area: number) => {
-  const res = await fetch(`${API_URL}/proyectos/${ID_proyecto}/areas-investigacion/${ID_area}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    }
-  });
+// Gestión de colaboradores
+export const manageProyectoColaboradores = {
+  add: async (data: Omit<ProyectoColaborador, 'ID'>): Promise<ProyectoColaborador> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/colaboradores`, {
+      method: "POST",
+      headers: fetchConfig.getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
   
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al eliminar área del proyecto");
-  }
-};
-
-export const getAreasByProyecto = async (ID_proyecto: number) => {
-  const res = await fetch(`${API_URL}/proyectos/${ID_proyecto}/areas-investigacion`);
-  if (!res.ok) {
-    throw new Error("Error al obtener áreas del proyecto");
-  }
-  return await res.json();
-};
-
-// Servicios para Colaboradores de Proyectos
-export const addColaboradorToProyecto = async (colaboradorData: Omit<ProyectoColaborador, 'ID'>) => {
-  const res = await fetch(`${API_URL}/proyectos/colaboradores`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(colaboradorData),
-  });
+  update: async (proyectoId: number, colaboradorId: number, data: Partial<ProyectoColaborador>): Promise<ProyectoColaborador> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${proyectoId}/colaboradores/${colaboradorId}`, {
+      method: "PUT",
+      headers: fetchConfig.getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
   
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al agregar colaborador al proyecto");
-  }
-
-  return await res.json();
-};
-
-export const updateColaboradorProyecto = async (
-  ID_proyecto: number, 
-  ID_usuario: number | undefined, 
-  email_externo: string | undefined,
-  colaboradorData: Partial<ProyectoColaborador>
-) => {
-  const params = new URLSearchParams();
-  if (ID_usuario) params.append("id_usuario", ID_usuario.toString());
-  if (email_externo) params.append("email_externo", email_externo);
-
-  const res = await fetch(`${API_URL}/proyectos/${ID_proyecto}/colaboradores?${params.toString()}`, {
-    method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(colaboradorData),
-  });
+  remove: async (proyectoId: number, colaboradorId: number): Promise<void> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${proyectoId}/colaboradores/${colaboradorId}`, {
+      method: "DELETE",
+      headers: fetchConfig.getHeaders(),
+    });
+    await handleResponse(response);
+  },
   
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar colaborador");
-  }
-
-  return await res.json();
-};
-
-export const removeColaboradorFromProyecto = async (
-  ID_proyecto: number, 
-  ID_usuario?: number, 
-  email_externo?: string
-) => {
-  const params = new URLSearchParams();
-  if (ID_usuario) params.append("id_usuario", ID_usuario.toString());
-  if (email_externo) params.append("email_externo", email_externo);
-
-  const res = await fetch(`${API_URL}/proyectos/${ID_proyecto}/colaboradores?${params.toString()}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    }
-  });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al eliminar colaborador del proyecto");
+  getByProyecto: async (proyectoId: number): Promise<ProyectoColaborador[]> => {
+    const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${proyectoId}/colaboradores`);
+    return handleResponse(response);
   }
 };
 
-export const getColaboradoresByProyecto = async (ID_proyecto: number) => {
-  const res = await fetch(`${API_URL}/proyectos/${ID_proyecto}/colaboradores`);
-  if (!res.ok) {
-    throw new Error("Error al obtener colaboradores del proyecto");
+// Helper para manejar respuestas
+async function handleResponse(response: Response) {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Error en la solicitud");
   }
-  return await res.json();
+  return response.json();
+}
+// services/proyectoService.ts
+
+export const checkBackendConnection = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_URL}/proyectos`);
+    return response.ok;
+  } catch (error) {
+    console.error("Error conectando al backend:", error);
+    return false;
+  }
 };

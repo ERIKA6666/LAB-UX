@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-import {glosario} from  "@/constans/data"
+import {terminos} from  "@/constans/data"
 
 export default function GlosarioPage() {
   return (
@@ -16,13 +16,13 @@ export default function GlosarioPage() {
         </div>
 
         <div className="grid gap-4">
-          {glosario.map((termino, index) => (
+          {terminos.map((termino, index) => (
             <Card key={index}>
               <CardHeader>
                 <CardTitle>{termino.termino}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{termino.definicion}</p>
+                <p className="text-sm text-muted-foreground">{termino.descripcion}</p>
               </CardContent>
             </Card>
           ))}
