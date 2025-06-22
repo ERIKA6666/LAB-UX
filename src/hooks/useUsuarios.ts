@@ -1,67 +1,91 @@
-// src/hooks/useUsuarios.ts
-import { useState, useEffect } from 'react';
-import { usuarioService } from '../services/usuarioService'
-import { GetUsuariosResponse, Usuario, GetUsuariosFilters } from '../types/usuario';
+import { useState, useEffect } from "react";
+import { User} from "@/types";
+import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/index";
 
-export const useUsuarios = (filters?: GetUsuariosFilters) => {
-  const [response, setResponse] = useState<GetUsuariosResponse>({
-    success: false,
-    usuarios: [],
-    total: 0
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const useUsers = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterRol, setFilterRol] = useState("todos");
+  const [filterEstado, setFilterEstado] = useState("todos-status");
+  const [showSuccessMessage, setShowSuccessMessage] = useState("");
 
-  const refetch = async (newFilters?: GetUsuariosFilters) => {
+  const reloadUsers = async () => {
+    setLoading(true);
+    const data = await fetchUsers(search, filterRol, filterEstado);
+    setUsers(data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    reloadUsers();
+  }, [search, filterRol, filterEstado]);
+
+  const handleAddUser = async (userData: Partial<User>) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const result = await usuarioService.getAll(newFilters || filters);
-      setResponse(result);
-      if (!result.success) setError(result.error || 'Error al obtener usuarios');
-    } catch (err) {
-      setError('Error de conexión');
+      const formData = new FormData();
+      Object.entries(userData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          formData.append(key, value as string | Blob);
+        }
+      });
+      const newUser = await addUser(formData);
+      if (newUser) {
+        await reloadUsers();
+        setShowSuccessMessage("Usuario creado correctamente");
+        return newUser;
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    refetch();
-  }, []);
+  const handleUpdateUser = async (id: number, userData: Partial<User>) => {
+    setLoading(true);
+    try {
+          const formData = new FormData();
+    Object.entries(userData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, value as string | Blob);
+      }
+    });
+      const updated = await updateUser(id, formData);
+      if (updated) {
+        await reloadUsers();
+        setShowSuccessMessage("Usuario actualizado correctamente");
+        return updated;
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    setLoading(true);
+    try {
+      await deleteUser(id);
+      await reloadUsers();
+      setShowSuccessMessage("Usuario eliminado correctamente");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
-    usuarios: response.usuarios,
-    total: response.total,
+    users,
     loading,
-    error,
-    refetch
+    search,
+    setSearch,
+    filterRol,
+    setFilterRol,
+    filterEstado,
+    setFilterEstado,
+    showSuccessMessage,
+    setShowSuccessMessage,
+    handleAddUser,
+    handleUpdateUser,
+    handleDeleteUser,
+    reloadUsers,
   };
-};
-
-export const useUsuario = (id: number) => {
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchUsuario = async () => {
-    try {
-      setLoading(true);
-      const result = await usuarioService.getById(id);
-      if (result.success && result.usuario) {
-        setUsuario(result.usuario);
-      } else {
-        setError(result.error || 'Usuario no encontrado');
-      }
-    } catch (err) {
-      setError('Error de conexión');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsuario();
-  }, [id]);
-
-  return { usuario, loading, error, refetch: fetchUsuario };
 };

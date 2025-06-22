@@ -15,7 +15,7 @@ export interface User {
   username?: string;
   tipo_usuario: RoleUser;
   fecha_registro?: string;
-  estado?: StatusUser;
+  estado?: StatusUser | undefined;
   foto?: string | Blob;
   initials?: string;
   area_investigacion?: number; // Optional, can be null
