@@ -2,24 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import DeleteConfirmationDialog from "./componentes/DeleteConfirmationDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Edit, ImagePlus, Plus, Save, Search, Trash2 } from "lucide-react";
+import { Edit, Plus, Save, Search, Trash2 } from "lucide-react";
 import { 
   MetodologiaPrueba, 
   TipoMetodologiaPrueba,
@@ -41,48 +38,7 @@ import { API_URL } from "@/constans/Api";
 export default function PruebasMetodologiaPage() {
   const { toast } = useToast();
   //eliminar rsto cuando el crud este listo
-  const [metodologiasPruebas, setMetodologiasPruebas] = useState<MetodologiaPrueba[]>([
-     {
-    ID: 1,
-    nombre: "Pruebas de Usabilidad",
-    descripcion:
-      "Evaluación de la facilidad de uso de un producto mediante la observación de usuarios reales interactuando con él.",
-    tipo: "prueba",
-    imagen: "/placeholder.svg",
-    fecha_creacion: "", // Puedes poner una fecha real si lo deseas
-    caracteristicas: [],
-  },
-  {
-    ID: 2,
-    nombre: "Eye Tracking",
-    descripcion:
-      "Técnica que registra el movimiento ocular para determinar dónde miran los usuarios y por cuánto tiempo.",
-    tipo: "prueba",
-    imagen: "/placeholder.svg",
-    fecha_creacion: "",
-    caracteristicas: [],
-  },
-  {
-    ID: 3,
-    nombre: "Card Sorting",
-    descripcion:
-      "Método para ayudar a diseñar o evaluar la arquitectura de información de un sitio.",
-    tipo: "metodologia",
-    imagen: "/placeholder.svg",
-    fecha_creacion: "",
-    caracteristicas: [],
-  },
-  {
-    ID: 4,
-    nombre: "Evaluación Heurística",
-    descripcion:
-      "Análisis de una interfaz basado en principios establecidos de usabilidad.",
-    tipo: "metodologia",
-    imagen: "/placeholder.svg",
-    fecha_creacion: "",
-    caracteristicas: [],
-  },
-  ]);
+  const [metodologiasPruebas, setMetodologiasPruebas] = useState<MetodologiaPrueba[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filterTipo, setFilterTipo] = useState<TipoMetodologiaPrueba | "todos">("todos");
@@ -90,7 +46,6 @@ export default function PruebasMetodologiaPage() {
   const [currentItem, setCurrentItem] = useState<MetodologiaPrueba | null>(null);
   const [caracteristicas, setCaracteristicas] = useState<MetodologiaCaracteristica[]>([]);
   const [newCaracteristica, setNewCaracteristica] = useState("");
-  type FilterTipo = TipoMetodologiaPrueba | "todos";
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [metodologiaPruebaToDelete, setmetodologiaPruebaToDelete] = useState<number | null>(null);
@@ -105,9 +60,9 @@ export default function PruebasMetodologiaPage() {
         const data = await fetchMetodologiasPruebas(search, filterTipo);
         setMetodologiasPruebas(data);
       } catch (error) {
-        toast({
+         toast({
           title: "Error",
-          description: "No se pudieron cargar las metodologías/pruebas",
+          description: error instanceof Error ? error.message : "Error desconocido",
           variant: "destructive",
         });
       } finally {
@@ -126,9 +81,9 @@ export default function PruebasMetodologiaPage() {
           const data = await fetchCaracteristicasByMetodologia(currentItem.ID);
           setCaracteristicas(data);
         } catch (error) {
-          toast({
+           toast({
             title: "Error",
-            description: "No se pudieron cargar las características",
+            description: error instanceof Error ? error.message : "Error desconocido",
             variant: "destructive",
           });
         }
@@ -176,7 +131,7 @@ export default function PruebasMetodologiaPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo añadir la característica",
+        description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
       });
     }
@@ -192,9 +147,9 @@ export default function PruebasMetodologiaPage() {
       }
       toast({ title: "Característica eliminada correctamente" });
     } catch (error) {
-      toast({
+       toast({
         title: "Error",
-        description: "No se pudo eliminar la característica",
+        description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
       });
     }
@@ -250,9 +205,9 @@ useEffect(() => {
       toast({ title: "Proyecto eliminado correctamente" });
       loadMetodologiaPruebas();
     } catch (error) {
-      toast({
+       toast({
         title: "Error",
-        description: "No se pudo eliminar el proyecto",
+        description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
       });
     } finally {
@@ -265,8 +220,22 @@ useEffect(() => {
     setmetodologiaPruebaToDelete(id);
     setDeleteDialogOpen(true);
   };
+  
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+       {error && (
+        <div className="bg-destructive/15 p-4 rounded-md border border-destructive">
+          <p className="text-destructive">{error}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mt-2"
+            onClick={loadMetodologiaPruebas}
+          >
+            Reintentar
+          </Button>
+        </div>
+      )}
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Metodologías y Pruebas de Investigación</h2>
         <div className="flex items-center space-x-2">

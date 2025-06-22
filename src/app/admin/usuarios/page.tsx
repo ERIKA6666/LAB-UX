@@ -21,12 +21,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Edit, Lock, Search, Trash2, UserPlus } from "lucide-react";
 import { User, RoleUser, StatusUser, AreaInvestigacion } from "@/types/index";
-import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/index";
+import { fetchUsers, addUser, deleteUser, updateUser, getUserAvatarUrl, checkBackendConnection } from "@/services/index";
 import { fetchAreasInvestigacion } from "@/services/areainvestigacion";
-import { API_URL } from "@/constans/Api";
+import { useToast } from "@/components/hooks/use-toast";
 //import { set } from "react-hook-form";
 
 export default function UsuariosPage() {
+   const [error, setError] = useState<string | null>(null);
+   const { toast } = useToast();
   // Estado para el loading
   const [submitLoading, setSubmitLoading] = useState(false);
   // Estados para la lista de usuarios
@@ -64,12 +66,37 @@ export default function UsuariosPage() {
   const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
 
   // Cargar usuarios
+const loadUsuarios = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const data = await fetchUsers(
+      search, 
+      filterRol === "todos" ? "" : filterRol,
+      filterEstado === "todos-status" ? "" : filterEstado
+    );
+    
+    console.log("Usuarios recibidos:", data); // Para depuración
+    
+    setUsers(data);
+    
+  } catch (err) {
+    console.error("Error al cargar usuarios:", err);
+    const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+    setError(errorMessage);
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
-    setLoading(true);
-    fetchUsers(search, filterRol, filterEstado)
-      .then(data => setUsers(data))
-      .finally(() => setLoading(false));
+    loadUsuarios();
   }, [search, filterRol, filterEstado]);
+
 
   // Cargar áreas de investigación
   useEffect(() => {
@@ -298,6 +325,19 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      {error && (
+        <div className="bg-destructive/15 p-4 rounded-md border border-destructive">
+          <p className="text-destructive">{error}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mt-2"
+            onClick={loadUsuarios}
+          >
+            Reintentar
+          </Button>
+        </div>
+      )}
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
         <div className="flex items-center space-x-2">
@@ -630,7 +670,7 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                   />
                   {/* Mostrar preview si ya tiene foto */}
                   {editingUser?.avatar && (
-                    <img
+                    <i-mg
                       src={editingUser.avatar}
                       alt="Foto actual"
                       className="w-20 h-20 object-cover rounded mt-2"
@@ -808,7 +848,10 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                           <td className="p-4">
                             <div className="flex items-center space-x-3">
                               <Avatar>
-                                <AvatarImage src={user.avatar} alt={user.nombre} />
+                                <AvatarImage
+                                  src={getUserAvatarUrl(user)}
+                                  alt={user.nombre}
+                                />
                                 <AvatarFallback>{getInitials(user.nombre)}</AvatarFallback>
                               </Avatar>
                               <div>
@@ -862,11 +905,10 @@ const handleUpdateUser = async (id: number, userData: Partial<User>) => {
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={
-                                                  typeof user.foto === "string"
-                                                    ? `${API_URL}/uploads/${user.foto}`
-                                                    : URL.createObjectURL(user.foto)
-                                                } alt={user.nombre} />
+                        <AvatarImage
+                          src={getUserAvatarUrl(user)}
+                          alt={user.nombre}
+                        />
                         <AvatarFallback>{user.initials}</AvatarFallback>
                       </Avatar>
                       <div>
