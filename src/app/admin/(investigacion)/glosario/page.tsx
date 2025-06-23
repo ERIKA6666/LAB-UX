@@ -19,7 +19,6 @@ import { Edit, Plus, Save, Search, Trash2 } from "lucide-react";
 import { fetchTerminos, addTermino, updateTermino, deleteTermino, fetchTerminosByLetra } from "@/services";
 import { useToast } from "@/components/hooks/use-toast";
 import { Glosario } from "@/types/glosario";
-import {terminos} from "@/constans/data"
 
 export default function GlosarioPage() {
   const { toast } = useToast();
@@ -29,6 +28,7 @@ export default function GlosarioPage() {
   const [selectedLetter, setSelectedLetter] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTerm, setEditingTerm] = useState<Glosario | null>(null);
+   const [error] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     termino: "",
     descripcion: "",
@@ -38,27 +38,28 @@ export default function GlosarioPage() {
 
   // Cargar términos iniciales
   useEffect(() => {
-    loadTerms();
-  }, );
+  loadTerms();
+  }, []);
 
   // Cargar términos por letra cuando cambia la selección
   useEffect(() => {
-    if (selectedLetter) {
-      loadTermsByLetter(selectedLetter);
-    } else if (selectedLetter === "" && filter === "") {
-      loadTerms();
-    }
-  }, [selectedLetter]);
+  if (selectedLetter) {
+    loadTermsByLetter(selectedLetter);
+  } else if (filter === "") {
+    loadTerms();
+  }
+}, [selectedLetter, filter]);
 
   const loadTerms = async () => {
     setLoading(true);
+    setTerms([]);
     try {
       const data = await fetchTerminos(filter);
       setTerms(data);
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudieron cargar los términos",
+        description: error instanceof Error ? error.message : "Error desconocido al cargar términos",
         variant: "destructive",
       });
     } finally {
@@ -68,13 +69,14 @@ export default function GlosarioPage() {
 
   const loadTermsByLetter = async (letter: string) => {
     setLoading(true);
+    setTerms([]);
     try {
       const data = await fetchTerminosByLetra(letter);
       setTerms(data);
     } catch (error) {
       toast({
         title: "Error",
-        description: `No se pudieron cargar términos con la letra ${letter}`,
+        description: error instanceof Error ? error.message : "Error desconocido al cargar términos por letra",
         variant: "destructive",
       });
     } finally {
@@ -83,6 +85,7 @@ export default function GlosarioPage() {
   };
 
   const handleSearch = async () => {
+    setSelectedLetter("");
     await loadTerms();
   };
 
@@ -122,7 +125,7 @@ export default function GlosarioPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo eliminar el término",
+        description: error instanceof Error ? error.message : "Error desconocido al eliminar término",
         variant: "destructive",
       });
     }
@@ -148,6 +151,19 @@ export default function GlosarioPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      {error && (
+        <div className="bg-destructive/15 p-4 rounded-md border border-destructive">
+          <p className="text-destructive">{error}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mt-2"
+            onClick={loadTerms}
+          >
+            Reintentar
+          </Button>
+        </div>
+      )}
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Glosario de Usabilidad</h2>
         <div className="flex items-center space-x-2">

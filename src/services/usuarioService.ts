@@ -1,15 +1,15 @@
-// services/userService.ts
 "use client";
 import { User } from "../types/index";
-import { API_URL } from "../constans/Api";
+import { ENDPOINTS } from "../config/endpoints";
 
 export const fetchUsers = async (search: string, filterRol: string, filterEstado: string) => {
-  const params = new URLSearchParams();
-  if (search) params.append("q", search);
-  if (filterRol !== "todos") params.append("tipo_usuario", filterRol);
-  if (filterEstado !== "todos-status") params.append("estado", filterEstado);
+  const url = ENDPOINTS.USUARIOS.SEARCH({
+    search,
+    rol: filterRol,
+    estado: filterEstado
+  });
 
-  const response = await fetch(`${API_URL}/usuarios?${params.toString()}`);
+  const response = await fetch(url);
   const data = await response.json();
   
   if (Array.isArray(data)) {
@@ -20,14 +20,12 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
   return [];
 };
 
-// Cambiado para aceptar FormData y enviar archivos (foto)
 export const addUser = async (userData: FormData) => {
   try {
-    const res = await fetch(`${API_URL}/usuarios`, {
+    const res = await fetch(ENDPOINTS.USUARIOS.BASE, {
       method: "POST",
       headers: { 
         "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-        // No pongas Content-Type, el navegador lo agrega automáticamente con FormData
       },
       body: userData,
     });
@@ -37,21 +35,7 @@ export const addUser = async (userData: FormData) => {
       throw new Error(errorData.message || "Error al crear usuario");
     }
 
-    const responseData = await res.json();
-    return {
-      id: responseData.ID,
-      correo: responseData.correo,
-      password: responseData.password,
-      nombre: responseData.nombre,
-      apellido: responseData.apellido,
-      telefono: responseData.telefono,
-      username: responseData.username,
-      tipo_usuario: responseData.tipo_usuario,
-      fecha_registro: responseData.fecha_registro,
-      estado: responseData.estado,
-      avatar: responseData.avatar,
-      initials: responseData.initials,
-    };
+    return await res.json();
   } catch (error) {
     console.error("Error en addUser:", error);
     throw error;
@@ -59,19 +43,23 @@ export const addUser = async (userData: FormData) => {
 };
 
 export const deleteUser = async (id: number) => {
-  await fetch(`${API_URL}/usuarios/${id}`, { method: "DELETE" });
+  await fetch(ENDPOINTS.USUARIOS.BY_ID(id), { 
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+    }
+  });
 };
 
-// Cambiado para aceptar FormData y enviar archivos (foto)
 export const updateUser = async (ID: number, userData: FormData) => {
-  const res = await fetch(`${API_URL}/usuarios/${ID}`, {
+  const res = await fetch(ENDPOINTS.USUARIOS.BY_ID(ID), {
     method: "PUT",
     headers: { 
       "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-      // No pongas Content-Type aquí
     },
     body: userData,
   });
+  
   if (!res.ok) {
     const errorData = await res.json();
     throw new Error(errorData.message || "Error al actualizar usuario");
@@ -80,7 +68,7 @@ export const updateUser = async (ID: number, userData: FormData) => {
 };
 
 export const getUserById = async (id: number) => {
-  const res = await fetch(`${API_URL}/usuarios/${id}`);
+  const res = await fetch(ENDPOINTS.USUARIOS.BY_ID(id));
   if (!res.ok) {
     throw new Error("No se pudo obtener el usuario");
   }
@@ -89,17 +77,17 @@ export const getUserById = async (id: number) => {
 
 export async function login(data: { email: string; password: string }) {
   try {
-    const response = await fetch(`${API_URL}/usuarios/login`, {
+    const response = await fetch(ENDPOINTS.USUARIOS.LOGIN, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
-    const result = await response.json();
-    return result;
+    return await response.json();
   } catch (error) {
     console.error("Error en login:", error);
     throw error;
@@ -108,15 +96,23 @@ export async function login(data: { email: string; password: string }) {
 
 export async function PasswordReset(data: { email: string }) {
   try {
-    const response = await fetch(`${API_URL}/usuarios/reset_password`, {
+    const response = await fetch(ENDPOINTS.USUARIOS.RESET_PASSWORD, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    const result = await response.json();
-    return result; // { success: boolean, error?: string }
+    return await response.json();
   } catch (error) {
-    console.error("Error en addUser:", error);
+    console.error("Error en PasswordReset:", error);
     throw error;
   }
+}
+
+export function getUserAvatarUrl(user: User) {
+  if (typeof user.foto === "string") {
+    return ENDPOINTS.USUARIOS.AVATAR(user.foto);
+  } else if (user.foto instanceof Blob) {
+    return URL.createObjectURL(user.foto);
+  }
+  return ""; // o una imagen por defecto
 }
