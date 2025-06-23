@@ -1,28 +1,41 @@
 // services/userService.ts
 "use client";
 import { User } from "../types/index";
-import { API_URL } from "../constans/Api";
+import {API_ENDPOINTS} from "../constans/endpoints";
 
 export const fetchUsers = async (search: string, filterRol: string, filterEstado: string) => {
-  const params = new URLSearchParams();
-  if (search) params.append("q", search);
-  if (filterRol !== "todos") params.append("tipo_usuario", filterRol);
-  if (filterEstado !== "todos-status") params.append("estado", filterEstado);
+  try {
+    const response = await fetch(
+      API_ENDPOINTS.USERS.SEARCH({ search, filterRol, filterEstado })
+    );
+    
+    if (!response.ok) {
+      throw new Error('Error al obtener los usuarios');
+    }
 
-  const response = await fetch(`${API_URL}/usuarios?${params.toString()}`);
-  const data = await response.json();
-  
-  if (Array.isArray(data)) {
-    return data;
-  } else if (data && Array.isArray(data.usuarios)) {
-    return data.usuarios;
+    const data = await response.json();
+    
+    // Manejar la respuesta según la estructura del backend
+    if (data.success && Array.isArray(data.usuarios)) {
+      return data.usuarios;
+    }
+    
+    // Si por alguna razón no viene en el formato esperado
+    if (Array.isArray(data)) {
+      return data;
+    }
+    
+    console.error('Formato de respuesta inesperado:', data);
+    return [];
+  } catch (error) {
+    console.error('Error en fetchUsers:', error);
+    throw error;
   }
-  return [];
 };
 
 export const addUser = async (userData: Partial<User>) => {
   try {
-    const res = await fetch(`${API_URL}/usuarios`, {
+    const res = await fetch(API_ENDPOINTS.USERS.BASE, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -59,11 +72,11 @@ export const addUser = async (userData: Partial<User>) => {
 };
 
 export const deleteUser = async (id: number) => {
-  await fetch(`${API_URL}/usuarios/${id}`, { method: "DELETE" });
+  await fetch(API_ENDPOINTS.USERS.BY_ID(id), { method: "DELETE" });
 };
 
 export const updateUser = async (ID: number, userData: Partial<User>) => {
-  const res = await fetch(`${API_URL}/usuarios/${ID}`, {
+  const res = await fetch(API_ENDPOINTS.USERS.BY_ID(ID), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
@@ -74,7 +87,7 @@ export const updateUser = async (ID: number, userData: Partial<User>) => {
 // ...existing code...
   
 export const getUserById = async (id: number) => {
-  const res = await fetch(`${API_URL}/usuarios/${id}`);
+  const res = await fetch(API_ENDPOINTS.USERS.BY_ID(id));
   if (!res.ok) {
     throw new Error("No se pudo obtener el usuario");
   }
@@ -84,7 +97,7 @@ export const getUserById = async (id: number) => {
 // ...login 
 export async function login(data: { email: string; password: string }) {
   try {
-    const response = await fetch(`${API_URL}/usuarios/login`, {
+    const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -103,7 +116,7 @@ export async function login(data: { email: string; password: string }) {
 
 export async function PasswordReset(data: { email: string }) {
   try {
-    const response = await fetch(`${API_URL}/usuarios/reset_password`, {
+    const response = await fetch(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
