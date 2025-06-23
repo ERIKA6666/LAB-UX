@@ -53,7 +53,7 @@ export const Dialogs = ({
               try {
                 let success: boolean = false;
                 if (editingUser) {
-                  await onUpdateUser(editingUser.id, data);
+                  await onUpdateUser(editingUser.ID, data);
                   success = true;
                 } else {
                   const result = await onSubmitUser(data);
@@ -85,7 +85,7 @@ export const Dialogs = ({
             <DialogDescription>
               ¿Está seguro que desea {deactivatingUser?.estado === "activo" ? "desactivar" : "activar"} al usuario{" "}
               {deactivatingUser?.nombre}? {" "}
-              {deactivatingUser?.id}? 
+              {deactivatingUser?.ID}? 
               {deactivatingUser?.estado === "activo" &&
                 " El usuario no podrá acceder al sistema hasta que sea reactivado."}
             </DialogDescription>
@@ -99,7 +99,7 @@ export const Dialogs = ({
               onClick={async () => {
                 if (deactivatingUser) {
                   const newStatus = deactivatingUser.estado === "activo" ? "inactivo" : "activo";
-                  await onUpdateUser(deactivatingUser.id, { estado: newStatus });
+                  await onUpdateUser(deactivatingUser.ID, { estado: newStatus });
                   setDeactivatingUser(null);
                 }
               }}
@@ -128,7 +128,7 @@ export const Dialogs = ({
               variant="destructive"
               onClick={async () => {
                 if (deletingUser) {
-                  await onDeleteUser(deletingUser.id);
+                  await onDeleteUser(deletingUser.ID);
                   setDeletingUser(null);
                 }
               }}
