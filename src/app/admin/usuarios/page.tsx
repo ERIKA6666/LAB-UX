@@ -77,8 +77,82 @@ export default function UsuariosPage() {
         </TabsContent>
 
         <TabsContent value="grid" className="space-y-4">
+<<<<<<< HEAD
           {/* Implementar vista de tarjetas si es necesario */}
           <div className="text-center py-10">Vista de tarjetas no implementada</div>
+=======
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {users.map((user) => (
+              <Card key={user.ID}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage
+                          src={
+                            user.avatar
+                              ? typeof user.avatar === "string"
+                                ? `${API_URL}/uploads/${user.avatar}`
+                                : URL.createObjectURL(user.avatar)
+                              : user.foto
+                                ? typeof user.foto === "string"
+                                  ? `${API_URL}/uploads/${user.foto}`
+                                  : URL.createObjectURL(user.foto)
+                                : undefined
+                          }
+                          alt={user.nombre}
+                        />
+                        <AvatarFallback>{user.initials || getInitials(user.nombre)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-lg">{user.nombre}</CardTitle>
+                        <CardDescription>{user.nombre}</CardDescription>
+                      </div>
+                    </div>
+                    {getStatusBadge(user.estado as StatusUser)}
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Rol:</span>
+                      <span>{getRoleBadge(user.tipo_usuario as RoleUser)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Último acceso:</span>
+                      <span className="text-sm">{user.fecha_registro}</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardContent className="flex justify-between pt-0">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="mr-2"
+                    onClick={() => setEditingUser(user)}
+                  >
+                    <Edit className="h-4 w-4" />
+                    Editar
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setDeactivatingUser(user)}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    Desactivar Usuario
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => setDeletingUser(user)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+>>>>>>> 4eba93b (usuarios v3)
         </TabsContent>
       </Tabs>
 
