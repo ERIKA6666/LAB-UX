@@ -9,7 +9,7 @@ import { useUserForm } from "@/hooks/useUserForm";
 
 interface UserFormProps {
   initialData?: Partial<User>;
-  onSubmit: (data: Partial<User>) => Promise<void>;
+  onSubmit: (data: Partial<User>) => Promise<boolean>; // Cambia void por boolean
   isSubmitting: boolean;
   isEdit?: boolean;
 }
@@ -28,13 +28,20 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
   } = useUserForm(initialData);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isEdit && formData.password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-    await onSubmit(formData);
-  };
+  e.preventDefault();
+  if (!isEdit && formData.password !== confirmPassword) {
+    alert("Las contraseñas no coinciden");
+    return;
+  }
+  try {
+    const success = await onSubmit(formData);
+    return success; 
+    // El cierre del modal ahora se maneja desde el componente padre (Dialogs)
+    // basado en el valor de retorno (success)
+  } catch (error) {
+    console.error("Error al enviar el formulario:", error);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit}>

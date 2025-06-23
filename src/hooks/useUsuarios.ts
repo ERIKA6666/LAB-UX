@@ -21,6 +21,7 @@ export const useUsers = () => {
     reloadUsers();
   }, [search, filterRol, filterEstado]);
 
+ // En tu archivo donde defines estas funciones (probablemente en el hook o página)
   const handleAddUser = async (userData: Partial<User>) => {
     setLoading(true);
     try {
@@ -34,8 +35,9 @@ export const useUsers = () => {
       if (newUser) {
         await reloadUsers();
         setShowSuccessMessage("Usuario creado correctamente");
-        return newUser;
+        return true; // Indica éxito
       }
+      return false;
     } finally {
       setLoading(false);
     }
@@ -44,23 +46,23 @@ export const useUsers = () => {
   const handleUpdateUser = async (id: number, userData: Partial<User>) => {
     setLoading(true);
     try {
-          const formData = new FormData();
-    Object.entries(userData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        formData.append(key, value as string | Blob);
-      }
-    });
+      const formData = new FormData();
+      Object.entries(userData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          formData.append(key, value as string | Blob);
+        }
+      });
       const updated = await updateUser(id, formData);
       if (updated) {
         await reloadUsers();
         setShowSuccessMessage("Usuario actualizado correctamente");
-        return updated;
+        return true; // Indica éxito
       }
+      return false;
     } finally {
       setLoading(false);
     }
   };
-
   const handleDeleteUser = async (id: number) => {
     setLoading(true);
     try {

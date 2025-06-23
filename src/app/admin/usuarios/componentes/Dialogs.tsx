@@ -14,7 +14,7 @@ interface DialogsProps {
   setDeactivatingUser: (user: User | null) => void;
   deletingUser: User | null;
   setDeletingUser: (user: User | null) => void;
-  onSubmitUser: (data: Partial<User>) => Promise<void>;
+  onSubmitUser: (data: Partial<User>) => Promise<void | boolean>;
   onUpdateUser: (id: number, data: Partial<User>) => Promise<void>;
   onDeleteUser: (id: number) => Promise<void>;
   isSubmitting: boolean;
@@ -36,40 +36,45 @@ export const Dialogs = ({
 }: DialogsProps) => {
   return (
     <>
-      {/* Dialogo para crear nuevo usuario */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+       {/* Diálogo para crear/editar usuario */}
+      <Dialog open={isDialogOpen || !!editingUser} onOpenChange={(open) => {
+        if (!open) {
+          setIsDialogOpen(false);
+          setEditingUser(null);
+        }
+      }}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Crear Nuevo Usuario</DialogTitle>
-            <DialogDescription>
-              Complete la información para crear un nuevo usuario en el sistema.
-            </DialogDescription>
+            <DialogTitle>{editingUser ? 'Editar Usuario' : 'Crear Usuario'}</DialogTitle>
           </DialogHeader>
           <UserForm 
-            onSubmit={onSubmitUser} 
-            isSubmitting={isSubmitting} 
+            initialData={editingUser || undefined}
+            onSubmit={async (data) => {
+              try {
+                let success: boolean = false;
+                if (editingUser) {
+                  await onUpdateUser(editingUser.id, data);
+                  success = true;
+                } else {
+                  const result = await onSubmitUser(data);
+                  success = !!result;
+                }
+                
+                if (success) {
+                  setIsDialogOpen(false);
+                  setEditingUser(null);
+                }
+                return success;
+              } catch (error) {
+                console.error("Error en el formulario:", error);
+                return false;
+              }
+            }}
+            isSubmitting={isSubmitting}
+            isEdit={!!editingUser}
           />
         </DialogContent>
       </Dialog>
-
-      {/* Dialogo para editar usuario */}
-      <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Editar Usuario</DialogTitle>
-            <DialogDescription>
-              Modifique la información del usuario {editingUser?.nombre}.
-            </DialogDescription>
-          </DialogHeader>
-          <UserForm 
-            initialData={editingUser || undefined} 
-            onSubmit={(data) => editingUser ? onUpdateUser(editingUser.id, data) : Promise.resolve()} 
-            isSubmitting={isSubmitting} 
-            isEdit
-          />
-        </DialogContent>
-      </Dialog>
-
       {/* Dialogo para desactivar/activar usuario */}
       <Dialog open={!!deactivatingUser} onOpenChange={() => setDeactivatingUser(null)}>
         <DialogContent>

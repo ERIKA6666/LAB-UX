@@ -68,8 +68,8 @@ export const UserTable = ({ users, loading, onEdit, onDeactivate, onDelete }: Us
         </tr>
       </thead>
       <tbody>
-        {users.map((user) => (
-          <tr key={user.id} className="border-b">
+        {users.map((user, idx) => (
+          <tr key={user.id ?? idx} className="border-b">
             <td className="p-4">
               <div className="flex items-center space-x-3">
                 <Avatar>
