@@ -3,13 +3,10 @@
 import { Glosario } from "../types";
 import { API_URL } from "../constans/Api";
 
-export const fetchTerminos = async (search: string = '') => {
-  const params = new URLSearchParams();
-  if (search) params.append("q", search);
-
-  const response = await fetch(`${API_URL}/glosario?${params.toString()}`);
+export const fetchTerminos = async (queryString: string = '') => {
+  const response = await fetch(`${API_URL}/glosario${queryString}`);
   const data = await response.json();
-  
+
   if (Array.isArray(data)) {
     return data;
   } else if (data && Array.isArray(data.terminos)) {
@@ -27,21 +24,28 @@ export const getTerminoById = async (id: number) => {
 };
 
 export const addTermino = async (terminoData: Omit<Glosario, 'ID' | 'fecha_creacion'>) => {
+  const usuario = localStorage.getItem('usuario');
+  const ID_usuario = usuario ? JSON.parse(usuario).ID : null;
+  const bodyData = {
+    ...terminoData,
+    fecha_creacion: getMySQLDateTimeString(new Date()),
+    ID_usuario: ID_usuario
+  };
+  console.log("Body que se enviará:", bodyData); // <-- Aquí ves lo que envías
+
   try {
-    const res = await fetch(`${API_URL}/public/research/glosario`, {
+    const res = await fetch(`${API_URL}/glosario`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem('authToken')}`
       },
-      body: JSON.stringify({
-        ...terminoData,
-        fecha_creacion: new Date().toISOString() // Agrega la fecha actual
-      }),
+      body: JSON.stringify(bodyData),
     });
 
     if (!res.ok) {
       const errorData = await res.json();
+      alert("Error al crear término: " + errorData.error || errorData.message);
       throw new Error(errorData.message || "Error al crear término");
     }
 
@@ -53,7 +57,7 @@ export const addTermino = async (terminoData: Omit<Glosario, 'ID' | 'fecha_creac
 };
 
 export const updateTermino = async (id: number, terminoData: Partial<Glosario>) => {
-  const res = await fetch(`${API_URL}/glosario${id}`, {
+  const res = await fetch(`${API_URL}/glosario/${id}`, {
     method: "PUT",
     headers: { 
       "Content-Type": "application/json",
@@ -71,7 +75,7 @@ export const updateTermino = async (id: number, terminoData: Partial<Glosario>) 
 };
 
 export const deleteTermino = async (id: number) => {
-  const res = await fetch(`${API_URL}/glosario${id}`, {
+  const res = await fetch(`${API_URL}/glosario/${id}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${localStorage.getItem('authToken')}`
@@ -101,3 +105,7 @@ export const fetchTerminosRecientes = async (limit: number = 5) => {
   }
   return await res.json();
 };
+
+function getMySQLDateTimeString(date: Date) {
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+}

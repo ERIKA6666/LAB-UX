@@ -16,9 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit, Plus, Save, Search, Trash2 } from "lucide-react";
-import { fetchTerminos, addTermino, updateTermino, deleteTermino, fetchTerminosByLetra } from "@/services";
+import { fetchTerminos, addTermino, updateTermino, deleteTermino } from "@/services";
 import { useToast } from "@/components/hooks/use-toast";
 import { Glosario } from "@/types/glosario";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function GlosarioPage() {
   const { toast } = useToast();
@@ -28,33 +29,29 @@ export default function GlosarioPage() {
   const [selectedLetter, setSelectedLetter] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTerm, setEditingTerm] = useState<Glosario | null>(null);
-   const [error] = useState<string | null>(null);
+  const [deletingTerm, setDeletingTerm] = useState<Glosario | null>(null);
+  const [error] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     termino: "",
     descripcion: "",
   });
+  const [dialogMessage, setDialogMessage] = useState<string | null>(null);
+  const [dialogType, setDialogType] = useState<"success" | "error" | null>(null);
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-  // Cargar términos iniciales
-  useEffect(() => {
-  loadTerms();
-  }, []);
-
-  // Cargar términos por letra cuando cambia la selección
-  useEffect(() => {
-  if (selectedLetter) {
-    loadTermsByLetter(selectedLetter);
-  } else if (filter === "") {
-    loadTerms();
-  }
-}, [selectedLetter, filter]);
-
-  const loadTerms = async () => {
+  // Loader combinado para letra y búsqueda
+  const loadTermsFiltered = async (letter = selectedLetter, search = filter) => {
     setLoading(true);
     setTerms([]);
     try {
-      const data = await fetchTerminos(filter);
+      let query = [];
+      if (letter) query.push(`letra=${encodeURIComponent(letter.toLowerCase())}`);
+      if (search) query.push(`q=${encodeURIComponent(search)}`);
+      const queryString = query.length ? `?${query.join("&")}` : "";
+      // Muestra la ruta solicitada en un alert
+      const data = await fetchTerminos(queryString);
       setTerms(data);
     } catch (error) {
       toast({
@@ -67,26 +64,13 @@ export default function GlosarioPage() {
     }
   };
 
-  const loadTermsByLetter = async (letter: string) => {
-    setLoading(true);
-    setTerms([]);
-    try {
-      const data = await fetchTerminosByLetra(letter);
-      setTerms(data);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Error desconocido al cargar términos por letra",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // useEffect único para ambos filtros
+  useEffect(() => {
+    loadTermsFiltered();
+  }, [selectedLetter, filter]);
 
   const handleSearch = async () => {
-    setSelectedLetter("");
-    await loadTerms();
+    await loadTermsFiltered();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -99,15 +83,15 @@ export default function GlosarioPage() {
     try {
       if (editingTerm) {
         await updateTermino(editingTerm.ID, formData);
-        toast({ title: "Término actualizado correctamente" });
+        toast({ title: "Término actualizado correctamente", variant: "success" });
       } else {
         await addTermino(formData);
-        toast({ title: "Término añadido correctamente" });
+        toast({ title: "Término añadido correctamente", variant: "success" });
       }
       setIsDialogOpen(false);
       setEditingTerm(null);
       setFormData({ termino: "", descripcion: "" });
-      loadTerms();
+      loadTermsFiltered();
     } catch (error) {
       toast({
         title: "Error",
@@ -120,8 +104,8 @@ export default function GlosarioPage() {
   const handleDelete = async (id: number) => {
     try {
       await deleteTermino(id);
-      toast({ title: "Término eliminado correctamente" });
-      loadTerms();
+      toast({ title: "Término eliminado correctamente", variant: "success" });
+      loadTermsFiltered();
     } catch (error) {
       toast({
         title: "Error",
@@ -158,7 +142,7 @@ export default function GlosarioPage() {
             variant="outline" 
             size="sm" 
             className="mt-2"
-            onClick={loadTerms}
+            onClick={() => loadTermsFiltered()}
           >
             Reintentar
           </Button>
@@ -217,10 +201,6 @@ export default function GlosarioPage() {
               </form>
             </DialogContent>
           </Dialog>
-          <Button onClick={handleSearch}>
-            <Save className="mr-2 h-4 w-4" />
-            Guardar Cambios
-          </Button>
         </div>
       </div>
 
@@ -233,11 +213,8 @@ export default function GlosarioPage() {
               placeholder="Buscar términos..."
               className="pl-8"
               value={filter}
-              onChange={(e) => {
-                setFilter(e.target.value);
-                setSelectedLetter("");
-              }}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              onChange={(e) => setFilter(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
           </div>
           <Button onClick={handleSearch}>
@@ -250,10 +227,7 @@ export default function GlosarioPage() {
           <Button
             variant={selectedLetter === "" ? "default" : "outline"}
             size="sm"
-            onClick={() => {
-              setSelectedLetter("");
-              loadTerms();
-            }}
+            onClick={() => setSelectedLetter("")}
           >
             Todos
           </Button>
@@ -307,7 +281,7 @@ export default function GlosarioPage() {
                                   <Button 
                                     variant="ghost" 
                                     size="icon"
-                                    onClick={() => handleDelete(term.ID)}
+                                    onClick={() => setDeletingTerm(term)}
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -328,6 +302,51 @@ export default function GlosarioPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!deletingTerm} onOpenChange={(open) => !open && setDeletingTerm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Eliminar término?</DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro que deseas eliminar el término <b>{deletingTerm?.termino}</b>? Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingTerm(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (deletingTerm) {
+                  await handleDelete(deletingTerm.ID);
+                  setDeletingTerm(null);
+                }
+              }}
+            >
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDialogVisible} onOpenChange={setIsDialogVisible}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {dialogType === "success" ? "Éxito" : "Error"}
+            </DialogTitle>
+            <DialogDescription>
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setIsDialogVisible(false)}>Cerrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Toaster />
     </div>
   );
 }
