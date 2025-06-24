@@ -18,5 +18,6 @@ export const ENDPOINTS = {
         if (params.estado && params.estado !== "todos-status") urlParams.append("estado", params.estado);
         return `${API_URL}/usuarios?${urlParams.toString()}`;
         },
+      AVATAR2 : (filename: string) => `${API_URL}/uploads/${filename}`,
     }
 }

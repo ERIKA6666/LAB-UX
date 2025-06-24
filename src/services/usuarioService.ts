@@ -121,9 +121,8 @@ export const getAvatarUrl = (avatarPath?: string | File): string | undefined => 
   if (!avatarPath) return undefined;
   
   if (typeof avatarPath === 'string') {
-    return `${API_URL}/uploads/${avatarPath}`;
+    return ENDPOINTS.USUARIOS.AVATAR2(avatarPath);
   }
-  
   return URL.createObjectURL(avatarPath);
 };
 export const getInitials = (name: string = ""): string => {
