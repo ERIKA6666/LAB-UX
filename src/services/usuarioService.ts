@@ -1,6 +1,7 @@
 "use client";
 import { User } from "../types/index";
 import { ENDPOINTS } from "../config/endpoints";
+import { API_URL } from "../constans/Api";
 
 export const fetchUsers = async (search: string, filterRol: string, filterEstado: string) => {
   const url = ENDPOINTS.USUARIOS.SEARCH({
@@ -109,10 +110,27 @@ export async function PasswordReset(data: { email: string }) {
 }
 
 export function getUserAvatarUrl(user: User) {
-  if (typeof user.foto === "string") {
+  if (typeof user.foto === "string" ) {
     return ENDPOINTS.USUARIOS.AVATAR(user.foto);
   } else if (user.foto instanceof Blob) {
     return URL.createObjectURL(user.foto);
   }
   return ""; // o una imagen por defecto
 }
+export const getAvatarUrl = (avatarPath?: string | File): string | undefined => {
+  if (!avatarPath) return undefined;
+  
+  if (typeof avatarPath === 'string') {
+    return `${API_URL}/uploads/${avatarPath}`;
+  }
+  
+  return URL.createObjectURL(avatarPath);
+};
+export const getInitials = (name: string = ""): string => {
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() || "";
+  return (
+    (parts[0][0] || "") +
+    (parts[parts.length - 1][0] || "")
+  ).toUpperCase();
+};

@@ -1,50 +1,43 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User } from "@/types/index";
+import { AreaInvestigacion } from "@/types/index";
 import { useUserForm } from "@/hooks/useUserForm";
 
 interface UserFormProps {
-  initialData?: Partial<User>;
-  onSubmit: (data: Partial<User>) => Promise<boolean>; // Cambia void por boolean
-  isSubmitting: boolean;
-  isEdit?: boolean;
+  formData: ReturnType<typeof useUserForm>['formData'];
+  confirmPassword: string;
+  setConfirmPassword: (value: string) => void;
+  selectedAreas: number[];
+  areas: AreaInvestigacion[];
+  isEditing?: boolean;
+  onSubmit: (e: React.FormEvent) => Promise<void>;
+  onInputChange: ReturnType<typeof useUserForm>['handleInputChange'];
+  onSelectChange: ReturnType<typeof useUserForm>['handleSelectChange'];
+  onStatusChange: ReturnType<typeof useUserForm>['handleStatusChange'];
+  onFileChange: ReturnType<typeof useUserForm>['handleFileChange'];
+  onAreaToggle: (areaId: number) => void;
+  loading: boolean;
 }
 
-export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }: UserFormProps) => {
-  const {
-    formData,
-    //setFormData,
-    confirmPassword,
-    setConfirmPassword,
-    handleInputChange,
-    handleSelectChange,
-    handleStatusChange,
-    handleFileChange,
-    //resetForm,
-  } = useUserForm(initialData);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!isEdit && formData.password !== confirmPassword) {
-    alert("Las contraseñas no coinciden");
-    return;
-  }
-  try {
-    const success = await onSubmit(formData);
-    return success; 
-    // El cierre del modal ahora se maneja desde el componente padre (Dialogs)
-    // basado en el valor de retorno (success)
-  } catch (error) {
-    console.error("Error al enviar el formulario:", error);
-  }
-};
-
+export const UserForm = ({
+  formData,
+  confirmPassword,
+  setConfirmPassword,
+  selectedAreas,
+  areas,
+  isEditing = false,
+  onSubmit,
+  onInputChange,
+  onSelectChange,
+  onStatusChange,
+  onFileChange,
+  onAreaToggle,
+  loading,
+}: UserFormProps) => {
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={onSubmit}>
       <div className="grid gap-4 py-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
@@ -54,7 +47,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
               name="username"
               placeholder="Nombre de usuario"
               value={formData.username}
-              onChange={handleInputChange}
+              onChange={onInputChange}
               required
             />
           </div>
@@ -65,7 +58,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
               name="nombre"
               placeholder="Nombre"
               value={formData.nombre}
-              onChange={handleInputChange}
+              onChange={onInputChange}
               required
             />
           </div>
@@ -76,7 +69,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
               name="apellido"
               placeholder="Apellidos"
               value={formData.apellido}
-              onChange={handleInputChange}
+              onChange={onInputChange}
               required
             />
           </div>
@@ -87,7 +80,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
               name="telefono"
               placeholder="Teléfono"
               value={formData.telefono}
-              onChange={handleInputChange}
+              onChange={onInputChange}
               required
             />
           </div>
@@ -99,7 +92,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
               type="email"
               placeholder="correo@ejemplo.com"
               value={formData.correo}
-              onChange={handleInputChange}
+              onChange={onInputChange}
               required
             />
           </div>
@@ -107,7 +100,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
             <Label htmlFor="tipo_usuario">Rol</Label>
             <Select
               value={formData.tipo_usuario}
-              onValueChange={(value) => handleSelectChange(value, 'tipo_usuario')}
+              onValueChange={(value) => onSelectChange(value, 'tipo_usuario')}
             >
               <SelectTrigger id="tipo_usuario">
                 <SelectValue placeholder="Seleccione un rol" />
@@ -120,7 +113,8 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
             </Select>
           </div>
         </div>
-        {!isEdit && (
+
+        {!isEditing && (
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="password">Contraseña</Label>
@@ -129,8 +123,8 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
                 name="password"
                 type="password"
                 value={formData.password}
-                onChange={handleInputChange}
-                required={!isEdit}
+                onChange={onInputChange}
+                required={!isEditing}
               />
             </div>
             <div className="grid gap-2">
@@ -140,21 +134,39 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                required={!isEdit}
+                required={!isEditing}
               />
             </div>
           </div>
         )}
+
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
             id="estado"
             className="h-4 w-4 rounded border-gray-300"
             checked={formData.estado === 'activo'}
-            onChange={handleStatusChange}
+            onChange={onStatusChange}
           />
           <Label htmlFor="estado">Usuario activo</Label>
         </div>
+
+        <div className="grid gap-2">
+          <Label>Áreas de Investigación</Label>
+          <div className="flex flex-wrap gap-2">
+            {areas.map(area => (
+              <label key={area.ID} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedAreas.includes(area.ID)}
+                  onChange={() => onAreaToggle(area.ID)}
+                />
+                <span>{area.nombre}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-2">
           <Label htmlFor="foto">Foto de Usuario</Label>
           <Input
@@ -162,12 +174,13 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
             name="foto"
             type="file"
             accept="image/*"
-            onChange={handleFileChange}
+            onChange={onFileChange}
           />
         </div>
       </div>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? (
+
+      <Button type="submit" disabled={loading}>
+        {loading ? (
           <div className="flex items-center">
             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -175,7 +188,7 @@ export const UserForm = ({ initialData, onSubmit, isSubmitting, isEdit = false }
             </svg>
             Procesando...
           </div>
-        ) : isEdit ? 'Actualizar Usuario' : 'Crear Usuario'}
+        ) : isEditing ? 'Actualizar Usuario' : 'Crear Usuario'}
       </Button>
     </form>
   );
