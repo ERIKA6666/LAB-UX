@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { User } from "@/types";
+import { useState } from 'react';
+import { User, AreaInvestigacion } from '@/types/index';
 
 export const useUserForm = (initialUser?: Partial<User>) => {
   const [formData, setFormData] = useState<Partial<User>>({
@@ -16,6 +16,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
   });
 
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,15 +41,16 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     setFormData({
       nombre: '',
       username: '',
+      correo: '',
       apellido: '',
       telefono: '',
-      correo: '',
       tipo_usuario: 'alumno',
       estado: 'activo',
       password: '',
       foto: undefined,
     });
     setConfirmPassword('');
+    setSelectedAreas([]);
   };
 
   return {
@@ -56,6 +58,8 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     setFormData,
     confirmPassword,
     setConfirmPassword,
+    selectedAreas,
+    setSelectedAreas,
     handleInputChange,
     handleSelectChange,
     handleStatusChange,
