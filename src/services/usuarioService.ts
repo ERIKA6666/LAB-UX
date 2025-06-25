@@ -14,6 +14,7 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
   const data = await response.json();
   
   if (Array.isArray(data)) {
+    console.warn("Data is an array, returning as is:", data);// Debugging line to check data type
     return data;
   } else if (data && Array.isArray(data.usuarios)) {
     return data.usuarios;
@@ -63,13 +64,14 @@ export const updateUser = async (ID: number, userData: FormData) => {
   
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar usuario");
+    throw new Error(errorData.error || "Error al actualizar usuario");
   }
   return await res.json();
 };
 
 export const getUserById = async (id: number) => {
   const res = await fetch(ENDPOINTS.USUARIOS.BY_ID(id));
+  console.log("Respuesta de getUserById:", res); // Debugging line to check response
   if (!res.ok) {
     throw new Error("No se pudo obtener el usuario");
   }
@@ -121,9 +123,8 @@ export const getAvatarUrl = (avatarPath?: string | File): string | undefined => 
   if (!avatarPath) return undefined;
   
   if (typeof avatarPath === 'string') {
-    return `${API_URL}/uploads/${avatarPath}`;
+    return ENDPOINTS.USUARIOS.AVATAR2(avatarPath);
   }
-  
   return URL.createObjectURL(avatarPath);
 };
 export const getInitials = (name: string = ""): string => {

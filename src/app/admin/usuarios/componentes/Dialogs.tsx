@@ -34,6 +34,7 @@ export const Dialogs = ({
   onDeleteUser,
   isSubmitting,
 }: DialogsProps) => {
+  console.log("Dialogs render", { isDialogOpen, editingUser, deactivatingUser, deletingUser });
   return (
     <>
        {/* Diálogo para crear/editar usuario */}
@@ -54,8 +55,10 @@ export const Dialogs = ({
                 let success: boolean = false;
                 if (editingUser) {
                   await onUpdateUser(editingUser.ID, data);
+                  console.log("Dialogs render", { isDialogOpen, data, deactivatingUser, deletingUser });
                   success = true;
                 } else {
+                  console.log("Dialogs render", { isDialogOpen,data, deactivatingUser, deletingUser });
                   const result = await onSubmitUser(data);
                   success = !!result;
                 }
@@ -64,14 +67,26 @@ export const Dialogs = ({
                   setIsDialogOpen(false);
                   setEditingUser(null);
                 }
-                return success;
+                //return success;
               } catch (error) {
                 console.error("Error en el formulario:", error);
-                return false;
+                //return false;
               }
             }}
             isSubmitting={isSubmitting}
-            isEdit={!!editingUser}
+            isEdit={!!editingUser} 
+            formData={editingUser || {}}
+            confirmPassword=""
+            setConfirmPassword={() => {}}
+            selectedAreas={[]}
+            areas={[]}
+            isEditing={!!editingUser}
+            onInputChange={() => {}}
+            onSelectChange={() => {}}
+            onStatusChange={() => {}}
+            onFileChange={() => {}}
+            onAreaToggle={() => {}}
+            loading={false}
           />
         </DialogContent>
       </Dialog>
