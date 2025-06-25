@@ -13,6 +13,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     password: '',
     foto: undefined,
     areas_investigacion: [],
+    formacion_academica: [],
     ...initialUser
   });
 
@@ -51,6 +52,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
       password: '',
       foto: undefined,
       areas_investigacion: [],
+      formacion_academica: [],
     });
     setConfirmPassword('');
     setSelectedAreas([]);

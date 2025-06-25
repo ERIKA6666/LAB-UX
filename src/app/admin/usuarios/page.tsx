@@ -72,7 +72,7 @@ export default function UsuariosPage() {
         form.append("foto", userData.foto);
       }
       if (selectedAreas.length > 0) {
-        form.append("areasInvestigacion", JSON.stringify(selectedAreas));
+        form.append("areas_investigacion", JSON.stringify(selectedAreas));
       }
       
       const newUser = await addUser(form);
@@ -101,7 +101,7 @@ export default function UsuariosPage() {
         form.append("foto", userData.foto);
       }
       if (selectedAreas.length > 0) {
-        form.append("areasInvestigacion", JSON.stringify(selectedAreas));
+        form.append("areas_investigacion", JSON.stringify(selectedAreas));
       }
       
       const updated = await updateUser(id, form);

@@ -64,7 +64,7 @@ export const updateUser = async (ID: number, userData: FormData) => {
   
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar usuario");
+    throw new Error(errorData.error || "Error al actualizar usuario");
   }
   return await res.json();
 };

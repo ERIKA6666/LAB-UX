@@ -18,7 +18,7 @@ export interface User {
   estado?: StatusUser | undefined;
   foto?: string | Blob;
   initials?: string;
-  area_investigacion?: number; // Optional, can be null
+  //area_investigacion?: number; // Optional, can be null
   formacion_academica?: FormacionAcademica[]; // Optional, can be null
   areas_investigacion?: UsuarioAreaInvestigacion[]; // Optional, can be null
   avatar?: string; // Optional, can be null
