@@ -1,18 +1,24 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaInvestigacion } from "@/types/index";
 import { useUserForm } from "@/hooks/useUserForm";
+import { SelectAreas } from "./selectAreas";
 
 interface UserFormProps {
+  isEdit: boolean;
+  initialData?: Partial<ReturnType<typeof useUserForm>['formData']>;
   formData: ReturnType<typeof useUserForm>['formData'];
   confirmPassword: string;
   setConfirmPassword: (value: string) => void;
   selectedAreas: number[];
+  setSelectedAreas: React.Dispatch<React.SetStateAction<number[]>>;
   areas: AreaInvestigacion[];
   isEditing?: boolean;
-  onSubmit: (e: React.FormEvent) => Promise<void>;
+  isSubmitting?: boolean;
+  onSubmit: (data:any) => Promise<void>;
   onInputChange: ReturnType<typeof useUserForm>['handleInputChange'];
   onSelectChange: ReturnType<typeof useUserForm>['handleSelectChange'];
   onStatusChange: ReturnType<typeof useUserForm>['handleStatusChange'];
@@ -22,6 +28,9 @@ interface UserFormProps {
 }
 
 export const UserForm = ({
+  initialData,
+  isSubmitting,
+  isEdit,
   formData,
   confirmPassword,
   setConfirmPassword,
@@ -36,6 +45,8 @@ export const UserForm = ({
   onAreaToggle,
   loading,
 }: UserFormProps) => {
+  console.log("UserForm render",formData);
+  const [areasSeleccionadas, setAreasSeleccionadas] = useState<{ ID_area: number }[]>(formData.areas_investigacion || []);
   return (
     <form onSubmit={onSubmit}>
       <div className="grid gap-4 py-4">
@@ -139,34 +150,26 @@ export const UserForm = ({
             </div>
           </div>
         )}
-
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="estado"
-            className="h-4 w-4 rounded border-gray-300"
-            checked={formData.estado === 'activo'}
-            onChange={onStatusChange}
-          />
-          <Label htmlFor="estado">Usuario activo</Label>
-        </div>
-
         <div className="grid gap-2">
-          <Label>Áreas de Investigación</Label>
-          <div className="flex flex-wrap gap-2">
-            {areas.map(area => (
-              <label key={area.ID} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={selectedAreas.includes(area.ID)}
-                  onChange={() => onAreaToggle(area.ID)}
-                />
-                <span>{area.nombre}</span>
-              </label>
-            ))}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="estado"
+              className="h-4 w-4 rounded border-gray-300"
+              checked={formData.estado === 'activo'}
+              onChange={onStatusChange}
+            />
+            <Label htmlFor="estado">Usuario activo</Label>
           </div>
         </div>
 
+        <div className="grid gap-2">
+          <Label htmlFor="password">Áreas de Investigación</Label>
+          <SelectAreas 
+            formData2={formData}
+            onChange={setAreasSeleccionadas}
+          />
+        </div>
         <div className="grid gap-2">
           <Label htmlFor="foto">Foto de Usuario</Label>
           <Input
@@ -178,7 +181,7 @@ export const UserForm = ({
           />
         </div>
       </div>
-
+            
       <Button type="submit" disabled={loading}>
         {loading ? (
           <div className="flex items-center">

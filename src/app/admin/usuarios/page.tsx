@@ -181,6 +181,7 @@ export default function UsuariosPage() {
                 confirmPassword={confirmPassword}
                 setConfirmPassword={setConfirmPassword}
                 selectedAreas={selectedAreas}
+                setSelectedAreas={setSelectedAreas}
                 areas={areas}
                 onSubmit={handleSubmit}
                 onInputChange={handleInputChange}
@@ -355,10 +356,12 @@ export default function UsuariosPage() {
                       tipo_usuario: user.tipo_usuario || 'alumno',
                       estado: user.estado || 'activo',
                       password: '',
+                      areas_investigacion: user.areas_investigacion || [],
+                      formacion_academica: user.formacion_academica || [],
                     });
                     setSelectedAreas(
                       user.areas_investigacion 
-                        ? user.areas_investigacion.map(a => a.ID) 
+                        ? user.areas_investigacion.map(a => a.ID_area) 
                         : []
                     );
                   }}

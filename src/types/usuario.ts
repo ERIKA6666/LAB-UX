@@ -20,12 +20,14 @@ export interface User {
   initials?: string;
   area_investigacion?: number; // Optional, can be null
   formacion_academica?: FormacionAcademica[]; // Optional, can be null
-  areas_investigacion?: AreaInvestigacion[]; // Optional, can be null
+  areas_investigacion?: UsuarioAreaInvestigacion[]; // Optional, can be null
   avatar?: string; // Optional, can be null
 }
-export interface UsuarioAreaInvestigacion {
+export interface UsuarioAreaInvestigacion extends AreaInvestigacion {
   ID_usuario: number;
   ID_area: number;
+  area_descripcion?: string; // Optional, can be null
+  area_nombre?: string; // Optional, can be null
 }
 export interface LoginUsuarioRequest {
   email: string;

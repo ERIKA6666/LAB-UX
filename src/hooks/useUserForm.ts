@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, AreaInvestigacion } from '@/types/index';
+import { User} from '@/types/index';
 
 export const useUserForm = (initialUser?: Partial<User>) => {
   const [formData, setFormData] = useState<Partial<User>>({
@@ -12,6 +12,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     estado: 'activo',
     password: '',
     foto: undefined,
+    areas_investigacion: [],
     ...initialUser
   });
 
@@ -29,6 +30,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, estado: e.target.checked ? 'activo' : 'inactivo' }));
+    console.log(formData); // Debugging line to check status change
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +50,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
       estado: 'activo',
       password: '',
       foto: undefined,
+      areas_investigacion: [],
     });
     setConfirmPassword('');
     setSelectedAreas([]);

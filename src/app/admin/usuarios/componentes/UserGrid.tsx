@@ -18,6 +18,7 @@ export const UserGrid = ({ users, onEdit, onDeactivate, onDelete }: UserGridProp
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {users.map((user) => (
+        console.log("Debubg en grid"+user),
         <Card key={user.ID}>
           <CardHeader className="pb-2">
             <div className="flex justify-between items-start">
