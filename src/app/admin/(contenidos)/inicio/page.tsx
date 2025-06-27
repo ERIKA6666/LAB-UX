@@ -1,135 +1,199 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { ImagePlus, Save, Trash2 } from "lucide-react"
-import { ContenidoSitio, EstadoContenido, TipoContenido } from "@/types"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"// ...existing code...
+import { ImagePlus, Save, Trash2, Pencil } from "lucide-react"
+import { ContenidoSitio } from "@/types/contenidoSitio"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { fetchContenidos, addContenido, updateContenido, deleteContenido } from "@/services/contenido"
+import { useToast } from "@/components/hooks/use-toast"
+import { API_URL } from "@/constans/Api"
+import { Toaster } from "@/components/ui/toaster"
 
-// ...existing code...
-
-// Datos iniciales mockeados según la interfaz
-const initialBanners: ContenidoSitio[] = [
-  {
-    ID: 1,
-    tipo: 'banner',
-    titulo: 'Banner Principal',
-    texto: 'Texto descriptivo del banner',
-    imagen: '/placeholder.svg',
-    link_redireccion: 'https://ejemplo.com',
-    estado: 'activo',
-    orden: 1,
-    fecha_creacion: new Date().toISOString()
-  },
-  {
-    ID: 2,
-    tipo: 'banner',
-    titulo: 'Oferta Especial',
-    texto: 'Descripción de la oferta',
-    imagen: '/placeholder.svg',
-    link_redireccion: 'https://ejemplo.com/ofertas',
-    estado: 'inactivo',
-    orden: 2,
-    fecha_creacion: new Date().toISOString()
-  }
-]
+function getMySQLDateTimeString(date: Date) {
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+}
 
 export default function InicioPage() {
-  //estados para dialog de eliminar 
+  const { toast } = useToast()
+  const [banners, setBanners] = useState<ContenidoSitio[]>([])
+  const [loading, setLoading] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [addEditDialogOpen, setAddEditDialogOpen] = useState(false)
   const [bannerToDelete, setBannerToDelete] = useState<number | null>(null)
+  const [editBannerId, setEditBannerId] = useState<number | null>(null)
+  const [bannerImage, setBannerImage] = useState<File | null>(null)
+  const [bannerForm, setBannerForm] = useState<Omit<ContenidoSitio, "ID">>({
+    tipo: "banner",
+    titulo: "",
+    texto: "",
+    imagen: "",
+    link_redireccion: "",
+    estado: "inactivo",
+    orden: 1,
+    fecha_creacion: "",
+    fecha_actualizacion: "",
+  })
 
-  const [banners, setBanners] = useState<ContenidoSitio[]>(initialBanners)
-  const [nextId, setNextId] = useState<number>(initialBanners.length > 0 ? Math.max(...initialBanners.map(b => b.ID)) + 1 : 1)
-  const fileInputRefs = useRef<{[key: number]: HTMLInputElement | null}>({})
+  // Cargar banners desde el backend
+  const loadBanners = async () => {
+    setLoading(true)
+    try {
+      const data = await fetchContenidos({ tipo: "banner" })
+      setBanners(data)
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || error?.error || "No se pudieron cargar los banners",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const [welcomeText, setWelcomeText] = useState<string>(
-    "Bienvenidos al Laboratorio de Usabilidad, un espacio dedicado a la investigación y mejora de la experiencia de usuario en aplicaciones y sistemas interactivos.",
-  )
+  useEffect(() => {
+    loadBanners()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const [featuredText, setFeaturedText] = useState<string>(
-    "Participa en nuestros estudios de usabilidad y ayuda a mejorar la experiencia de usuario de productos digitales.",
-  )
-
+  // Eliminar banner
   const handleDeleteBanner = (id: number) => {
     setBannerToDelete(id)
     setConfirmDialogOpen(true)
   }
-  const confirmDelete = () => {
-  if (bannerToDelete) {
-    setBanners(banners.filter(valor => valor.ID !== bannerToDelete))
-    setConfirmDialogOpen(false)
-    setBannerToDelete(null)
-  }
-}
-
-  const handleAddBanner = () => {
-    const newBanner: ContenidoSitio = {
-      ID: nextId,
-      tipo: 'banner',
-      titulo: "Nuevo Banner",
-      imagen: "/placeholder.svg",
-      estado: 'inactivo',
-      link_redireccion: "",
-      fecha_creacion: new Date().toISOString()
-    }
-    setBanners([...banners, newBanner])
-    setNextId(nextId + 1)
-  }
-
-  const handleTitleChange = (id: number, newTitle: string) => {
-    setBanners(banners.map(banner => 
-      banner.ID === id ? { ...banner, titulo: newTitle } : banner
-    ))
-  }
-
-  const handleLinkChange = (id: number, newLink: string) => {
-    setBanners(banners.map(banner => 
-      banner.ID === id ? { ...banner, link_redireccion: newLink } : banner
-    ))
-  }
-
-  const handleStatusChange = (id: number) => {
-    setBanners(banners.map(banner => 
-      banner.ID === id ? { 
-        ...banner, 
-        estado: banner.estado === 'activo' ? 'inactivo' : 'activo' 
-      } : banner
-    ))
-  }
-
-  const handleImageClick = (id: number) => {
-    if (fileInputRefs.current[id]) {
-      fileInputRefs.current[id]?.click()
-    }
-  }
-
-  const handleImageChange = (id: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setBanners(banners.map(banner => 
-          banner.ID === id ? { ...banner, imagen: event.target?.result as string } : banner
-        ))
+  const confirmDelete = async () => {
+    if (bannerToDelete) {
+      try {
+        await deleteContenido(bannerToDelete)
+        toast({ title: "Banner eliminado correctamente", variant: "success" })
+        await loadBanners()
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error?.message || error?.error || "No se pudo eliminar el banner",
+          variant: "destructive",
+        })
       }
-      reader.readAsDataURL(file)
+      setConfirmDialogOpen(false)
+      setBannerToDelete(null)
     }
+  }
+
+  // Abrir modal para agregar o editar
+  const openAddDialog = () => {
+    setEditBannerId(null)
+    setBannerForm({
+      tipo: "banner",
+      titulo: "",
+      texto: "",
+      imagen: "",
+      link_redireccion: "",
+      estado: "inactivo",
+      orden: 1,
+      fecha_creacion: "",
+      fecha_actualizacion: "",
+    })
+    setBannerImage(null)
+    setAddEditDialogOpen(true)
+  }
+  const openEditDialog = (banner: ContenidoSitio) => {
+    setEditBannerId(banner.ID)
+    setBannerForm({
+      tipo: banner.tipo,
+      titulo: banner.titulo,
+      texto: banner.texto,
+      imagen: banner.imagen,
+      link_redireccion: banner.link_redireccion,
+      estado: banner.estado,
+      orden: banner.orden,
+      fecha_creacion: banner.fecha_creacion || "",
+      fecha_actualizacion: banner.fecha_actualizacion || "",
+    })
+    setBannerImage(null)
+    setAddEditDialogOpen(true)
+  }
+
+  // Guardar (agregar o actualizar)
+  const handleSaveBanner = async () => {
+    try {
+      const now = getMySQLDateTimeString(new Date());
+      const formToSend = {
+        ...bannerForm,
+        tipo: "banner" as ContenidoSitio["tipo"],
+        fecha_creacion: bannerForm.fecha_creacion
+          ? getMySQLDateTimeString(new Date(bannerForm.fecha_creacion))
+          : now,
+        fecha_actualizacion: now,
+      };
+
+      if (editBannerId) {
+        await updateContenido(editBannerId, formToSend, bannerImage || undefined)
+        toast({ title: "Banner actualizado correctamente", variant: "success" })
+      } else {
+        await addContenido(formToSend, bannerImage || undefined)
+        toast({ title: "Banner añadido correctamente", variant: "success" })
+      }
+      setAddEditDialogOpen(false)
+      setBannerForm({
+        tipo: "banner",
+        titulo: "",
+        texto: "",
+        imagen: "",
+        link_redireccion: "",
+        estado: "inactivo",
+        orden: 1,
+        fecha_creacion: "",
+        fecha_actualizacion: "",
+      })
+      setBannerImage(null)
+      setEditBannerId(null)
+      await loadBanners()
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || error?.error || "No se pudo guardar el banner",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Cambiar estado activo/inactivo
+  const handleToggleEstado = async (banner: ContenidoSitio) => {
+    try {
+      const nuevoEstado = banner.estado === "activo" ? "inactivo" : "activo"
+      await updateContenido(banner.ID, { estado: nuevoEstado })
+      toast({ title: `Banner marcado como ${nuevoEstado}`, variant: "default" })
+      await loadBanners()
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || error?.error || "No se pudo cambiar el estado",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Para el input de imagen en el modal
+  const handleBannerImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) setBannerImage(file)
   }
 
   return (
+     
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Gestión de Contenido - Inicio</h2>
         <div className="flex justify-end">
-          <Button className="w-full md:w-auto">
-            <Save className="mr-2 h-4 w-4" />
-            Guardar Cambios
+          <Button className="w-full md:w-auto" onClick={openAddDialog}>
+            <ImagePlus className="mr-2 h-4 w-4" />
+            Añadir Banner
           </Button>
         </div>
       </div>
@@ -137,161 +201,140 @@ export default function InicioPage() {
       <Tabs defaultValue="banners" className="space-y-4">
         <TabsList>
           <TabsTrigger value="banners">Banners</TabsTrigger>
-          <TabsTrigger value="welcome">Texto de Bienvenida</TabsTrigger>
-          <TabsTrigger value="featured">Mensajes Destacados</TabsTrigger>
         </TabsList>
 
         <TabsContent value="banners" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {banners.map((banner) => (
-              <Card key={banner.ID}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{banner.titulo}</CardTitle>
-                  <CardDescription>Estado: {banner.estado === 'activo' ? "Activo" : "Inactivo"}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="aspect-video relative overflow-hidden rounded-md border">
-                    <img src={banner.imagen || "/placeholder.svg"} alt={banner.titulo} className="object-cover w-full h-full" />
-                    <input
-                      type="file"
-                      ref={el => { fileInputRefs.current[banner.ID] = el }}
-                      onChange={(e) => handleImageChange(banner.ID, e)}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="absolute bottom-2 right-2 bg-background/80"
-                      onClick={() => handleImageClick(banner.ID)}
-                    >
-                      <ImagePlus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`banner-title-${banner.ID}`}>Título</Label>
-                    <Input 
-                      id={`banner-title-${banner.ID}`} 
-                      value={banner.titulo}
-                      onChange={(e) => handleTitleChange(banner.ID, e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`banner-link-${banner.ID}`}>Enlace</Label>
-                    <Input 
-                      id={`banner-link-${banner.ID}`} 
-                      value={banner.link_redireccion || ""}
-                      onChange={(e) => handleLinkChange(banner.ID, e.target.value)}
-                      placeholder="https://ejemplo.com/pagina" 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={`banner-active-${banner.ID}`}
-                        checked={banner.estado === 'activo'}
-                        onChange={() => handleStatusChange(banner.ID)}
-                        className="h-4 w-4 rounded border-gray-300"
+            {banners
+              .filter(banner => banner.ID !== undefined && banner.ID !== null)
+              .map((banner) => (
+                <Card key={banner.ID}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{banner.titulo}</CardTitle>
+                    <CardDescription>Estado: {banner.estado === 'activo' ? "Activo" : "Inactivo"}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="aspect-video relative overflow-hidden rounded-md border">
+                      <img
+                        src={banner.imagen ? `${API_URL}/uploads/contenido/${banner.imagen}` : "/placeholder.svg"}
+                        alt={banner.titulo}
+                        className="object-cover w-full h-full"
                       />
-                      <Label htmlFor={`banner-active-${banner.ID}`}>Activo</Label>
                     </div>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={() => handleDeleteBanner(banner.ID)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            <Card className="flex flex-col items-center justify-center h-full min-h-[300px]">
-              <CardContent className="pt-6 text-center">
-                <Button 
-                  variant="outline" 
-                  className="h-20 w-20 rounded-full"
-                  onClick={handleAddBanner}
-                >
-                  <ImagePlus className="h-10 w-10 text-muted-foreground" />
-                </Button>
-                <p className="mt-4 text-lg font-medium">Añadir Nuevo Banner</p>
-                <p className="text-sm text-muted-foreground">
-                  Haz clic para agregar un nuevo banner a la página de inicio
-                </p>
-              </CardContent>
-            </Card>
+                    <div className="space-y-2">
+                      <Label>Título</Label>
+                      <Input value={banner.titulo} disabled />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Enlace</Label>
+                      <Input value={banner.link_redireccion || ""} disabled />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={banner.estado === 'activo'}
+                          onChange={() => handleToggleEstado(banner)}
+                          className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                        />
+                        <Label>Activo</Label>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={() => openEditDialog(banner)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="icon"
+                          onClick={() => handleDeleteBanner(banner.ID)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </TabsContent>
-
-        <TabsContent value="welcome" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Texto de Bienvenida</CardTitle>
-              <CardDescription>Este texto aparece en la sección principal de la página de inicio</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="welcome-title">Título de Bienvenida</Label>
-                <Input id="welcome-title" defaultValue="Bienvenidos al Laboratorio de Usabilidad" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="welcome-text">Texto de Bienvenida</Label>
-                <Textarea
-                  id="welcome-text"
-                  rows={6}
-                  value={welcomeText}
-                  onChange={(e) => setWelcomeText(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="welcome-cta">Texto del Botón de Acción</Label>
-                <Input id="welcome-cta" defaultValue="Conoce más sobre nosotros" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="welcome-link">Enlace del Botón</Label>
-                <Input id="welcome-link" defaultValue="/nosotros" />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="featured" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Mensajes Destacados</CardTitle>
-              <CardDescription>Estos mensajes aparecen en secciones destacadas de la página de inicio</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="featured-text">Mensaje Destacado Principal</Label>
-                <Textarea
-                  id="featured-text"
-                  rows={4}
-                  value={featuredText}
-                  onChange={(e) => setFeaturedText(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="featured-cta">Texto del Botón de Acción</Label>
-                <Input id="featured-cta" defaultValue="Participar en estudios" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="featured-link">Enlace del Botón</Label>
-                <Input id="featured-link" defaultValue="/participar" />
-              </div>
-              <div className="pt-4">
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Guardar Cambios
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
+
+      {/* Modal para agregar/editar banner */}
+      <Dialog open={addEditDialogOpen} onOpenChange={setAddEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editBannerId ? "Editar Banner" : "Añadir Nuevo Banner"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Título</Label>
+              <Input
+                value={bannerForm.titulo}
+                onChange={e => setBannerForm({ ...bannerForm, titulo: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Texto</Label>
+              <Textarea
+                value={bannerForm.texto || ""}
+                onChange={e => setBannerForm({ ...bannerForm, texto: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Enlace</Label>
+              <Input
+                value={bannerForm.link_redireccion || ""}
+                onChange={e => setBannerForm({ ...bannerForm, link_redireccion: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Imagen</Label>
+              <Input type="file" accept="image/*" onChange={handleBannerImage} />
+              {editBannerId && bannerForm.imagen && (
+                <img src={bannerForm.imagen} alt="Actual" className="mt-2 h-24 rounded" />
+              )}
+            </div>
+            <div>
+              <Label>Orden</Label>
+              <Input
+                type="number"
+                value={bannerForm.orden || 1}
+                onChange={e => setBannerForm({ ...bannerForm, orden: Number(e.target.value) })}
+              />
+            </div>
+            <div>
+              <Label>Estado</Label>
+              <select
+                value={bannerForm.estado}
+                onChange={e => setBannerForm({ ...bannerForm, estado: e.target.value as "activo" | "inactivo" })}
+                className="border rounded px-2 py-1"
+              >
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </div>
+            {/* Campos ocultos */}
+            <input type="hidden" name="tipo" value="banner" />
+            <input type="hidden" name="fecha_creacion" value={bannerForm.fecha_creacion || ""} />
+            <input type="hidden" name="fecha_actualizacion" value={bannerForm.fecha_actualizacion || ""} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddEditDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveBanner}>
+              <Save className="mr-2 h-4 w-4" />
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de confirmación de eliminar */}
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -308,6 +351,8 @@ export default function InicioPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Toaster /> {/* Necesario para mostrar los toast */}
     </div>
   )
 }

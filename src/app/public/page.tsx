@@ -93,7 +93,7 @@ export default function Home() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d={valor.iconoPath}
+                    d={valor.imagen}
                   />
                 </svg>
               </div>
