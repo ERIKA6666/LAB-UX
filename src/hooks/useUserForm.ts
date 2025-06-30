@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { User } from "@/types";
+import { useState } from 'react';
+import { User} from '@/types/index';
 
 export const useUserForm = (initialUser?: Partial<User>) => {
   const [formData, setFormData] = useState<Partial<User>>({
@@ -12,10 +12,13 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     estado: 'activo',
     password: '',
     foto: undefined,
+    areas_investigacion: [],
+    formacion_academica: [],
     ...initialUser
   });
 
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,6 +31,7 @@ export const useUserForm = (initialUser?: Partial<User>) => {
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, estado: e.target.checked ? 'activo' : 'inactivo' }));
+    console.log(formData); // Debugging line to check status change
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,15 +44,18 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     setFormData({
       nombre: '',
       username: '',
+      correo: '',
       apellido: '',
       telefono: '',
-      correo: '',
       tipo_usuario: 'alumno',
       estado: 'activo',
       password: '',
       foto: undefined,
+      areas_investigacion: [],
+      formacion_academica: [],
     });
     setConfirmPassword('');
+    setSelectedAreas([]);
   };
 
   return {
@@ -56,6 +63,8 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     setFormData,
     confirmPassword,
     setConfirmPassword,
+    selectedAreas,
+    setSelectedAreas,
     handleInputChange,
     handleSelectChange,
     handleStatusChange,

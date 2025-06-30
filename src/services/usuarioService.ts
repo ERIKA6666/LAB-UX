@@ -1,6 +1,7 @@
 "use client";
 import { User } from "../types/index";
 import { ENDPOINTS } from "../config/endpoints";
+import { API_URL } from "../constans/Api";
 
 export const fetchUsers = async (search: string, filterRol: string, filterEstado: string) => {
   const url = ENDPOINTS.USUARIOS.SEARCH({
@@ -13,6 +14,7 @@ export const fetchUsers = async (search: string, filterRol: string, filterEstado
   const data = await response.json();
   
   if (Array.isArray(data)) {
+    console.warn("Data is an array, returning as is:", data);// Debugging line to check data type
     return data;
   } else if (data && Array.isArray(data.usuarios)) {
     return data.usuarios;
@@ -62,13 +64,14 @@ export const updateUser = async (ID: number, userData: FormData) => {
   
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar usuario");
+    throw new Error(errorData.error || "Error al actualizar usuario");
   }
   return await res.json();
 };
 
 export const getUserById = async (id: number) => {
   const res = await fetch(ENDPOINTS.USUARIOS.BY_ID(id));
+  console.log("Respuesta de getUserById:", res); // Debugging line to check response
   if (!res.ok) {
     throw new Error("No se pudo obtener el usuario");
   }
@@ -109,10 +112,26 @@ export async function PasswordReset(data: { email: string }) {
 }
 
 export function getUserAvatarUrl(user: User) {
-  if (typeof user.foto === "string") {
+  if (typeof user.foto === "string" ) {
     return ENDPOINTS.USUARIOS.AVATAR(user.foto);
   } else if (user.foto instanceof Blob) {
     return URL.createObjectURL(user.foto);
   }
   return ""; // o una imagen por defecto
 }
+export const getAvatarUrl = (avatarPath?: string | File): string | undefined => {
+  if (!avatarPath) return undefined;
+  
+  if (typeof avatarPath === 'string') {
+    return ENDPOINTS.USUARIOS.AVATAR2(avatarPath);
+  }
+  return URL.createObjectURL(avatarPath);
+};
+export const getInitials = (name: string = ""): string => {
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() || "";
+  return (
+    (parts[0][0] || "") +
+    (parts[parts.length - 1][0] || "")
+  ).toUpperCase();
+};

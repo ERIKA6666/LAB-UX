@@ -34,6 +34,7 @@ export const Dialogs = ({
   onDeleteUser,
   isSubmitting,
 }: DialogsProps) => {
+  console.log("Dialogs render", { isDialogOpen, editingUser, deactivatingUser, deletingUser });
   return (
     <>
        {/* Diálogo para crear/editar usuario */}
@@ -53,9 +54,11 @@ export const Dialogs = ({
               try {
                 let success: boolean = false;
                 if (editingUser) {
-                  await onUpdateUser(editingUser.id, data);
+                  await onUpdateUser(editingUser.ID, data);
+                  console.log("Dialogs render", { isDialogOpen, data, deactivatingUser, deletingUser });
                   success = true;
                 } else {
+                  console.log("Dialogs render", { isDialogOpen,data, deactivatingUser, deletingUser });
                   const result = await onSubmitUser(data);
                   success = !!result;
                 }
@@ -64,14 +67,26 @@ export const Dialogs = ({
                   setIsDialogOpen(false);
                   setEditingUser(null);
                 }
-                return success;
+                //return success;
               } catch (error) {
                 console.error("Error en el formulario:", error);
-                return false;
+                //return false;
               }
             }}
             isSubmitting={isSubmitting}
-            isEdit={!!editingUser}
+            isEdit={!!editingUser} 
+            formData={editingUser || {}}
+            confirmPassword=""
+            setConfirmPassword={() => {}}
+            selectedAreas={[]}
+            areas={[]}
+            isEditing={!!editingUser}
+            onInputChange={() => {}}
+            onSelectChange={() => {}}
+            onStatusChange={() => {}}
+            onFileChange={() => {}}
+            onAreaToggle={() => {}}
+            loading={false}
           />
         </DialogContent>
       </Dialog>
@@ -85,7 +100,7 @@ export const Dialogs = ({
             <DialogDescription>
               ¿Está seguro que desea {deactivatingUser?.estado === "activo" ? "desactivar" : "activar"} al usuario{" "}
               {deactivatingUser?.nombre}? {" "}
-              {deactivatingUser?.id}? 
+              {deactivatingUser?.ID}? 
               {deactivatingUser?.estado === "activo" &&
                 " El usuario no podrá acceder al sistema hasta que sea reactivado."}
             </DialogDescription>
@@ -99,7 +114,7 @@ export const Dialogs = ({
               onClick={async () => {
                 if (deactivatingUser) {
                   const newStatus = deactivatingUser.estado === "activo" ? "inactivo" : "activo";
-                  await onUpdateUser(deactivatingUser.id, { estado: newStatus });
+                  await onUpdateUser(deactivatingUser.ID, { estado: newStatus });
                   setDeactivatingUser(null);
                 }
               }}
@@ -128,7 +143,7 @@ export const Dialogs = ({
               variant="destructive"
               onClick={async () => {
                 if (deletingUser) {
-                  await onDeleteUser(deletingUser.id);
+                  await onDeleteUser(deletingUser.ID);
                   setDeletingUser(null);
                 }
               }}

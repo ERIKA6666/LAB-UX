@@ -55,7 +55,6 @@ export const UserTable = ({ users, loading, onEdit, onDeactivate, onDelete }: Us
   if (users.length === 0) {
     return <div className="text-center py-10 text-muted-foreground">No hay usuarios para mostrar.</div>;
   }
-
   return (
     <table className="w-full">
       <thead>
@@ -69,7 +68,8 @@ export const UserTable = ({ users, loading, onEdit, onDeactivate, onDelete }: Us
       </thead>
       <tbody>
         {users.map((user, idx) => (
-          <tr key={user.id ?? idx} className="border-b">
+          console.log("Usuarios tabla:", user), // Debugging line to check user data
+          <tr key={user.ID ?? idx} className="border-b">
             <td className="p-4">
               <div className="flex items-center space-x-3">
                 <Avatar>

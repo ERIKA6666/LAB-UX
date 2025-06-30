@@ -1,78 +1,27 @@
-import { useState, useEffect } from "react";
-import { User} from "@/types";
-import { fetchUsers, addUser, deleteUser, updateUser } from "@/services/index";
+import { useState, useEffect, useCallback } from 'react';
+import { User, RoleUser, StatusUser } from '@/types/index';
+import { fetchUsers } from '@/services/index';
 
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [filterRol, setFilterRol] = useState("todos");
-  const [filterEstado, setFilterEstado] = useState("todos-status");
-  const [showSuccessMessage, setShowSuccessMessage] = useState("");
+  const [search, setSearch] = useState('');
+  const [filterRol, setFilterRol] = useState('todos');
+  const [filterEstado, setFilterEstado] = useState('todos-status');
 
-  const reloadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
-    const data = await fetchUsers(search, filterRol, filterEstado);
-    setUsers(data);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    reloadUsers();
+    try {
+      const data = await fetchUsers(search, filterRol, filterEstado);
+      setUsers(data);
+    } finally {
+      setLoading(false);
+    }
   }, [search, filterRol, filterEstado]);
 
- // En tu archivo donde defines estas funciones (probablemente en el hook o página)
-  const handleAddUser = async (userData: Partial<User>) => {
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      Object.entries(userData).forEach(([key, value]) => {
-        if (value !== undefined) {
-          formData.append(key, value as string | Blob);
-        }
-      });
-      const newUser = await addUser(formData);
-      if (newUser) {
-        await reloadUsers();
-        setShowSuccessMessage("Usuario creado correctamente");
-        return true; // Indica éxito
-      }
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateUser = async (id: number, userData: Partial<User>) => {
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      Object.entries(userData).forEach(([key, value]) => {
-        if (value !== undefined) {
-          formData.append(key, value as string | Blob);
-        }
-      });
-      const updated = await updateUser(id, formData);
-      if (updated) {
-        await reloadUsers();
-        setShowSuccessMessage("Usuario actualizado correctamente");
-        return true; // Indica éxito
-      }
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleDeleteUser = async (id: number) => {
-    setLoading(true);
-    try {
-      await deleteUser(id);
-      await reloadUsers();
-      setShowSuccessMessage("Usuario eliminado correctamente");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   return {
     users,
@@ -83,11 +32,6 @@ export const useUsers = () => {
     setFilterRol,
     filterEstado,
     setFilterEstado,
-    showSuccessMessage,
-    setShowSuccessMessage,
-    handleAddUser,
-    handleUpdateUser,
-    handleDeleteUser,
-    reloadUsers,
+    reloadUsers: loadUsers,
   };
 };
