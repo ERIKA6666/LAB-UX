@@ -54,7 +54,7 @@ export const Valores: Valor[] = [
   {
     ID: 1,
     tipo: "valores",
-    iconoPath: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+    imagen: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
     titulo: "Integridad",
     texto: "Actuamos con honestidad, transparencia y ética en todas nuestras interacciones, manteniendo los más altos estándares de conducta profesional.",
     fecha_creacion: "2024-01-01",
@@ -63,7 +63,7 @@ export const Valores: Valor[] = [
   {
     ID: 2,
     tipo: "valores",
-    iconoPath: "M13 10V3L4 14h7v7l9-11h-7z",
+    imagen: "M13 10V3L4 14h7v7l9-11h-7z",
     titulo: "Innovación",
     texto: "Fomentamos la creatividad y el pensamiento disruptivo, buscando constantemente nuevas formas de resolver problemas y crear valor para nuestros clientes.",
     fecha_creacion: "2024-01-01",
@@ -72,7 +72,7 @@ export const Valores: Valor[] = [
   {
     ID: 3,
     tipo: "valores",
-    iconoPath: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+    imagen: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
     titulo: "Colaboración",
     texto: "Trabajamos juntos como un equipo unificado, valorando la diversidad de perspectivas y habilidades para lograr resultados excepcionales.",
     fecha_creacion: "2024-01-01",
@@ -81,7 +81,7 @@ export const Valores: Valor[] = [
   {
     ID: 4,
     tipo: "valores",
-    iconoPath: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+    imagen: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
     titulo: "Excelencia",
     texto: "Nos esforzamos por alcanzar los más altos niveles de calidad en todo lo que hacemos, superando constantemente las expectativas de nuestros clientes.",
     fecha_creacion: "2024-01-01",
@@ -90,7 +90,7 @@ export const Valores: Valor[] = [
   {
     ID: 5,
     tipo: "valores",
-    iconoPath: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+    imagen: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
     titulo: "Responsabilidad",
     texto: "Asumimos la responsabilidad de nuestras acciones y decisiones, cumpliendo nuestros compromisos con clientes, empleados y comunidades.",
     fecha_creacion: "2024-01-01",
@@ -99,7 +99,7 @@ export const Valores: Valor[] = [
   {
     ID: 6,
     tipo: "valores",
-    iconoPath: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h.5A2.5 2.5 0 0020 5.5v-1.5",
+    imagen: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h.5A2.5 2.5 0 0020 5.5v-1.5",
     titulo: "Sostenibilidad",
     texto: "Nos comprometemos a operar de manera sostenible, minimizando nuestro impacto ambiental y contribuyendo positivamente al bienestar social y económico.",
     fecha_creacion: "2024-01-01",

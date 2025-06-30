@@ -21,5 +21,5 @@ export interface ApiResponse<T> {
   error?: string;
 }
 export interface Valor extends ContenidoSitio {
-  iconoPath?: string; // campo extra solo para frontend
+  imagen?: string; // campo extra solo para frontend
 }
