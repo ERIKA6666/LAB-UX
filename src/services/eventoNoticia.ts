@@ -1,6 +1,6 @@
 // services/eventoNoticiaService.ts
 "use client";
-import { EventoNoticia, EventoAsistente, EventoAreaInvestigacion, TipoEventoNoticia } from "../types";
+import { Evento, EventoAsistente, EventoAreaInvestigacion, TipoEventoNoticia } from "../types";
 import { API_URL } from "../constans/Api";
 
 export const fetchEventosNoticias = async (
@@ -34,20 +34,25 @@ export const getEventoNoticiaById = async (id: number) => {
   return await res.json();
 };
 
-export const addEventoNoticia = async (eventoNoticiaData: Partial<EventoNoticia>) => {
+export const addEventoNoticia = async (eventoNoticiaData: FormData) => {
   try {
     const res = await fetch(`${API_URL}/eventos-noticias`, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify(eventoNoticiaData),
+      // NO pongas Content-Type aquí, el navegador lo pone automáticamente para FormData
+      body: eventoNoticiaData,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem('authToken') || ""}`
+      }
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error al crear evento/noticia");
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch {
+        errorData = {};
+      }
+      throw new Error(errorData.error || errorData.message || "Error al crear evento/noticia");
     }
 
     return await res.json();
@@ -57,21 +62,31 @@ export const addEventoNoticia = async (eventoNoticiaData: Partial<EventoNoticia>
   }
 };
 
-export const updateEventoNoticia = async (id: number, eventoNoticiaData: Partial<EventoNoticia>) => {
+// Obtener asistentes de un evento
+export const fetchAsistentesEvento = async (id: number) => {
+  const res = await fetch(`${API_URL}/eventos-noticias/${id}/asistentes`);
+  if (!res.ok) throw new Error("No se pudieron obtener los asistentes");
+  return await res.json();
+};
+
+// Actualizar evento (FormData)
+export const updateEventoNoticia = async (id: number, eventoNoticiaData: FormData) => {
   const res = await fetch(`${API_URL}/eventos-noticias/${id}`, {
     method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(eventoNoticiaData),
+    body: eventoNoticiaData,
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem('authToken') || ""}`
+    }
   });
-  
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar evento/noticia");
+    let errorData;
+    try {
+      errorData = await res.json();
+    } catch {
+      errorData = {};
+    }
+    throw new Error(errorData.error || errorData.message || "Error al actualizar evento/noticia");
   }
-
   return await res.json();
 };
 
@@ -157,4 +172,45 @@ export const removeAreaFromEvento = async (ID_evento: number, ID_area: number) =
     const errorData = await res.json();
     throw new Error(errorData.message || "Error al eliminar área de investigación");
   }
+};
+
+// Agregar material a un evento (usa FormData para archivo)
+export const addMaterialToEvento = async (ID_evento: number, materialData: FormData) => {
+  const res = await fetch(`${API_URL}/eventos-noticias/${ID_evento}/materiales`, {
+    method: "POST",
+    body: materialData,
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem('authToken') || ""}`
+    }
+  });
+  if (!res.ok) {
+    let errorData;
+    try {
+      errorData = await res.json();
+    } catch {
+      errorData = {};
+    }
+    throw new Error(errorData.error || errorData.message || "Error al agregar material");
+  }
+  return await res.json();
+};
+
+// Eliminar material de un evento
+export const removeMaterialFromEvento = async (ID_evento: number, ID_material: number) => {
+  const res = await fetch(`${API_URL}/eventos-noticias/${ID_evento}/materiales/${ID_material}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem('authToken') || ""}`
+    }
+  });
+  if (!res.ok) {
+    let errorData;
+    try {
+      errorData = await res.json();
+    } catch {
+      errorData = {};
+    }
+    throw new Error(errorData.error || errorData.message || "Error al eliminar material");
+  }
+  return await res.json();
 };

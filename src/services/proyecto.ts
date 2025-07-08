@@ -83,24 +83,7 @@ export const deleteProyecto = async (id: number): Promise<void> => {
   await handleResponse(response);
 };
 
-// Operaciones específicas
-export const updateProgresoProyecto = async (id: number, progreso: number): Promise<Proyecto> => {
-  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}/progreso`, {
-    method: "PATCH",
-    headers: fetchConfig.getHeaders(),
-    body: JSON.stringify({ progreso }),
-  });
-  return handleResponse(response);
-};
 
-export const changeEstadoProyecto = async (id: number, estado: EstadoProyecto): Promise<Proyecto> => {
-  const response = await fetch(`${fetchConfig.baseUrl}/proyectos/${id}/estado`, {
-    method: "PATCH",
-    headers: fetchConfig.getHeaders(),
-    body: JSON.stringify({ estado }),
-  });
-  return handleResponse(response);
-};
 
 // Gestión de áreas de investigación
 export const manageProyectoAreas = {

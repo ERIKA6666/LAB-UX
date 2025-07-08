@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,123 +15,134 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Edit, Plus, Save, Search, Trash2 } from "lucide-react";
+import { PreguntaFrecuente } from "@/types/preguntaFrecuente";
+import {
+  fetchPreguntasFrecuentes,
+  addPreguntaFrecuente,
+  updatePreguntaFrecuente,
+  deletePreguntaFrecuente,
+} from "@/services/preguntafrecuente";
+import { useToast } from "@/components/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster"
 
-type FAQCategory = "general" | "participacion" | "metodologia" | "colaboracion";
-
-interface FAQ {
-  id: number;
-  question: string;
-  answer: string;
-  category: FAQCategory;
+function getMySQLDateTimeString(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 export default function FAQPage() {
-  const [faqs, setFaqs] = useState<FAQ[]>([
-    {
-      id: 1,
-      question: "¿Qué es la usabilidad?",
-      answer:
-        "La usabilidad es la medida en la que un producto puede ser usado por usuarios específicos para conseguir objetivos específicos con efectividad, eficiencia y satisfacción en un contexto de uso especificado.",
-      category: "general",
-    },
-    {
-      id: 2,
-      question: "¿Cómo puedo participar en un estudio de usabilidad?",
-      answer:
-        "Para participar en un estudio de usabilidad, puede registrarse en nuestra base de datos de participantes a través del formulario disponible en la sección 'Participar'. Nos pondremos en contacto con usted cuando haya un estudio que coincida con su perfil.",
-      category: "participacion",
-    },
-    {
-      id: 3,
-      question: "¿Qué tipos de pruebas de usabilidad realizan?",
-      answer:
-        "Realizamos diversos tipos de pruebas, incluyendo pruebas de usabilidad moderadas, evaluaciones heurísticas, card sorting, eye tracking, pruebas A/B, entre otras. El tipo de prueba depende de los objetivos específicos de cada investigación.",
-      category: "metodologia",
-    },
-    {
-      id: 4,
-      question: "¿Cuánto tiempo dura una sesión de prueba de usabilidad?",
-      answer:
-        "La duración típica de una sesión de prueba de usabilidad es de 45 a 60 minutos, aunque puede variar dependiendo del tipo de prueba y los objetivos de la investigación.",
-      category: "participacion",
-    },
-    {
-      id: 5,
-      question: "¿Ofrecen algún tipo de compensación por participar en los estudios?",
-      answer:
-        "Sí, generalmente ofrecemos una compensación a los participantes en forma de tarjetas regalo o incentivos similares. La cantidad varía según el tipo y duración del estudio.",
-      category: "participacion",
-    },
-    {
-      id: 6,
-      question: "¿Cómo puedo solicitar una colaboración con el laboratorio?",
-      answer:
-        "Para solicitar una colaboración, puede contactarnos a través del formulario en la sección 'Contacto' o enviarnos un correo electrónico a colaboraciones@laboratorio-usabilidad.edu con los detalles de su propuesta.",
-      category: "colaboracion",
-    },
-    {
-      id: 7,
-      question: "¿Qué medidas de confidencialidad aplican en sus estudios?",
-      answer:
-        "Todos nuestros estudios siguen estrictos protocolos de confidencialidad. Los datos recogidos se anonimizan y solo se utilizan con fines de investigación. Todos los participantes firman un acuerdo de confidencialidad antes de participar.",
-      category: "general",
-    },
-  ])
+  const { toast } = useToast();
 
-
+  const [faqs, setFaqs] = useState<PreguntaFrecuente[]>([]);
   const [filter, setFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<FAQCategory | "todas">("todas");
+  const [loading, setLoading] = useState(false);
 
-  const filteredFaqs = faqs.filter((faq) => {
-    const matchesText =
-      filter === "" ||
-      faq.question.toLowerCase().includes(filter.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(filter.toLowerCase());
-
-    const matchesCategory = categoryFilter === "todas" || faq.category === categoryFilter;
-
-    return matchesText && matchesCategory;
+  // Estado para agregar
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newPregunta, setNewPregunta] = useState({
+    pregunta: "",
+    respuesta: "",
+    orden: 1,
   });
 
-  // Función para obtener el nombre legible de la categoría
-  const getCategoryName = (category: FAQCategory): string => {
-    switch (category) {
-      case "general":
-        return "Información General";
-      case "participacion":
-        return "Participación en Estudios";
-      case "metodologia":
-        return "Metodología";
-      case "colaboracion":
-        return "Colaboraciones";
-      default:
-        return category; // Nunca debería llegar aquí
+  // Estado para editar
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editPregunta, setEditPregunta] = useState<PreguntaFrecuente | null>(null);
+
+  // Estado para eliminar
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [preguntaToDelete, setPreguntaToDelete] = useState<PreguntaFrecuente | null>(null);
+
+  // Cargar preguntas frecuentes
+  const loadFaqs = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchPreguntasFrecuentes();
+      setFaqs(data.sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)));
+    } catch (e) {
+      toast({ title: "Error", description: "Error al cargar preguntas frecuentes", variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadFaqs();
+  }, []);
+
+  // Filtrado
+  const filteredFaqs = faqs.filter((faq) => {
+    return (
+      filter === "" ||
+      faq.pregunta.toLowerCase().includes(filter.toLowerCase()) ||
+      faq.respuesta.toLowerCase().includes(filter.toLowerCase())
+    );
+  });
+
+  // Agregar pregunta
+  const handleAddPregunta = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const now = new Date();
+      await addPreguntaFrecuente({
+        pregunta: newPregunta.pregunta,
+        respuesta: newPregunta.respuesta,
+        orden: Number(newPregunta.orden),
+        fecha_creacion: getMySQLDateTimeString(now),
+        fecha_actualizacion: getMySQLDateTimeString(now),
+      } as any);
+      setAddDialogOpen(false);
+      setNewPregunta({ pregunta: "", respuesta: "", orden: 1 });
+      await loadFaqs();
+      toast({ title: "Pregunta agregada", description: "La pregunta fue agregada correctamente.", variant: "success" });
+    } catch (e) {
+      toast({ title: "Error", description: "Error al agregar pregunta", variant: "destructive" });
     }
   };
 
-  // Agrupar FAQs por categoría (con tipo explícito)
-  const groupedFaqs = filteredFaqs.reduce<Record<FAQCategory, FAQ[]>>(
-    (acc, faq) => {
-      const category = faq.category;
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(faq);
-      return acc;
-    },
-    {} as Record<FAQCategory, FAQ[]>
-  );
+  // Editar pregunta
+  const handleEditPregunta = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editPregunta) return;
+    try {
+      const now = new Date();
+      await updatePreguntaFrecuente(editPregunta.ID, {
+        pregunta: editPregunta.pregunta,
+        respuesta: editPregunta.respuesta,
+        orden: Number(editPregunta.orden),
+        fecha_actualizacion: getMySQLDateTimeString(now),
+      });
+      setEditDialogOpen(false);
+      setEditPregunta(null);
+      await loadFaqs();
+      toast({ title: "Pregunta actualizada", description: "La pregunta fue actualizada correctamente.", variant: "success" });
+    } catch (e) {
+      toast({ title: "Error", description: "Error al actualizar pregunta", variant: "destructive" });
+    }
+  };
 
+  // Eliminar pregunta
+  const handleDeletePregunta = async () => {
+    if (!preguntaToDelete) return;
+    try {
+      await deletePreguntaFrecuente(preguntaToDelete.ID);
+      setDeleteDialogOpen(false);
+      setPreguntaToDelete(null);
+      await loadFaqs();
+      toast({ title: "Pregunta eliminada", description: "La pregunta fue eliminada correctamente.", variant: "success" });
+    } catch (e) {
+      toast({ title: "Error", description: "Error al eliminar pregunta", variant: "destructive" });
+    }
+  };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Preguntas Frecuentes</h2>
         <div className="flex items-center space-x-2">
-          <Dialog>
+          {/* Modal Agregar */}
+          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -143,39 +154,48 @@ export default function FAQPage() {
                 <DialogTitle>Añadir Nueva Pregunta Frecuente</DialogTitle>
                 <DialogDescription>Complete la información para añadir una nueva pregunta al FAQ.</DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
+              <form onSubmit={handleAddPregunta} className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="faq-question">Pregunta</Label>
-                  <Input id="faq-question" placeholder="Escriba la pregunta" />
+                  <Input
+                    id="faq-question"
+                    placeholder="Escriba la pregunta"
+                    value={newPregunta.pregunta}
+                    onChange={e => setNewPregunta({ ...newPregunta, pregunta: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="faq-answer">Respuesta</Label>
-                  <Textarea id="faq-answer" placeholder="Escriba la respuesta" rows={5} />
+                  <Textarea
+                    id="faq-answer"
+                    placeholder="Escriba la respuesta"
+                    rows={5}
+                    value={newPregunta.respuesta}
+                    onChange={e => setNewPregunta({ ...newPregunta, respuesta: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="faq-category">Categoría</Label>
-                  <Select>
-                    <SelectTrigger id="faq-category">
-                      <SelectValue placeholder="Seleccione una categoría" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="general">Información General</SelectItem>
-                      <SelectItem value="participacion">Participación en Estudios</SelectItem>
-                      <SelectItem value="metodologia">Metodología</SelectItem>
-                      <SelectItem value="colaboracion">Colaboraciones</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="faq-orden">Orden</Label>
+                  <Input
+                    id="faq-orden"
+                    type="number"
+                    min={1}
+                    value={newPregunta.orden}
+                    onChange={e => setNewPregunta({ ...newPregunta, orden: Number(e.target.value) })}
+                    required
+                  />
                 </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Añadir Pregunta</Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button type="submit">
+                    <Save className="mr-2 h-4 w-4" />
+                    Añadir Pregunta
+                  </Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
-          <Button>
-            <Save className="mr-2 h-4 w-4" />
-            Guardar Cambios
-          </Button>
         </div>
       </div>
 
@@ -190,21 +210,6 @@ export default function FAQPage() {
             onChange={(e) => setFilter(e.target.value)}
           />
         </div>
-        <Select 
-            value={categoryFilter} 
-            onValueChange={(value) => setCategoryFilter(value as FAQCategory | "todas")}
-          >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filtrar por categoría" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todas">Todas las categorías</SelectItem>
-            <SelectItem value="general">Información General</SelectItem>
-            <SelectItem value="participacion">Participación en Estudios</SelectItem>
-            <SelectItem value="metodologia">Metodología</SelectItem>
-            <SelectItem value="colaboracion">Colaboraciones</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <Card>
@@ -213,34 +218,114 @@ export default function FAQPage() {
           <CardDescription>{filteredFaqs.length} preguntas encontradas</CardDescription>
         </CardHeader>
         <CardContent>
-          {Object.keys(groupedFaqs).length > 0 ? (
-            <div className="space-y-6">
-              {Object.entries(groupedFaqs).map(([category, faqs]) => (
-                <div key={category}>
-                  <h3 className="text-lg font-semibold mb-2">{category}</h3>
-                  <Accordion type="single" collapsible className="w-full">
-                    {faqs.map((faq) => (
-                      <AccordionItem key={faq.id} value={`faq-${faq.id}`}>
-                        <div className="flex items-center">
-                          <AccordionTrigger className="flex-1 text-left">{faq.question}</AccordionTrigger>
-                          <div className="flex space-x-1 mr-4">
-                            <Button variant="ghost" size="icon">
-                              <Edit className="h-4 w-4" />
+          {filteredFaqs.length > 0 ? (
+            <Accordion type="single" collapsible className="w-full">
+              {filteredFaqs.map((faq) => (
+                <AccordionItem key={faq.ID} value={`faq-${faq.ID}`}>
+                  <div className="flex items-center">
+                    <AccordionTrigger className="flex-1 text-left">{faq.pregunta}</AccordionTrigger>
+                    <div className="flex space-x-1 mr-4">
+                      {/* Botón Editar */}
+                      <Dialog open={editDialogOpen && editPregunta?.ID === faq.ID} onOpenChange={open => {
+                        setEditDialogOpen(open);
+                        if (!open) setEditPregunta(null);
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={() => setEditPregunta(faq)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[600px]">
+                          <DialogHeader>
+                            <DialogTitle>Editar Pregunta Frecuente</DialogTitle>
+                          </DialogHeader>
+                          <form onSubmit={handleEditPregunta} className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="edit-faq-question">Pregunta</Label>
+                              <Input
+                                id="edit-faq-question"
+                                value={editPregunta?.pregunta || ""}
+                                onChange={e => setEditPregunta(editPregunta ? { ...editPregunta, pregunta: e.target.value } : null)}
+                                required
+                              />
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="edit-faq-answer">Respuesta</Label>
+                              <Textarea
+                                id="edit-faq-answer"
+                                value={editPregunta?.respuesta || ""}
+                                onChange={e => setEditPregunta(editPregunta ? { ...editPregunta, respuesta: e.target.value } : null)}
+                                required
+                              />
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="edit-faq-orden">Orden</Label>
+                              <Input
+                                id="edit-faq-orden"
+                                type="number"
+                                min={1}
+                                value={editPregunta?.orden || 1}
+                                onChange={e => setEditPregunta(editPregunta ? { ...editPregunta, orden: Number(e.target.value) } : null)}
+                                required
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button type="submit">
+                                <Save className="mr-2 h-4 w-4" />
+                                Guardar Cambios
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      {/* Botón Eliminar */}
+                      <Dialog open={deleteDialogOpen && preguntaToDelete?.ID === faq.ID} onOpenChange={open => {
+                        setDeleteDialogOpen(open);
+                        if (!open) setPreguntaToDelete(null);
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setPreguntaToDelete(faq)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>¿Eliminar pregunta?</DialogTitle>
+                            <DialogDescription>
+                              ¿Estás seguro de que deseas eliminar esta pregunta frecuente?
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setDeleteDialogOpen(false);
+                                setPreguntaToDelete(null);
+                              }}
+                            >
+                              Cancelar
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
+                            <Button
+                              variant="destructive"
+                              onClick={handleDeletePregunta}
+                            >
+                              Eliminar
                             </Button>
-                          </div>
-                        </div>
-                        <AccordionContent>
-                          <p className="text-muted-foreground">{faq.answer}</p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                  <AccordionContent>
+                    <p className="text-muted-foreground">{faq.respuesta}</p>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
-            </div>
+            </Accordion>
           ) : (
             <div className="text-center py-8">
               <p className="text-muted-foreground">No se encontraron preguntas que coincidan con la búsqueda.</p>
@@ -248,38 +333,9 @@ export default function FAQPage() {
           )}
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Vista Previa</CardTitle>
-          <CardDescription>Así se verá la sección de FAQ en el sitio web</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-md p-6">
-            <h3 className="text-2xl font-bold mb-6">Preguntas Frecuentes</h3>
-            <div className="space-y-6">
-              {Object.entries(groupedFaqs).map(([category, faqs]) => (
-                <div key={category}>
-                  <h4 className="text-xl font-semibold mb-4">
-                    {getCategoryName(category as FAQCategory)}
-                  </h4>
-                  <Accordion type="single" collapsible className="w-full">
-                    {faqs.map((faq) => (
-                      <AccordionItem key={faq.id} value={`preview-${faq.id}`}>
-                        <AccordionTrigger>{faq.question}</AccordionTrigger>
-                        <AccordionContent>
-                          <p className="text-muted-foreground">{faq.answer}</p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Toaster />
     </div>
-  )
+    
+  );
 }
 
