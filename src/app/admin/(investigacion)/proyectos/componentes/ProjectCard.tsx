@@ -57,7 +57,7 @@ export default function ProjectCard({ projects, loading, onEdit, onDelete }: Pro
               <img
                 src={
                   typeof project.imagen === "string"
-                    ? `${API_URL}/uploads/${project.imagen}`
+                    ? `${API_URL}/uploads/proyectos/${project.imagen}`
                     : URL.createObjectURL(project.imagen)
                 }
                 alt={project.nombre}

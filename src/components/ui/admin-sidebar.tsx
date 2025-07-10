@@ -179,29 +179,14 @@ export function AdminSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion")}>
-                      <Link href="/admin/difusion">
+                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion/")}>
+                      <Link href="/admin/difusion/">
                         <Calendar className="h-4 w-4" />
-                        <span>Próximos Eventos</span>
+                        <span>Eventos y Noticias</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion")}>
-                      <Link href="/admin/difusion">
-                        <Calendar className="h-4 w-4" />
-                        <span>Eventos Pasados</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isActive("/admin/difusion")}>
-                      <Link href="/admin/difusion">
-                        <Newspaper className="h-4 w-4" />
-                        <span>Noticias y Artículos</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+          
                 </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
