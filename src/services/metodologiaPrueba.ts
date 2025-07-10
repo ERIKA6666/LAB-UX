@@ -1,158 +1,82 @@
-// services/metodologiaPruebaService.ts
-"use client";
-import { MetodologiaPrueba, MetodologiaCaracteristica, TipoMetodologiaPrueba } from "@/types";
-import { API_URL } from "../constans/Api";
+import { MetodologiaPrueba, MetodologiaCaracteristica } from "@/types/metodologiaPrueba";
+import { API_URL } from "@/constans/Api";
 
-export const fetchMetodologiasPruebas = async (
-  search: string = '',
-  filterTipo: TipoMetodologiaPrueba | 'todos' = 'todos'
-) => {
-  const params = new URLSearchParams();
-  if (search) params.append("q", search);
-  if (filterTipo !== 'todos') params.append("tipo", filterTipo);
+// --- Metodologia_Prueba ---
+export async function fetchMetodologias(): Promise<MetodologiaPrueba[]> {
+  const res = await fetch(`${API_URL}/metodologias`);
+  if (!res.ok) throw new Error("Error al obtener metodologías");
+  return res.json();
+}
 
-  const response = await fetch(`${API_URL}/public/research/metodologias?${params.toString()}`);
-  const data = await response.json();
-  
-  if (Array.isArray(data)) {
-    return data;
-  } else if (data && Array.isArray(data.metodologiasPruebas)) {
-    return data.metodologiasPruebas;
-  }
-  return [];
-};
+export async function fetchMetodologia(id: number): Promise<MetodologiaPrueba> {
+  const res = await fetch(`${API_URL}/metodologias/${id}`);
+  if (!res.ok) throw new Error("Error al obtener la metodología");
+  return res.json();
+}
 
-export const getMetodologiaPruebaById = async (id: number) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/${id}`);
-  if (!res.ok) {
-    throw new Error("No se pudo obtener la metodología/prueba");
-  }
-  return await res.json();
-};
-
-export const addMetodologiaPrueba = async (metodologiaData: Omit<MetodologiaPrueba, 'ID' | 'fecha_creacion' | 'caracteristicas'>) => {
-  try {
-    const res = await fetch(`${API_URL}/public/research/metodologias`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify({
-        ...metodologiaData,
-        fecha_creacion: new Date().toISOString(),
-        caracteristicas: [] // Inicializa sin características
-      }),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error al crear metodología/prueba");
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Error en addMetodologiaPrueba:", error);
-    throw error;
-  }
-};
-
-export const updateMetodologiaPrueba = async (id: number, metodologiaData: Partial<MetodologiaPrueba>) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/${id}`, {
-    method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(metodologiaData),
-  });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar metodología/prueba");
-  }
-
-  return await res.json();
-};
-
-export const deleteMetodologiaPrueba = async (id: number) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    }
-  });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al eliminar metodología/prueba");
-  }
-};
-
-// Servicios para características
-export const addCaracteristica = async (caracteristicaData: Omit<MetodologiaCaracteristica, 'ID'>) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/caracteristicas`, {
+export async function createMetodologia(data: FormData | MetodologiaPrueba): Promise<any> {
+  const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+  const res = await fetch(`${API_URL}/metodologias`, {
     method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(caracteristicaData),
+    body: isFormData ? data : JSON.stringify(data),
+    headers: isFormData ? undefined : { "Content-Type": "application/json" },
   });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al agregar característica");
-  }
+  if (!res.ok) throw new Error("Error al crear la metodología");
+  return res.json();
+}
 
-  return await res.json();
-};
-
-export const updateCaracteristica = async (id: number, caracteristicaData: Partial<MetodologiaCaracteristica>) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/caracteristicas/${id}`, {
+export async function updateMetodologia(id: number, data: FormData | MetodologiaPrueba): Promise<any> {
+  const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+  const res = await fetch(`${API_URL}/metodologias/${id}`, {
     method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    },
-    body: JSON.stringify(caracteristicaData),
+    body: isFormData ? data : JSON.stringify(data),
+    headers: isFormData ? undefined : { "Content-Type": "application/json" },
   });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al actualizar característica");
-  }
+  if (!res.ok) throw new Error("Error al actualizar la metodología");
+  return res.json();
+}
 
-  return await res.json();
-};
+export async function deleteMetodologia(id: number): Promise<any> {
+  const res = await fetch(`${API_URL}/metodologias/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Error al eliminar la metodología");
+  return res.json();
+}
 
-export const deleteCaracteristica = async (id: number) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/caracteristicas/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-    }
+// --- Metodologia_Caracteristica ---
+export async function fetchCaracteristicas(): Promise<MetodologiaCaracteristica[]> {
+  const res = await fetch(`${API_URL}/caracteristicas`);
+  if (!res.ok) throw new Error("Error al obtener características");
+  return res.json();
+}
+
+export async function fetchCaracteristica(id: number): Promise<MetodologiaCaracteristica> {
+  const res = await fetch(`${API_URL}/caracteristicas/${id}`);
+  if (!res.ok) throw new Error("Error al obtener la característica");
+  return res.json();
+}
+
+export async function createCaracteristica(data: MetodologiaCaracteristica): Promise<any> {
+  const res = await fetch(`${API_URL}/caracteristicas`, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" },
   });
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error al eliminar característica");
-  }
-};
+  if (!res.ok) throw new Error("Error al crear la característica");
+  return res.json();
+}
 
-// Servicios especializados
-export const fetchByTipo = async (tipo: TipoMetodologiaPrueba) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/tipo/${tipo}`);
-  if (!res.ok) {
-    throw new Error("Error al obtener metodologías/pruebas por tipo");
-  }
-  return await res.json();
-};
+export async function updateCaracteristica(id: number, data: MetodologiaCaracteristica): Promise<any> {
+  const res = await fetch(`${API_URL}/caracteristicas/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("Error al actualizar la característica");
+  return res.json();
+}
 
-export const fetchCaracteristicasByMetodologia = async (idMetodologia: number) => {
-  const res = await fetch(`${API_URL}/public/research/metodologias/${idMetodologia}/caracteristicas`);
-  if (!res.ok) {
-    throw new Error("Error al obtener características");
-  }
-  return await res.json();
-};
+export async function deleteCaracteristica(id: number): Promise<any> {
+  const res = await fetch(`${API_URL}/caracteristicas/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Error al eliminar la característica");
+  return res.json();
+}

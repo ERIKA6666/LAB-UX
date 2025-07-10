@@ -21,67 +21,83 @@ import {
   MetodologiaPrueba, 
   TipoMetodologiaPrueba,
   MetodologiaCaracteristica 
-} from "@/types";
-import { 
-  fetchMetodologiasPruebas,
-  addMetodologiaPrueba,
-  updateMetodologiaPrueba,
-  deleteMetodologiaPrueba,
-  addCaracteristica,
+} from "@/types/metodologiaPrueba";
+import {
+  fetchMetodologias,
+  createMetodologia,
+  updateMetodologia,
+  deleteMetodologia,
+  fetchCaracteristicas,
+  createCaracteristica,
+  updateCaracteristica,
   deleteCaracteristica,
-  fetchCaracteristicasByMetodologia, 
-  checkBackendConnection
-} from "@/services";
+  fetchMetodologia,
+  fetchCaracteristica
+} from "@/services/metodologiaPrueba";
 import { useToast } from "@/components/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import { API_URL } from "@/constans/Api";
+
+type MetodologiaForm = Omit<MetodologiaPrueba, "ID" | "fecha_creacion" | "caracteristicas"> & { imagen?: File | string | null };
+
+// Función para convertir fecha a formato MySQL
+function toMySQLDatetime(dateInput: string | Date) {
+  const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
 export default function PruebasMetodologiaPage() {
   const { toast } = useToast();
-  //eliminar rsto cuando el crud este listo
   const [metodologiasPruebas, setMetodologiasPruebas] = useState<MetodologiaPrueba[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filterTipo, setFilterTipo] = useState<TipoMetodologiaPrueba | "todos">("todos");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentItem, setCurrentItem] = useState<MetodologiaPrueba | null>(null);
+  const [currentItem, setCurrentItem] = useState<MetodologiaForm | null>(null);
   const [caracteristicas, setCaracteristicas] = useState<MetodologiaCaracteristica[]>([]);
   const [newCaracteristica, setNewCaracteristica] = useState("");
+  const [newCaracteristicaDescripcion, setNewCaracteristicaDescripcion] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [metodologiaPruebaToDelete, setmetodologiaPruebaToDelete] = useState<number | null>(null);
-  const [tempCaracteristicas, setTempCaracteristicas] = useState<string[]>([]);
-
 
   // Cargar metodologías/pruebas
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchMetodologiasPruebas(search, filterTipo);
-        setMetodologiasPruebas(data);
-      } catch (error) {
-         toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Error desconocido",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadMetodologiaPruebas = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchMetodologias(
+        search, 
+        filterTipo === "todos" ? undefined : filterTipo
+      );
+      setMetodologiasPruebas(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadData();
-  }, [search, filterTipo]);
+  useEffect(() => { loadMetodologiaPruebas(); }, [search, filterTipo]);
 
-  // Cargar características cuando se selecciona un ítem
+  // Cargar características cuando se selecciona un ítem para editar
   useEffect(() => {
-    if (currentItem?.ID) {
+    if (currentItem && (currentItem as any).ID) {
       const loadCaracteristicas = async () => {
         try {
-          const data = await fetchCaracteristicasByMetodologia(currentItem.ID);
-          setCaracteristicas(data);
+          // Filtra las características del ítem seleccionado
+          const data = await fetchCaracteristicas();
+          setCaracteristicas(data.filter(c => c.ID_metodologia === (currentItem as any).ID));
         } catch (error) {
-           toast({
+          toast({
             title: "Error",
             description: error instanceof Error ? error.message : "Error desconocido",
             variant: "destructive",
@@ -89,23 +105,44 @@ export default function PruebasMetodologiaPage() {
         }
       };
       loadCaracteristicas();
+    } else {
+      setCaracteristicas([]);
     }
   }, [currentItem]);
 
-  const handleSave = async (formData: Omit<MetodologiaPrueba, 'ID' | 'fecha_creacion' | 'caracteristicas'>) => {
+  // Guardar (crear o editar)
+  const handleSave = async () => {
+    if (!currentItem) return;
     try {
-      if (currentItem) {
-        await updateMetodologiaPrueba(currentItem.ID, formData);
+      let dataToSend: FormData | MetodologiaForm;
+      const now = new Date();
+      const fecha_creacion = toMySQLDatetime(now);
+
+      if (currentItem.imagen instanceof File) {
+        const formData = new FormData();
+        formData.append("nombre", currentItem.nombre);
+        formData.append("descripcion", currentItem.descripcion || "");
+        formData.append("tipo", currentItem.tipo);
+        formData.append("imagen", currentItem.imagen);
+        formData.append("fecha_creacion", fecha_creacion);
+        dataToSend = formData;
+      } else {
+        dataToSend = {
+          ...currentItem,
+          imagen: typeof currentItem.imagen === "string" ? currentItem.imagen : undefined,
+          fecha_creacion,
+        };
+      }
+      if ((currentItem as any).ID) {
+        await updateMetodologia((currentItem as any).ID, dataToSend);
         toast({ title: "Metodología/Prueba actualizada correctamente" });
       } else {
-        await addMetodologiaPrueba(formData);
+        await createMetodologia(dataToSend);
         toast({ title: "Metodología/Prueba creada correctamente" });
       }
       setIsDialogOpen(false);
       setCurrentItem(null);
-      // Recargar datos
-      const data = await fetchMetodologiasPruebas(search, filterTipo);
-      setMetodologiasPruebas(data);
+      loadMetodologiaPruebas();
     } catch (error) {
       toast({
         title: "Error",
@@ -115,18 +152,20 @@ export default function PruebasMetodologiaPage() {
     }
   };
 
+  // Características
   const handleAddCaracteristica = async () => {
-    if (!currentItem?.ID || !newCaracteristica) return;
-    
+    if (!(currentItem as any)?.ID || !newCaracteristica) return;
     try {
-      await addCaracteristica({
-        ID_metodologia: currentItem.ID,
-        caracteristica: newCaracteristica
+      await createCaracteristica({
+        ID_metodologia: (currentItem as any).ID,
+        caracteristica: newCaracteristica,
+        descripcion: newCaracteristicaDescripcion
       });
       setNewCaracteristica("");
-      // Recargar características
-      const data = await fetchCaracteristicasByMetodologia(currentItem.ID);
-      setCaracteristicas(data);
+      setNewCaracteristicaDescripcion("");
+      // Recarga características
+      const data = await fetchCaracteristicas();
+      setCaracteristicas(data.filter(c => c.ID_metodologia === (currentItem as any).ID));
       toast({ title: "Característica añadida correctamente" });
     } catch (error) {
       toast({
@@ -140,14 +179,13 @@ export default function PruebasMetodologiaPage() {
   const handleDeleteCaracteristica = async (id: number) => {
     try {
       await deleteCaracteristica(id);
-      // Recargar características
-      if (currentItem?.ID) {
-        const data = await fetchCaracteristicasByMetodologia(currentItem.ID);
-        setCaracteristicas(data);
+      if ((currentItem as any)?.ID) {
+        const data = await fetchCaracteristicas();
+        setCaracteristicas(data.filter(c => c.ID_metodologia === (currentItem as any).ID));
       }
       toast({ title: "Característica eliminada correctamente" });
     } catch (error) {
-       toast({
+      toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
@@ -165,47 +203,15 @@ export default function PruebasMetodologiaPage() {
         return <Badge>Desconocido</Badge>;
     }
   };
-  // Cargar metodologias pruebas
-  const loadMetodologiaPruebas = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const isBackendUp = await checkBackendConnection();
-    if (!isBackendUp) {
-      throw new Error("El servidor backend no está disponible");
-    }
 
-    const data = await fetchMetodologiasPruebas(
-      search, 
-      filterTipo === "todos" ? undefined : filterTipo
-    );
-    setMetodologiasPruebas(data);
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-    setError(errorMessage);
-    toast({
-      title: "Error",
-      description: errorMessage,
-      variant: "destructive",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
-// Cambia el useEffect:
-useEffect(() => {
-  loadMetodologiaPruebas();
-}, [search, filterTipo]); 
-
-  //Eliminar un registro
+  // Eliminar un registro
   const handleDeleteMetodologiaPrueba = async (id: number) => {
     try {
-      await deleteMetodologiaPrueba(id);
+      await deleteMetodologia(id);
       toast({ title: "Proyecto eliminado correctamente" });
       loadMetodologiaPruebas();
     } catch (error) {
-       toast({
+      toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
@@ -220,10 +226,12 @@ useEffect(() => {
     setmetodologiaPruebaToDelete(id);
     setDeleteDialogOpen(true);
   };
-  
+
+  // --- Render ---
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-       {error && (
+      <Toaster />
+      {error && (
         <div className="bg-destructive/15 p-4 rounded-md border border-destructive">
           <p className="text-destructive">{error}</p>
           <Button 
@@ -240,7 +248,12 @@ useEffect(() => {
         <h2 className="text-3xl font-bold tracking-tight">Metodologías y Pruebas de Investigación</h2>
         <div className="flex items-center space-x-2">
           <Button onClick={() => {
-            setCurrentItem(null);
+            setCurrentItem({
+              nombre: "",
+              descripcion: "",
+              tipo: "metodologia",
+              imagen: null,
+            });
             setIsDialogOpen(true);
           }}>
             <Plus className="mr-2 h-4 w-4" />
@@ -248,7 +261,7 @@ useEffect(() => {
           </Button>
         </div>
       </div>
-       {/* Filtros */}
+      {/* Filtros */}
       <div className="flex items-center space-x-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -294,21 +307,47 @@ useEffect(() => {
               <CardContent>
                 {item.imagen && (
                   <img
-                    src={`${API_URL}/uploads/${item.imagen}`}
+                    src={`${API_URL}/uploads/metodologia/${item.imagen}`}
                     alt={item.nombre}
                     className="w-full h-40 object-cover rounded mb-4"
                   />
                 )}
                 <p className="text-sm text-muted-foreground">{item.descripcion}</p>
+                {/* Características */}
+                {item.caracteristicas && item.caracteristicas.length > 0 && (
+                  <div className="mt-2">
+                    <Label className="text-xs text-muted-foreground">Características:</Label>
+                    <ul className="mt-1 space-y-1">
+                      {item.caracteristicas.map((caract) => (
+                        <li key={caract.ID} className="flex items-center justify-between bg-muted px-2 py-1 rounded">
+                          <span className="text-xs">{caract.caracteristica}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="ml-2"
+                            onClick={() => handleDeleteCaracteristica(caract.ID)}
+                            title="Eliminar característica"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
+                  onClick={async () => {
                     setCurrentItem(item);
-                    setTempCaracteristicas([]);
                     setIsDialogOpen(true);
+                    // Cargar características del ítem seleccionado
+                    if (item.ID) {
+                      const data = await fetchCaracteristicas();
+                      setCaracteristicas(data.filter(c => c.ID_metodologia === item.ID));
+                    }
                   }}
                 >
                   <Edit className="mr-2 h-4 w-4" />
@@ -321,7 +360,7 @@ useEffect(() => {
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Eliminar
-              </Button>
+                </Button>
               </CardFooter>
             </Card>
           ))
@@ -333,7 +372,7 @@ useEffect(() => {
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {currentItem ? "Editar Metodología/Prueba" : "Nueva Metodología/Prueba"}
+              {currentItem && (currentItem as any).ID ? "Editar Metodología/Prueba" : "Nueva Metodología/Prueba"}
             </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -343,33 +382,31 @@ useEffect(() => {
                 id="nombre"
                 value={currentItem?.nombre || ""}
                 onChange={(e) => setCurrentItem({
-                  ...(currentItem || {} as MetodologiaPrueba),
+                  ...(currentItem || {} as MetodologiaForm),
                   nombre: e.target.value
                 })}
                 placeholder="Nombre de la metodología/prueba"
               />
             </div>
-            
             <div className="grid gap-2">
               <Label htmlFor="descripcion">Descripción</Label>
               <Textarea
                 id="descripcion"
                 value={currentItem?.descripcion || ""}
                 onChange={(e) => setCurrentItem({
-                  ...(currentItem || {} as MetodologiaPrueba),
+                  ...(currentItem || {} as MetodologiaForm),
                   descripcion: e.target.value
                 })}
                 rows={4}
                 placeholder="Descripción detallada"
               />
             </div>
-            
             <div className="grid gap-2">
               <Label htmlFor="tipo">Tipo</Label>
               <Select
                 value={currentItem?.tipo || "metodologia"}
                 onValueChange={(value) => setCurrentItem({
-                  ...(currentItem || {} as MetodologiaPrueba),
+                  ...(currentItem || {} as MetodologiaForm),
                   tipo: value as TipoMetodologiaPrueba
                 })}
               >
@@ -382,7 +419,6 @@ useEffect(() => {
                 </SelectContent>
               </Select>
             </div>
-            
             <div className="grid gap-2">
               <Label htmlFor="imagen">Imagen</Label>
               <Input
@@ -392,79 +428,83 @@ useEffect(() => {
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
                     setCurrentItem({
-                      ...(currentItem || {} as MetodologiaPrueba),
-                      imagen: e.target.files[0].name // Esto debería manejarse con FormData en el submit
+                      ...(currentItem || {} as MetodologiaForm),
+                      imagen: e.target.files[0]
                     });
                   }
                 }}
               />
-              {currentItem?.imagen && (
-                <img
-                  src={`${API_URL}/uploads/${currentItem.imagen}`}
-                  alt="Preview"
-                  className="h-40 object-contain rounded border"
-                />
-              )}
+              {/* Preview de imagen */}
+              {currentItem?.imagen &&
+                (currentItem.imagen instanceof File ? (
+                  <img
+                    src={URL.createObjectURL(currentItem.imagen)}
+                    alt="Preview"
+                    className="h-40 object-contain rounded border"
+                  />
+                ) : (
+                  <img
+                    src={`${API_URL}/uploads/${currentItem.imagen}`}
+                    alt="Preview"
+                    className="h-40 object-contain rounded border"
+                  />
+                ))}
             </div>
-
             {/* Características (solo para edición) */}
-            {currentItem?.ID && (
+            {(currentItem as any)?.ID && (
               <div className="grid gap-2">
-              <Label>Características</Label>
+                <Label>Características</Label>
+                {/* Formulario para agregar característica */}
                 <div className="flex gap-2">
                   <Input
                     value={newCaracteristica}
                     onChange={(e) => setNewCaracteristica(e.target.value)}
                     placeholder="Nueva característica"
                   />
+                  <Input
+                    value={newCaracteristicaDescripcion}
+                    onChange={(e) => setNewCaracteristicaDescripcion(e.target.value)}
+                    placeholder="Descripción de la característica"
+                  />
                   <Button
                     type="button"
                     onClick={() => {
-                      if (currentItem?.ID) {
+                      if ((currentItem as any)?.ID && newCaracteristica) {
                         handleAddCaracteristica();
-                      } else if (newCaracteristica) {
-                        setTempCaracteristicas([...tempCaracteristicas, newCaracteristica]);
-                        setNewCaracteristica("");
                       }
                     }}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
+                {/* Lista de características */}
                 <div className="space-y-2 mt-2">
-                  {(currentItem?.ID ? caracteristicas : tempCaracteristicas).map((caract, idx) => (
-                  <div
-                    key={typeof caract === "string" ? idx : caract.ID}
-                    className="flex justify-between items-center p-2 border rounded"
-                  >
-                    <span>{typeof caract === "string" ? caract : caract.caracteristica}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (currentItem?.ID) {
-                          if (typeof caract !== "string" && caract.ID) {
-                            handleDeleteCaracteristica(caract.ID);
-                          }
-                        } else {
-                          setTempCaracteristicas(tempCaracteristicas.filter((_, i) => i !== idx));
-                        }
-                      }}
+                  {caracteristicas.map((caract) => (
+                    <div
+                      key={caract.ID}
+                      className="flex justify-between items-center p-2 border rounded"
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                      <div>
+                        <span className="font-medium">{caract.caracteristica}</span>
+                        {caract.descripcion && (
+                          <span className="block text-xs text-muted-foreground">{caract.descripcion}</span>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteCaracteristica(caract.ID)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button type="button" onClick={() => {
-              if (currentItem) {
-                handleSave(currentItem);
-              }
-            }}>
+            <Button type="button" onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
               Guardar
             </Button>
