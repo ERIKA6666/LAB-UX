@@ -351,6 +351,7 @@ export default function UsuariosPage() {
                       password: '',
                       areas_investigacion: user.areas_investigacion || [],
                       formacion_academica: user.formacion_academica || [],
+                      experiencia_laboral: user.experiencia_laboral || [],
                     });
                     setSelectedAreas(
                       user.areas_investigacion 

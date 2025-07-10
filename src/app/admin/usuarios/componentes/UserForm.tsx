@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaInvestigacion } from "@/types/index";
 import { useUserForm } from "@/hooks/useUserForm";
+import { SelectAreas } from "./selectAreas"; 
 import {
   Tabs,
   TabsContent,
@@ -57,9 +58,10 @@ export const UserForm = ({
   return (
     <form onSubmit={onSubmit}>
       <Tabs defaultValue="datos" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="datos">Datos</TabsTrigger>
-              <TabsTrigger value="formacion">Formación Academica</TabsTrigger>
+              <TabsTrigger value="formacion">Formación</TabsTrigger>
+              <TabsTrigger value="areas">Experiencia Laboral</TabsTrigger>
             </TabsList>
             <TabsContent value="datos">
               <div className="grid gap-4 py-4">
@@ -174,12 +176,10 @@ export const UserForm = ({
 
                 <div className="grid gap-2">
                   <Label htmlFor="password">Áreas de Investigación</Label>
-                  {/* Renderiza las áreas seleccionadas 
                     <SelectAreas 
                     formData2={formData}
                     onChange={setAreasSeleccionadas}
                   />
-                  */}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="foto">Foto de Usuario</Label>
@@ -196,13 +196,62 @@ export const UserForm = ({
             <TabsContent value="formacion">
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                       
-                        
-                    </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="institucion">Institución</Label>
+                    <Input
+                      id="institucion"
+                      name="institucion"
+                      placeholder="Nombre de la institución"
+                      value={formData.formacion_academica?.[0]?.institucion || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="titulo">Título</Label>
+                    <Input
+                      id="titulo"
+                      name="titulo"
+                      placeholder="Título obtenido"
+                      value={formData.formacion_academica?.[0]?.titulo || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="fecha_inicio">Fecha de Inicio</Label>
+                    <Input
+                      id="fecha_inicio"
+                      name="fecha_inicio"
+                      type="date"
+                      value={formData.formacion_academica?.[0]?.fecha_inicio || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="fecha_fin">Fecha de Fin</Label>
+                    <Input
+                      id="fecha_fin"
+                      name="fecha_fin"
+                      type="date"
+                      value={formData.formacion_academica?.[0]?.fecha_fin || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="descripcion">Descripción</Label>
+                  <Input
+                    id="descripcion"
+                    name="descripcion"
+                    placeholder="Descripción de la formación académica"
+                    value={formData.formacion_academica?.[0]?.descripcion || ''}
+                    onChange={onInputChange}
+                  />
                 </div>
               </div>
             </TabsContent>
+            <TabsContent value="areas">
+           
+          </TabsContent>
           </Tabs>
             
       <Button type="submit" disabled={loading}>
