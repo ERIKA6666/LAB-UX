@@ -93,6 +93,38 @@ export default function ProyectosPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, filterEstado]);
 
+  // Función para convertir fechas al formato de MySQL
+  function toMySQLDatetime(dateInput: string | Date) {
+    if (!dateInput) return "";
+    const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+    if (isNaN(d.getTime())) return "";
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  function toDatetimeLocal(dateString: string) {
+    if (!dateString) return "";
+    // Si ya está en formato ISO local, solo corta los segundos y la Z
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateString)) return dateString.slice(0, 16);
+    // Si viene como "YYYY-MM-DD HH:mm:ss"
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString)) {
+      const [date, time] = dateString.split(" ");
+      return `${date}T${time.slice(0, 5)}`;
+    }
+    // Si viene como RFC 1123 o ISO
+    const d = new Date(dateString);
+    if (!isNaN(d.getTime())) {
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      const yyyy = d.getFullYear();
+      const mm = pad(d.getMonth() + 1);
+      const dd = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const min = pad(d.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    }
+    return "";
+  }
+
   // Manejar creación/actualización
   const handleSubmitProject = async (formData: FormData) => {
     try {
@@ -208,8 +240,8 @@ export default function ProyectosPage() {
       nombre: project.nombre,
       tipo_estudio: project.tipo_estudio,
       descripcion: project.descripcion,
-      fecha_inicio: project.fecha_inicio?.slice(0, 16) || "",
-      fecha_fin: project.fecha_fin?.slice(0, 16) || "",
+      fecha_inicio: toDatetimeLocal(project.fecha_inicio),
+      fecha_fin: toDatetimeLocal(project.fecha_fin),
       progreso: project.progreso,
       estado: project.estado,
       imagen: null,
@@ -217,15 +249,6 @@ export default function ProyectosPage() {
       colaboradores: project.colaboradores?.map(c => c.ID_usuario) || [],
     });
   };
-
-  // Función para convertir fechas al formato de MySQL
-  function toMySQLDatetime(dateInput: string | Date) {
-    if (!dateInput) return "";
-    const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
-    if (isNaN(d.getTime())) return "";
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  }
 
   // Formulario de proyecto
   const renderProjectForm = () => (
@@ -245,11 +268,15 @@ export default function ProyectosPage() {
                 formData.append(key, String(value));
               }
             });
-            // Agrega la fecha de creación y actualización SOLO al crear
+            // Agrega fechas en formato MySQL
             if (!editingProject) {
+              // Al crear: agrega fecha_creacion y fecha_actualizacion
               const now = toMySQLDatetime(new Date());
               formData.append("fecha_creacion", now);
               formData.append("fecha_actualizacion", now);
+            } else {
+              // Al editar: solo actualiza fecha_actualizacion
+              formData.append("fecha_actualizacion", toMySQLDatetime(new Date()));
             }
             handleSubmitProject(formData);
           }}
@@ -442,6 +469,7 @@ export default function ProyectosPage() {
         onOpenChange={setDeleteDialogOpen}
         onConfirm={() => projectToDelete && handleDeleteProject(projectToDelete)}
       />
+      <Toaster />
     </div>
   );
 }

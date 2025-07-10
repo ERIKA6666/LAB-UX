@@ -23,6 +23,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { createGuia, fetchGuias, deleteGuia, updateGuia } from "@/services/guias"
 import { useToast } from "@/components/hooks/use-toast"
 import { API_URL } from "@/constans/Api"
+
 type GuiaCategory = "participantes" | "metodologia" | "diseno" | "accesibilidad" | "general";
 type GuiaType = "pdf" | "video" | "web";
 
@@ -31,8 +32,8 @@ interface GuiaForm {
   descripcion: string;
   categoria: GuiaCategory | "";
   tipo: GuiaType | "";
-  recurso: string;
-  imagen: string;
+  recurso: File | null;
+  imagen: File | null;
 }
 
 export default function GuiasPage() {
@@ -45,17 +46,19 @@ export default function GuiasPage() {
     descripcion: "",
     categoria: "",
     tipo: "",
-    recurso: "",
-    imagen: "",
+    recurso: null,
+    imagen: null,
   });
   const [editingGuide, setEditingGuide] = useState<any | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [guideToDelete, setGuideToDelete] = useState<number | null>(null);
 
   // Cargar guías al inicio
   const loadGuides = async () => {
     setLoading(true);
     try {
       const data = await fetchGuias();
-      setGuides(data);
+      setGuides(data || []);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
@@ -65,15 +68,15 @@ export default function GuiasPage() {
 
   useEffect(() => { loadGuides(); }, []);
 
-  // Manejo de archivos (solo guarda nombre, puedes adaptar para subir a servidor)
+  // Manejo de archivos: guarda el File, no el nombre
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setForm(f => ({ ...f, recurso: e.target.files[0].name }));
+      setForm(f => ({ ...f, recurso: e.target.files![0] }));
     }
   };
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setForm(f => ({ ...f, imagen: e.target.files[0].name }));
+      setForm(f => ({ ...f, imagen: e.target.files![0] }));
     }
   };
 
@@ -93,19 +96,17 @@ export default function GuiasPage() {
     try {
       const now = new Date();
       const fecha_publicacion = now.toISOString().slice(0, 10);
-      await createGuia({
-        titulo: form.titulo,
-        descripcion: form.descripcion,
-        categoria: form.categoria,
-        fecha_publicacion,
-        ID_usuario: 1, // Cambia por el usuario real
-        recursos: [{
-          tipo: form.tipo,
-          recurso: form.recurso,
-          descripcion: form.descripcion,
-        }],
-        areas_investigacion: [],
-      });
+      const formData = new FormData();
+      formData.append("titulo", form.titulo);
+      formData.append("descripcion", form.descripcion);
+      formData.append("categoria", form.categoria);
+      formData.append("fecha_publicacion", fecha_publicacion);
+      formData.append("ID_usuario", "1"); // Cambia por el usuario real
+      formData.append("tipo", form.tipo);
+      if (form.recurso) formData.append("recurso", form.recurso);
+      if (form.imagen) formData.append("imagen", form.imagen);
+
+      await createGuia(formData);
       toast({ title: "Guía creada", description: "La guía fue creada correctamente.", variant: "success" });
       setOpenDialog(false);
       setForm({
@@ -113,8 +114,8 @@ export default function GuiasPage() {
         descripcion: "",
         categoria: "",
         tipo: "",
-        recurso: "",
-        imagen: "",
+        recurso: null,
+        imagen: null,
       });
       loadGuides();
     } catch (e: any) {
@@ -122,15 +123,18 @@ export default function GuiasPage() {
     }
   };
 
-  // Eliminar guía
-  const handleDeleteGuia = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar esta guía?")) return;
+  // Eliminar guía con dialog
+  const handleDeleteGuia = async () => {
+    if (!guideToDelete) return;
     try {
-      await deleteGuia(id);
+      await deleteGuia(guideToDelete);
       toast({ title: "Guía eliminada", description: "La guía fue eliminada correctamente.", variant: "success" });
       loadGuides();
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setDeleteDialogOpen(false);
+      setGuideToDelete(null);
     }
   };
 
@@ -142,8 +146,8 @@ export default function GuiasPage() {
       descripcion: guide.descripcion || guide.description || "",
       categoria: guide.categoria || guide.category || "",
       tipo: guide.recursos?.[0]?.tipo || guide.type || "",
-      recurso: guide.recursos?.[0]?.recurso || "",
-      imagen: guide.imagen || guide.image || "",
+      recurso: null, // No se puede cargar el archivo anterior, solo se sube uno nuevo si el usuario lo selecciona
+      imagen: null,
     });
     setOpenDialog(true);
   };
@@ -153,17 +157,15 @@ export default function GuiasPage() {
     e.preventDefault();
     if (!validateForm() || !editingGuide) return;
     try {
-      await updateGuia(editingGuide.ID || editingGuide.id, {
-        titulo: form.titulo,
-        descripcion: form.descripcion,
-        categoria: form.categoria,
-        recursos: [{
-          tipo: form.tipo,
-          recurso: form.recurso,
-          descripcion: form.descripcion,
-        }],
-        imagen: form.imagen,
-      });
+      const formData = new FormData();
+      formData.append("titulo", form.titulo);
+      formData.append("descripcion", form.descripcion);
+      formData.append("categoria", form.categoria);
+      formData.append("tipo", form.tipo);
+      if (form.recurso) formData.append("recurso", form.recurso);
+      if (form.imagen) formData.append("imagen", form.imagen);
+
+      await updateGuia(editingGuide.ID || editingGuide.id, formData);
       toast({ title: "Guía actualizada", description: "La guía fue actualizada correctamente.", variant: "success" });
       setOpenDialog(false);
       setEditingGuide(null);
@@ -172,8 +174,8 @@ export default function GuiasPage() {
         descripcion: "",
         categoria: "",
         tipo: "",
-        recurso: "",
-        imagen: "",
+        recurso: null,
+        imagen: null,
       });
       loadGuides();
     } catch (e: any) {
@@ -214,7 +216,20 @@ export default function GuiasPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Guías y Tutoriales</h2>
         <div className="flex items-center space-x-2">
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <Dialog open={openDialog} onOpenChange={v => {
+            setOpenDialog(v);
+            if (!v) {
+              setEditingGuide(null);
+              setForm({
+                titulo: "",
+                descripcion: "",
+                categoria: "",
+                tipo: "",
+                recurso: null,
+                imagen: null,
+              });
+            }
+          }}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -223,8 +238,8 @@ export default function GuiasPage() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Añadir Nueva Guía o Tutorial</DialogTitle>
-                <DialogDescription>Complete la información para añadir una nueva guía o tutorial.</DialogDescription>
+                <DialogTitle>{editingGuide ? "Editar Guía" : "Añadir Nueva Guía o Tutorial"}</DialogTitle>
+                <DialogDescription>Complete la información para {editingGuide ? "editar la guía" : "añadir una nueva guía o tutorial"}.</DialogDescription>
               </DialogHeader>
               <form onSubmit={editingGuide ? handleEditGuia : handleCreateGuia}>
                 <div className="grid gap-4 py-4">
@@ -273,7 +288,7 @@ export default function GuiasPage() {
                       <Button variant="outline" asChild className="w-full">
                         <label htmlFor="guide-file" className="cursor-pointer">
                           <Upload className="mr-2 h-4 w-4" />
-                          {form.recurso ? form.recurso : "Subir Archivo"}
+                          {form.recurso ? (form.recurso as File).name : "Subir Archivo"}
                         </label>
                       </Button>
                     </div>
@@ -286,7 +301,7 @@ export default function GuiasPage() {
                       <Button variant="outline" asChild>
                         <label htmlFor="guide-image" className="cursor-pointer">
                           <ImagePlus className="mr-2 h-4 w-4" />
-                          {form.imagen ? form.imagen : "Seleccionar Imagen"}
+                          {form.imagen ? (form.imagen as File).name : "Seleccionar Imagen"}
                         </label>
                       </Button>
                     </div>
@@ -296,6 +311,28 @@ export default function GuiasPage() {
                   <Button type="submit">{editingGuide ? "Guardar Cambios" : "Añadir Guía"}</Button>
                 </DialogFooter>
               </form>
+            </DialogContent>
+          </Dialog>
+          {/* Dialog para eliminar */}
+          <Dialog open={deleteDialogOpen} onOpenChange={v => {
+            setDeleteDialogOpen(v);
+            if (!v) setGuideToDelete(null);
+          }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>¿Eliminar guía?</DialogTitle>
+                <DialogDescription>
+                  ¿Estás seguro de que deseas eliminar esta guía? Esta acción no se puede deshacer.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button variant="destructive" onClick={handleDeleteGuia}>
+                  Eliminar
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -332,7 +369,13 @@ export default function GuiasPage() {
               <Card key={guide.ID || guide.id || idx} className="overflow-hidden">
                 <div className="aspect-video w-full overflow-hidden">
                   <img
-                    src={guide.imagen || `${API_URL}/uploads/guias/${guide.image}` || "/placeholder.svg"}
+                    src={
+                      guide.imagen
+                        ? `${API_URL}/uploads/guias/${guide.imagen}`
+                        : guide.image
+                        ? `${API_URL}/uploads/guias/${guide.image}`
+                        : "/placeholder.svg"
+                    }
                     alt={guide.titulo || guide.title}
                     className="object-cover w-full h-full"
                   />
@@ -354,7 +397,16 @@ export default function GuiasPage() {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <Button variant="outline" size="sm" asChild>
-                    <a href={`${API_URL}/uploads/tutoriales${guide.recursos?.[0]?.recurso}` || guide.url || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                    <a
+                      href={
+                        guide.recursos?.[0]?.recurso
+                          ? `${API_URL}/uploads/tutoriales/${guide.recursos?.[0]?.recurso}`
+                          : guide.url || "#"
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center"
+                    >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       Ver
                     </a>
@@ -364,7 +416,14 @@ export default function GuiasPage() {
                       <Edit className="mr-2 h-4 w-4" />
                       Editar
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDeleteGuia(guide.ID || guide.id)}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        setGuideToDelete(guide.ID || guide.id);
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -404,14 +463,29 @@ export default function GuiasPage() {
                       <td className="p-4">{guide.fecha_publicacion || guide.date}</td>
                       <td className="p-4 text-right">
                         <Button variant="ghost" size="icon" className="mr-2" asChild>
-                          <a href={guide.recursos?.[0]?.recurso || guide.url} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={
+                              guide.recursos?.[0]?.recurso
+                                ? `${API_URL}/uploads/tutoriales/${guide.recursos?.[0]?.recurso}`
+                                : guide.url || "#"
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <ExternalLink className="h-4 w-4" />
                           </a>
                         </Button>
                         <Button variant="ghost" size="icon" className="mr-2" onClick={() => openEditDialog(guide)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteGuia(guide.ID || guide.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setGuideToDelete(guide.ID || guide.id);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </td>
@@ -423,88 +497,6 @@ export default function GuiasPage() {
           </Card>
         </TabsContent>
       </Tabs>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Vista Previa</CardTitle>
-          <CardDescription>Así se verá la sección de Guías y Tutoriales en el sitio web</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-md p-6">
-            <h3 className="text-2xl font-bold mb-6">Guías y Tutoriales</h3>
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <h4 className="text-xl font-semibold mb-4">Categorías</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="justify-start">
-                    <Badge className="bg-blue-500 mr-2">10</Badge>
-                    Participantes
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    <Badge className="bg-green-500 mr-2">8</Badge>
-                    Metodología
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    <Badge className="bg-purple-500 mr-2">6</Badge>
-                    Diseño
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    <Badge className="bg-amber-500 mr-2">4</Badge>
-                    Accesibilidad
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-xl font-semibold mb-4">Recursos Destacados</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center p-2 border rounded-md hover:bg-muted">
-                    <FileText className="h-5 w-5 mr-3 text-blue-500" />
-                    <div>
-                      <div className="font-medium">Guía para Participantes</div>
-                      <div className="text-sm text-muted-foreground">
-                        Todo lo que necesitas saber antes de participar
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-2 border rounded-md hover:bg-muted">
-                    <Book className="h-5 w-5 mr-3 text-green-500" />
-                    <div>
-                      <div className="font-medium">Tutorial de Evaluación Heurística</div>
-                      <div className="text-sm text-muted-foreground">Aprende paso a paso esta metodología</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-8">
-              <h4 className="text-xl font-semibold mb-4">Todas las Guías</h4>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {guides.map((guide, idx) => (
-                  <Card key={guide.ID || guide.id || idx} className="overflow-hidden">
-                    <div className="aspect-video w-full overflow-hidden">
-                      <img
-                        src={guide.imagen || guide.image || "/placeholder.svg"}
-                        alt={guide.titulo || guide.title}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        {getCategoryBadge(guide.categoria as GuiaCategory)}
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          {getTypeIcon(guide.recursos?.[0]?.tipo as GuiaType)}
-                          <span className="capitalize">{guide.recursos?.[0]?.tipo}</span>
-                        </div>
-                      </div>
-                      <h5 className="font-medium line-clamp-2">{guide.titulo || guide.title}</h5>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

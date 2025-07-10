@@ -19,21 +19,19 @@ export const getGuiaById = async (id: number) => {
   return await res.json() as GuiaTutorial;
 };
 
-export const createGuia = async (data: Partial<GuiaTutorial>) => {
+export const createGuia = async (data: FormData) => {
   const res = await fetch(`${API_URL}/guias`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) throw new Error("Error al crear la guía");
   return await res.json();
 };
 
-export const updateGuia = async (id: number, data: Partial<GuiaTutorial>) => {
+export const updateGuia = async (id: number, data: FormData) => {
   const res = await fetch(`${API_URL}/guias/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: data,
   });
   if (!res.ok) throw new Error("Error al actualizar la guía");
   return await res.json();
