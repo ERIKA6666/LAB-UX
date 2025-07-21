@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, UserPlus } from "lucide-react";
 import { User, AreaInvestigacion } from "@/types/index";
 import { addUser, deleteUser, updateUser } from "@/services/index";
@@ -328,13 +327,7 @@ export default function UsuariosPage() {
       </div>
 
       {/* Contenido principal */}
-      <Tabs defaultValue="list" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="list">Lista de Usuarios</TabsTrigger>
-          <TabsTrigger value="grid">Vista de Tarjetas</TabsTrigger>
-        </TabsList>
 
-        <TabsContent value="list">
           <Card>
             <CardContent className="p-0">
               {loading ? (
@@ -358,6 +351,7 @@ export default function UsuariosPage() {
                       password: '',
                       areas_investigacion: user.areas_investigacion || [],
                       formacion_academica: user.formacion_academica || [],
+                      experiencia_laboral: user.experiencia_laboral || [],
                     });
                     setSelectedAreas(
                       user.areas_investigacion 
@@ -371,18 +365,6 @@ export default function UsuariosPage() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="grid">
-          <UserGrid 
-            users={users} 
-            onEdit={setEditingUser}
-            onDeactivate={setDeactivatingUser}
-            onDelete={setDeletingUser}
-          />
-        </TabsContent>
-      </Tabs>
-
       {showSuccessMessage && (
         <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg">
           {showSuccessMessage}

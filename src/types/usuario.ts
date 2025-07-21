@@ -1,5 +1,6 @@
 // interfaces/user.ts
 import { FormacionAcademica } from "./formacionAcademica";
+import { ExperienciaLaboral } from "./experienciaLaboral";
 import { AreaInvestigacion } from "./areaInvestigacion";
 
 export type RoleUser = "admin" | "alumno" | "profesor" | "todos";
@@ -21,6 +22,7 @@ export interface User {
   //area_investigacion?: number; // Optional, can be null
   formacion_academica?: FormacionAcademica[]; // Optional, can be null
   areas_investigacion?: UsuarioAreaInvestigacion[]; // Optional, can be null
+  experiencia_laboral?: ExperienciaLaboral[]; // Optional, can be null
   avatar?: string; // Optional, can be null
 }
 export interface UsuarioAreaInvestigacion extends AreaInvestigacion {

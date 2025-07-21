@@ -19,6 +19,8 @@ export const useUserForm = (initialUser?: Partial<User>) => {
 
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
+  const [academicExperience, setAcademicExperience] = useState([])
+  const [editAcademicExperience, setEditAcademicExperience] = useState([])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,6 +71,10 @@ export const useUserForm = (initialUser?: Partial<User>) => {
     handleSelectChange,
     handleStatusChange,
     handleFileChange,
+    academicExperience,
+    setAcademicExperience,
+    editAcademicExperience,
+    setEditAcademicExperience,
     resetForm,
   };
 };

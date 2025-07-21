@@ -2,10 +2,17 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaInvestigacion } from "@/types/index";
 import { useUserForm } from "@/hooks/useUserForm";
-import { SelectAreas } from "./selectAreas";
+import { SelectAreas } from "./selectAreas"; 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 
 interface UserFormProps {
   isEdit: boolean;
@@ -24,6 +31,7 @@ interface UserFormProps {
   onStatusChange: ReturnType<typeof useUserForm>['handleStatusChange'];
   onFileChange: ReturnType<typeof useUserForm>['handleFileChange'];
   onAreaToggle: (areaId: number) => void;
+  
   loading: boolean;
 }
 
@@ -49,138 +57,202 @@ export const UserForm = ({
   const [areasSeleccionadas, setAreasSeleccionadas] = useState<{ ID_area: number }[]>(formData.areas_investigacion || []);
   return (
     <form onSubmit={onSubmit}>
-      <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="username">Nombre de Usuario</Label>
-            <Input
-              id="username"
-              name="username"
-              placeholder="Nombre de usuario"
-              value={formData.username}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="nombre">Nombre</Label>
-            <Input
-              id="nombre"
-              name="nombre"
-              placeholder="Nombre"
-              value={formData.nombre}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="apellido">Apellido</Label>
-            <Input
-              id="apellido"
-              name="apellido"
-              placeholder="Apellidos"
-              value={formData.apellido}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="telefono">Teléfono</Label>
-            <Input
-              id="telefono"
-              name="telefono"
-              placeholder="Teléfono"
-              value={formData.telefono}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="correo">Correo Electrónico</Label>
-            <Input
-              id="correo"
-              name="correo"
-              type="email"
-              placeholder="correo@ejemplo.com"
-              value={formData.correo}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="tipo_usuario">Rol</Label>
-            <Select
-              value={formData.tipo_usuario}
-              onValueChange={(value) => onSelectChange(value, 'tipo_usuario')}
-            >
-              <SelectTrigger id="tipo_usuario">
-                <SelectValue placeholder="Seleccione un rol" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Administrador</SelectItem>
-                <SelectItem value="alumno">Alumno</SelectItem>
-                <SelectItem value="profesor">Profesor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+      <Tabs defaultValue="datos" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="datos">Datos</TabsTrigger>
+              <TabsTrigger value="formacion">Formación</TabsTrigger>
+              <TabsTrigger value="areas">Experiencia Laboral</TabsTrigger>
+            </TabsList>
+            <TabsContent value="datos">
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="username">Nombre de Usuario</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      placeholder="Nombre de usuario"
+                      value={formData.username}
+                      onChange={onInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="nombre">Nombre</Label>
+                    <Input
+                      id="nombre"
+                      name="nombre"
+                      placeholder="Nombre"
+                      value={formData.nombre}
+                      onChange={onInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="apellido">Apellido</Label>
+                    <Input
+                      id="apellido"
+                      name="apellido"
+                      placeholder="Apellidos"
+                      value={formData.apellido}
+                      onChange={onInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      name="telefono"
+                      placeholder="Teléfono"
+                      value={formData.telefono}
+                      onChange={onInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="correo">Correo Electrónico</Label>
+                    <Input
+                      id="correo"
+                      name="correo"
+                      type="email"
+                      placeholder="correo@ejemplo.com"
+                      value={formData.correo}
+                      onChange={onInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="tipo_usuario">Rol</Label>
+                    <Select
+                      value={formData.tipo_usuario}
+                      onValueChange={(value) => onSelectChange(value, 'tipo_usuario')}
+                    >
+                      <SelectTrigger id="tipo_usuario">
+                        <SelectValue placeholder="Seleccione un rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                        <SelectItem value="alumno">Alumno</SelectItem>
+                        <SelectItem value="profesor">Profesor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-        {!isEditing && (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={onInputChange}
-                required={!isEditing}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required={!isEditing}
-              />
-            </div>
-          </div>
-        )}
-        <div className="grid gap-2">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="estado"
-              className="h-4 w-4 rounded border-gray-300"
-              checked={formData.estado === 'activo'}
-              onChange={onStatusChange}
-            />
-            <Label htmlFor="estado">Usuario activo</Label>
-          </div>
-        </div>
+                {!isEditing && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="password">Contraseña</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={onInputChange}
+                        required={!isEditing}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required={!isEditing}
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="grid gap-2">
+                  <Label htmlFor="estado">Usuario activo</Label>  
+                  <Switch
+                    id="estado"
+                    checked={formData.estado === 'activo'}
+                    onCheckedChange={(checked) => onStatusChange({ target: { checked } })}
+                  />
+                </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="password">Áreas de Investigación</Label>
-          <SelectAreas 
-            formData2={formData}
-            onChange={setAreasSeleccionadas}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="foto">Foto de Usuario</Label>
-          <Input
-            id="foto"
-            name="foto"
-            type="file"
-            accept="image/*"
-            onChange={onFileChange}
-          />
-        </div>
-      </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Áreas de Investigación</Label>
+                    <SelectAreas 
+                    formData2={formData}
+                    onChange={setAreasSeleccionadas}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="foto">Foto de Usuario</Label>
+                  <Input
+                    id="foto"
+                    name="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={onFileChange}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="formacion">
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="institucion">Institución</Label>
+                    <Input
+                      id="institucion"
+                      name="institucion"
+                      placeholder="Nombre de la institución"
+                      value={formData.formacion_academica?.[0]?.institucion || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="titulo">Título</Label>
+                    <Input
+                      id="titulo"
+                      name="titulo"
+                      placeholder="Título obtenido"
+                      value={formData.formacion_academica?.[0]?.titulo || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="fecha_inicio">Fecha de Inicio</Label>
+                    <Input
+                      id="fecha_inicio"
+                      name="fecha_inicio"
+                      type="date"
+                      value={formData.formacion_academica?.[0]?.fecha_inicio || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="fecha_fin">Fecha de Fin</Label>
+                    <Input
+                      id="fecha_fin"
+                      name="fecha_fin"
+                      type="date"
+                      value={formData.formacion_academica?.[0]?.fecha_fin || ''}
+                      onChange={onInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="descripcion">Descripción</Label>
+                  <Input
+                    id="descripcion"
+                    name="descripcion"
+                    placeholder="Descripción de la formación académica"
+                    value={formData.formacion_academica?.[0]?.descripcion || ''}
+                    onChange={onInputChange}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="areas">
+           
+          </TabsContent>
+          </Tabs>
             
       <Button type="submit" disabled={loading}>
         {loading ? (
